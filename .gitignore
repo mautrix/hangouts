@@ -1,16 +1,13 @@
-.venv
-*.pyc
-*.egg-info
-/build
-/dist
+.idea
 
 *.yaml
-!mautrix_googlechat/example-config.yaml
 !.pre-commit-config.yaml
+!example-config.yaml
 
+*.json
+*.db
 *.log
-*.log.*
-
-*.db*
-*.pickle
 *.bak
+
+/mautrix-googlechat
+/start

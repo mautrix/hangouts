@@ -1,3 +1,13 @@
+# v0.6.0 (unreleased)
+
+* Rewrote bridge in Go using bridgev2 architecture.
+  * To migrate the bridge, simply upgrade in-place. The database and config
+    will be migrated automatically, although some parts of the config aren't
+    migrated (e.g. log config).
+  * It is recommended to check the config file after upgrading. If you have
+    prevented the bridge from writing to the config, you should update it
+    manually.
+
 # v0.5.2 (2024-07-16)
 
 * Added support for authenticated media downloads.

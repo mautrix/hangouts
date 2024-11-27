@@ -1,44 +1,20 @@
-FROM docker.io/alpine:3.18
+FROM golang:1-alpine3.20 AS builder
 
-RUN apk add --no-cache \
-      python3 py3-pip py3-setuptools py3-wheel \
-      py3-aiohttp \
-      py3-magic \
-      py3-ruamel.yaml \
-      py3-commonmark \
-      #py3-prometheus-client \
-      py3-protobuf \
-      py3-idna \
-      # encryption
-      py3-olm \
-      py3-cffi \
-      py3-pycryptodome \
-      py3-unpaddedbase64 \
-      py3-future \
-      # proxy support
-      py3-pysocks \
-      py3-aiohttp-socks \
-      # Other dependencies
-      ca-certificates \
-      su-exec \
-      bash \
-      curl \
-      jq \
-      yq
+RUN apk add --no-cache git ca-certificates build-base su-exec olm-dev
 
-COPY requirements.txt /opt/mautrix-googlechat/requirements.txt
-COPY optional-requirements.txt /opt/mautrix-googlechat/optional-requirements.txt
-WORKDIR /opt/mautrix-googlechat
-RUN apk add --virtual .build-deps python3-dev libffi-dev build-base \
- && pip3 install --no-cache-dir -r requirements.txt -r optional-requirements.txt \
- && apk del .build-deps
+COPY . /build
+WORKDIR /build
+RUN ./build.sh
 
-COPY . /opt/mautrix-googlechat
-RUN apk add git && pip3 install --no-cache-dir .[all] && apk del git \
-  # This doesn't make the image smaller, but it's needed so that the `version` command works properly
-  && cp mautrix_googlechat/example-config.yaml . && rm -rf mautrix_googlechat .git build
+FROM alpine:3.20
 
-ENV UID=1337 GID=1337
+ENV UID=1337 \
+    GID=1337
+
+RUN apk add --no-cache ffmpeg su-exec ca-certificates olm bash jq yq curl
+
+COPY --from=builder /build/mautrix-googlechat /usr/bin/mautrix-googlechat
+COPY --from=builder /build/docker-run.sh /docker-run.sh
 VOLUME /data
 
-CMD ["/opt/mautrix-googlechat/docker-run.sh"]
+CMD ["/docker-run.sh"]

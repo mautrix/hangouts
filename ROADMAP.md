@@ -2,23 +2,23 @@
 
 * Matrix → Google Chat
   * [ ] Message content
-    * [x] Text
+    * [ ] Text
     * [ ] Media
       * [ ] Stickers
-      * [x] Files
+      * [ ] Files
       * [ ] Voice messages
-      * [x] Videos
-      * [x] Images
+      * [ ] Videos
+      * [ ] Images
       * [ ] Locations
-    * [x] Formatting
-    * [x] Threads
-    * [x] Replies
-  * [x] Message redactions
-  * [x] Message reactions
-  * [x] Message editing (text only)
+    * [ ] Formatting
+    * [ ] Threads
+    * [ ] Replies
+  * [ ] Message redactions
+  * [ ] Message reactions
+  * [ ] Message editing (text only)
   * [ ] Presence
-  * [x] Typing notifications
-  * [x] Read receipts
+  * [ ] Typing notifications
+  * [ ] Read receipts
   * [ ] Membership actions
     * [ ] Invite
     * [ ] Join (accept invite)
@@ -27,40 +27,40 @@
   * [ ] Room metadata changes
     * [ ] Name
 * Google Chat → Matrix
-  * [x] Message content
-    * [x] Text
-    * [x] Media
-      * [x] Files
-      * [x] Videos
-      * [x] Images
-      * [x] Google Drive file links
-    * [x] Formatting
-    * [x] Threads
-    * [x] Replies
-  * [x] Message deletions
-  * [x] Message reactions
-  * [x] Message editing (text only)
-  * [x] Message history
+  * [ ] Message content
+    * [ ] Text
+    * [ ] Media
+      * [ ] Files
+      * [ ] Videos
+      * [ ] Images
+      * [ ] Google Drive file links
+    * [ ] Formatting
+    * [ ] Threads
+    * [ ] Replies
+  * [ ] Message deletions
+  * [ ] Message reactions
+  * [ ] Message editing (text only)
+  * [ ] Message history
   * [ ] Presence
   * [ ] Typing notifications
-  * [x] Read receipts
+  * [ ] Read receipts
   * [ ] Membership actions
     * [ ] Invite
     * [ ] Accept invite
     * [ ] Join via link
     * [ ] Remove member
     * [ ] Leave
-  * [x] Chat metadata (title) changes
-  * [x] Initial chat metadata (title)
-  * [x] Initial user metadata
-    * [x] Name
-    * [x] Avatar
+  * [ ] Chat metadata (title) changes
+  * [ ] Initial chat metadata (title)
+  * [ ] Initial user metadata
+    * [ ] Name
+    * [ ] Avatar
 * Misc
-  * [x] Multi-user support
-  * [x] Shared group chat portals
-  * [x] Automatic portal creation
-    * [x] At startup
+  * [ ] Multi-user support
+  * [ ] Shared group chat portals
+  * [ ] Automatic portal creation
+    * [ ] At startup
     * [ ] When invited to chat
-    * [x] When receiving message
+    * [ ] When receiving message
   * [ ] Private chat creation by inviting Matrix puppet of Google Chat user to new room
-  * [x] Option to use own Matrix account for messages sent from other Google Chat clients
+  * [ ] Option to use own Matrix account for messages sent from other Google Chat clients
