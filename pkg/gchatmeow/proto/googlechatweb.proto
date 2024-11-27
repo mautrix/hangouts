@@ -1,0 +1,4050 @@
+syntax = "proto3";
+
+package googlechatweb;
+
+option go_package = "./gchatprotoweb";
+
+message WebChannelInitialHttpSessionData {
+   WebChannelSessionData data = 1;
+}
+
+message WebChannelSessionData {
+   int32 field1 = 1;
+   WebChannelSession session = 2;
+}
+
+message WebChannelSession {
+   string field1 = 1;
+   string session_id = 2;
+   string field3 = 3;
+   uint32 field4 = 4;
+   uint32 field5 = 5;
+   uint32 ping_interval = 6;
+}
+
+message DynamiteGetSelf {
+   User data = 1;
+}
+
+message DynamiteGetGroupList {
+   ReadRevision read_revision = 4;
+   repeated Group single_dms = 5;
+   repeated Group spaces = 6;
+}
+
+message ReadRevision {
+   int64 timestamp = 1;
+}
+
+message UserId {
+   string id = 1;
+   string synthetic_id = 2;
+   Usertype_Enum type = 3;
+}
+
+enum Usertype_Enum {
+    TYPE_HUMAN = 0;
+    TYPE_BOT = 1;
+}
+
+message DndSettings {
+   DndState_Enum dnd_state = 1;
+   int64 dnd_expiry_time_msec = 2;
+   int64 state_remaining_duration_msec = 3;
+}
+
+enum DndState_Enum {
+    DNDSTATE_UNKNOWN = 0;
+    DNDSTATE_AVAILABLE = 1;
+    DNDSTATE_DND = 2;
+}
+
+message CustomStatus {
+   string status_text = 1;
+   string status_emoji = 2;
+   string state_expiry_timestamp_usec = 3;
+   Emoji emoji = 4;
+}
+
+message Emoji {
+   oneof content {
+      string unicode = 1;
+      CustomEmoji custom_emoji = 2;
+   }
+}
+
+message CustomEmoji {
+   string uuid = 1;
+   string shortcode = 3;
+   state_Enum state = 4;
+   UserId creator_user_id = 5;
+   CustomerId owner_customer_id = 6;
+   string blob_id = 7;
+   int64 create_time_micros = 8;
+   string read_token = 9;
+   int64 update_time_micros = 10;
+   string ephemeral_url = 11;
+   string content_type = 12;
+   int64 delete_time_micros = 13;
+}
+
+enum state_Enum {
+    STATE_EMOJI_STATE_UNSPECIFIED = 0;
+    STATE_EMOJI_ENABLED = 1;
+    STATE_EMOJI_SYSTEM_DISABLED = 2;
+    STATE_EMOJI_HIDDEN = 3;
+    STATE_EMOJI_DELETED = 4;
+}
+
+message CustomerId {
+   string customer_id = 1;
+}
+
+message UserStatus {
+   UserId user_id = 1;
+   DndSettings dnd_settings = 2;
+   int64 status_timestamp_msec = 3;
+   CustomStatus custom_status = 4;
+   bool presence_shared = 5;
+}
+
+message BotInfo {
+   string developer_name = 1;
+   string description = 2;
+   status_Enum status = 3;
+   string bot_avatar_url = 4;
+   string bot_name = 5;
+   SupportUrls support_urls = 6;
+   repeated SupportedUses_Enum supported_uses = 7;
+   string market_place_banner_url = 8;
+   AppAllowlistStatus_Enum app_allowlist_status = 9;
+   bool support_home_screen = 10;
+   AppId app_id = 11;
+   UninstallCapability_Enum uninstall_capability = 12;
+}
+
+enum status_Enum {
+    STATUS_UNKNOWN_STATUS = 0;
+    STATUS_ENABLED = 1;
+    STATUS_DISABLED_BY_DEVELOPER = 2;
+}
+
+message SupportUrls {
+   string tos_url = 1;
+   string privacy_policy_url = 2;
+   string support_url = 3;
+   string setup_url = 4;
+   string admin_config_url = 5;
+   string deletion_policy_url = 6;
+   string gwm_url = 7;
+}
+
+enum SupportedUses_Enum {
+    SUPPORTEDUSES_UNSPECIFIED_SUPPORTED_USES = 0;
+    SUPPORTEDUSES_CAN_ADD_TO_DM = 1;
+    SUPPORTEDUSES_CAN_ADD_TO_ROOM = 2;
+    SUPPORTEDUSES_CAN_ADD_TO_HUMAN_DM = 3;
+}
+
+enum AppAllowlistStatus_Enum {
+    APPALLOWLISTSTATUS_UNSPECIFIED_STATUS = 0;
+    APPALLOWLISTSTATUS_ALLOWED = 1;
+    APPALLOWLISTSTATUS_ALL_APPS_DISABLED_BY_ADMIN = 2;
+    APPALLOWLISTSTATUS_APP_NOT_ALLOWLISTED_BY_ADMIN = 3;
+}
+
+message AppId {
+   int64 id = 1;
+   AppType_Enum app_type = 2;
+   GsuiteAppType_Enum gsuite_app_type = 3;
+}
+
+enum AppType_Enum {
+    APPTYPE_APP_TYPE_UNSPECIFIED = 0;
+    APPTYPE_APP = 1;
+    APPTYPE_GSUITE_APP = 2;
+    APPTYPE_INCOMING_WEBHOOK = 3;
+}
+
+enum GsuiteAppType_Enum {
+    GSUITEAPPTYPE_GSUITE_APP_TYPE_UNSPECIFIED = 0;
+    GSUITEAPPTYPE_TASKS_APP = 1;
+    GSUITEAPPTYPE_CALENDAR_APP = 2;
+    GSUITEAPPTYPE_DOCS_APP = 3;
+    GSUITEAPPTYPE_SHEETS_APP = 4;
+    GSUITEAPPTYPE_SLIDES_APP = 5;
+    GSUITEAPPTYPE_MEET_APP = 6;
+    GSUITEAPPTYPE_ASSISTIVE_SUGGESTION_APP = 7;
+    GSUITEAPPTYPE_CONTACTS_APP = 8;
+    GSUITEAPPTYPE_ACTIVITY_FEED_APP = 9;
+    GSUITEAPPTYPE_DRIVE_APP = 10;
+    GSUITEAPPTYPE_CHAT_IN_MEET_APP = 12;
+    GSUITEAPPTYPE_SHORTCUT_APP = 13;
+}
+
+enum UninstallCapability_Enum {
+    UNINSTALLCAPABILITY_UNSPECIFIED_UNINSTALL_CAPABILITY = 0;
+    UNINSTALLCAPABILITY_ALWAYS_ALLOWED = 1;
+    UNINSTALLCAPABILITY_NEVER_ALLOWED = 2;
+}
+
+message User {
+   string id_deprecated = 1;
+   string fullname = 2;
+   string avatar_url = 3;
+   string email = 4;
+   string username = 5;
+   bool has_full_data = 6;
+   string first_name = 7;
+   DeprecatedUserType_Enum deprecated_user_type = 8;
+   presence_Enum presence = 9;
+   UserId id = 10;
+   BotInfo bot_info = 11;
+   bool is_anonymous = 12;
+   DndState_Enum dnd_state = 13;
+   UserStatus user_status = 14;
+   OrganizationInfo parent_organization = 15;
+   UserBlockRelationship block_relationship = 16;
+   repeated PhoneNumber phone_number = 17;
+   source_Enum source = 18;
+   ProfileVisibility_Enum profile_visibility = 19;
+   User acting_application_profile = 20;
+   AvailabilityDot availability_dot = 21;
+   UserAccountType_Enum user_account_type = 22;
+   UserActivityMetadata user_activity_metadata = 23;
+   UserAccountState_Enum user_account_state = 24;
+}
+
+enum DeprecatedUserType_Enum {
+    DEPRECATEDUSERTYPE_UNKNOWN = 0;
+    DEPRECATEDUSERTYPE_USER = 1;
+    DEPRECATEDUSERTYPE_APP = 2;
+}
+
+enum presence_Enum {
+    PRESENCE_UNDEFINED_PRESENCE = 0;
+    PRESENCE_ACTIVE = 1;
+    PRESENCE_INACTIVE = 2;
+    PRESENCE_UNKNOWN = 3;
+    PRESENCE_SHARING_DISABLED = 4;
+}
+
+message AvailabilityDot {
+   Usertype_Enum type = 1;
+   string dot_text = 2;
+}
+
+message OrganizationInfo {
+   oneof type {
+      ConsumerInfo consumer_info = 1;
+      CustomerInfo customer_info = 2;
+   }
+}
+
+message ConsumerInfo {
+}
+
+message CustomerInfo {
+   CustomerId customer_id = 1;
+}
+
+message UserBlockRelationship {
+   bool is_blocked_by_requester = 1;
+   bool has_blocked_requester = 2;
+}
+
+message PhoneNumber {
+   string value = 1;
+   string type = 2;
+}
+
+enum source_Enum {
+    SOURCE_UNKNOWN_SOURCE = 0;
+    SOURCE_BACKEND = 1;
+    SOURCE_POPULOUS = 2;
+    SOURCE_CLIENT = 3;
+}
+
+enum ProfileVisibility_Enum {
+    PROFILEVISIBILITY_UNKNOWN_USER_PROFILE_VISIBILITY = 0;
+    PROFILEVISIBILITY_FULL_PROFILE = 1;
+    PROFILEVISIBILITY_PRIMARY_MAIL = 2;
+    PROFILEVISIBILITY_INVITEE_EMAIL = 3;
+    PROFILEVISIBILITY_DELETED_USER = 4;
+    PROFILEVISIBILITY_UNKNOWN_USER = 5;
+    PROFILEVISIBILITY_FAILURE = 100;
+}
+
+enum UserAccountType_Enum {
+    USERACCOUNTTYPE_UNKNOWN_USER_ACCOUNT_TYPE = 0;
+    USERACCOUNTTYPE_DASHER = 1;
+    USERACCOUNTTYPE_CONSUMER = 2;
+    USERACCOUNTTYPE_PLACEHOLDER_ACCOUNT = 3;
+}
+
+message UserActivityMetadata {
+   int32 l28 = 1;
+}
+
+enum UserAccountState_Enum {
+    USERACCOUNTSTATE_UNKNOWN_USER_ACCOUNT_STATE = 0;
+    USERACCOUNTSTATE_ENABLED = 1;
+    USERACCOUNTSTATE_DISABLED = 2;
+    USERACCOUNTSTATE_DELETED = 3;
+    USERACCOUNTSTATE_TEMPORARY_UNAVAILABLE = 4;
+    USERACCOUNTSTATE_SERVICE_RESTRICTED = 5;
+}
+
+message GroupId {
+   string synthetic_id = 1;
+   string id = 2;
+   GroupType_Enum type = 3;
+}
+
+enum GroupType_Enum {
+   GROUP_TYPE_UNKNOWN = 0;
+   GROUP_TYPE_SPACE = 2;
+   GROUP_TYPE_DM = 5;
+   GROUP_TYPE_NEW_DM = 6;
+   GROUP_TYPE_ENCRYPTED_DM = 8;
+}
+
+message TopicId {
+   string id = 1;
+   string deprecated_space_id = 2;
+   GroupId group_id = 3;
+}
+
+message MessageId {
+   string id = 1;
+   TopicId topic_id = 3;
+}
+
+message InlineChipMetadata {
+   string title = 1;
+   SafeUrlProto url = 2;
+   string thumbnail_url = 3;
+   InlineChipType_Enum inline_chip_type = 4;
+   oneof ChipContentMetadata {
+      DriveMetadata drive_metadata = 5;
+      GroupMetadata group_metadata = 6;
+   }
+}
+
+message SafeUrlProto {
+   string private_do_not_access_or_else_safe_url_wrapped_value = 3;
+}
+
+enum InlineChipType_Enum {
+    INLINECHIPTYPE_UNDEFINED = 0;
+    INLINECHIPTYPE_DRIVE = 1;
+    INLINECHIPTYPE_GROUP = 2;
+}
+
+message DriveMetadata {
+   string id = 1;
+   string title = 2;
+   string thumbnail_url = 3;
+   string mimetype = 4;
+   bool can_share = 5;
+   bool can_view = 6;
+   int32 thumbnail_width = 7;
+   int32 thumbnail_height = 8;
+   bool should_not_render = 9;
+   bool encrypted_doc_id = 10;
+   AclFixStatus acl_fix_status = 11;
+   AclFixRequest acl_fix_request = 12;
+   string organization_display_name = 13;
+   string external_mimetype = 14;
+   bool can_edit = 15;
+   string url_fragment = 16;
+   bool is_download_restricted = 17;
+   TrustedResourceUrlProto embed_url = 18;
+   bool is_owner = 19;
+   DriveState_Enum drive_state = 20;
+   DriveAction_Enum drive_action = 21;
+   oneof resource_key {
+      WrappedResourceKey wrapped_resource_key = 22;
+   }
+   AuthorizedItemId shortcut_authorized_item_id = 24;
+   LegacyUploadMetadata legacy_upload_metadata = 25;
+   string alternate_link = 26;
+}
+
+message TrustedResourceUrlProto {
+   string private_do_not_access_or_else_trusted_resource_url_wrapped_value = 4;
+}
+
+enum DriveState_Enum {
+    DRIVESTATE_DRIVE_STATE_UNSPECIFIED = 0;
+    DRIVESTATE_IN_MY_DRIVE = 1;
+    DRIVESTATE_IN_TEAM_DRIVE = 2;
+    DRIVESTATE_SHARED_IN_DRIVE = 3;
+    DRIVESTATE_NOT_IN_DRIVE = 4;
+}
+
+message AclFixStatus {
+   fixability_Enum fixability = 1;
+   repeated string out_of_domain_warning_email_address = 2;
+   repeated string fixable_email_address = 3;
+}
+
+enum fixability_Enum {
+    FIXABILITY_UNKNOWN = 0;
+    FIXABILITY_ALREADY_ACCESSIBLE = 1;
+    FIXABILITY_CAN_FIX = 2;
+    FIXABILITY_CANNOT_FIX = 3;
+    FIXABILITY_ACL_FIXER_ERROR = 100;
+}
+
+message AclFixRequest {
+   bool should_fix = 1;
+   role_Enum role = 2;
+   repeated string recipient_emails = 3;
+}
+
+enum role_Enum {
+    ROLE_UNKNOWN = 0;
+    ROLE_READER = 1;
+    ROLE_COMMENTER = 2;
+    ROLE_WRITER = 3;
+}
+
+enum DriveAction_Enum {
+    DRIVEACTION_DRIVE_ACTION_UNSPECIFIED = 0;
+    DRIVEACTION_ADD_TO_DRIVE = 1;
+    DRIVEACTION_ORGANIZE = 2;
+    DRIVEACTION_ADD_SHORTCUT = 3;
+    DRIVEACTION_ADD_ANOTHER_SHORTCUT = 4;
+}
+
+message WrappedResourceKey {
+   string resource_key = 2;
+}
+
+message AuthorizedItemId {
+   string id = 1;
+   string resource_key = 2;
+}
+
+message LegacyUploadMetadata {
+   UploadMetadata upload_metadata = 1;
+   string legacy_unique_id = 2;
+}
+
+message UploadMetadata {
+   oneof Payload {
+      string attachment_token = 1;
+      BackendUploadMetadata backend_upload_metadata = 2;
+   }
+   string content_name = 3;
+   string content_type = 4;
+   Dimension original_dimension = 5;
+   string local_id = 6;
+   VideoReference video_reference = 7;
+   VirusScanResult_Enum virus_scan_result = 8;
+   string cloned_drive_id = 9;
+   ClonedDriveAction_Enum cloned_drive_action = 10;
+   AuthorizedItemId cloned_authorized_item_id = 11;
+   DlpMetricsMetadata dlp_metrics_metadata = 12;
+   int64 latest_virus_scan_timestamp = 13;
+   MessageComponentSearchInfo internal_only_component_search_info = 14;
+   oneof UploadMetadataInfo {
+      AudioVoiceMessage audio_voice_message = 18;
+      VideoMessage video_message = 19;
+   }
+   string transcript = 20;
+}
+
+message BackendUploadMetadata {
+   string blob_path = 1;
+   GroupId group_id = 2;
+   int64 content_size = 3;
+   string video_id = 4;
+   string video_thumbnail_blob_id = 5;
+   VirusScanResult_Enum virus_scan_result = 6;
+   string upload_ip = 8;
+   int64 upload_timestamp_usec = 9;
+   bytes sha256 = 10;
+   string content_name = 11;
+   string content_type = 12;
+   Dimension original_dimension = 13;
+   DlpScanOutcome_Enum dlp_scan_outcome = 14;
+   DlpScanSummary dlp_scan_summary = 15;
+   MessageId quote_reply_message_id = 16;
+   bool is_client_side_transcoded_video = 17;
+   repeated experiment_Enum experiment = 18;
+   MigratedFromHangoutsMetadata migrated_from_hangouts_metadata = 19;
+}
+
+enum VirusScanResult_Enum {
+    VIRUSSCANRESULT_UNKNOWN_VIRUS_SCAN_RESULT = 0;
+    VIRUSSCANRESULT_CLEAN = 1;
+    VIRUSSCANRESULT_INFECTED = 2;
+    VIRUSSCANRESULT_ERROR = 3;
+    VIRUSSCANRESULT_POLICY_VIOLATION = 4;
+}
+
+message Dimension {
+   int32 width = 1;
+   int32 height = 2;
+}
+
+enum DlpScanOutcome_Enum {
+    // DLPSCANOUTCOME_UNRECOGNIZED = -1;
+    DLPSCANOUTCOME_SCAN_UNKNOWN_OUTCOME = 0;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_NO_VIOLATION = 1;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_BLOCK = 2;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_WARN = 3;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_AUDIT_ONLY = 4;
+    DLPSCANOUTCOME_SCAN_FAILURE_EXCEPTION = 5;
+    DLPSCANOUTCOME_SCAN_FAILURE_TIMEOUT = 6;
+    DLPSCANOUTCOME_SCAN_FAILURE_ALL_RULES_FAILED = 7;
+    DLPSCANOUTCOME_SCAN_SKIPPED_EXPERIMENT_DISABLED = 8;
+    DLPSCANOUTCOME_SCAN_SKIPPED_CONSUMER = 9;
+    DLPSCANOUTCOME_SCAN_SKIPPED_NO_MESSAGE = 10;
+    DLPSCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_RULES_FOUND = 11;
+    DLPSCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_APPLICABLE_RULES_FOR_ACTION_PARAMS = 12;
+    DLPSCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_CHANGELING_PERMANENT_ERROR = 13;
+    DLPSCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_CHANGELING_EMPTY_RESPONSE = 14;
+    DLPSCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_APPLICABLE_RULES_FOR_TRIGGER = 15;
+    DLPSCANOUTCOME_SCAN_SKIPPED_NON_HUMAN_USER = 16;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_NO_VIOLATION = 18;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_BLOCK = 19;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_WARN = 20;
+    DLPSCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_AUDIT_ONLY = 21;
+    DLPSCANOUTCOME_SCAN_FAILURE_ILLEGAL_STATE_FOR_ATTACHMENTS = 22;
+    DLPSCANOUTCOME_SCAN_SKIPPED_USER_ACKNOWLEDGED_WARNING = 23;
+    DLPSCANOUTCOME_SCAN_SKIPPED_MESSAGE_FROM_UNSUPPORTED_ORIGIN = 24;
+    DLPSCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_UNSUPPORTED_FILE_TYPE = 25;
+    DLPSCANOUTCOME_SCAN_FAILURE_RULE_FETCH_FAILED = 26;
+    DLPSCANOUTCOME_SCAN_SKIPPED_MESSAGE_SENT_DURING_SPACE_MIGRATION = 27;
+    DLPSCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_APPLICABLE_RULES = 28;
+    DLPSCANOUTCOME_SCAN_SKIPPED_MESSAGE_SENT_TO_SHORTCUT_SPACE = 29;
+}
+
+message DlpScanSummary {
+   ScanOutcome_Enum scan_outcome = 1;
+   bool scan_not_applicable_for_context = 2;
+   string scan_id = 3;
+   DlpAction dlp_action = 4;
+   ScanTrigger_Enum scan_trigger = 5;
+}
+
+enum ScanOutcome_Enum {
+    // SCANOUTCOME_UNRECOGNIZED = -1;
+    SCANOUTCOME_SCAN_UNKNOWN_OUTCOME = 0;
+    SCANOUTCOME_SCAN_SUCCEEDED_NO_VIOLATION = 1;
+    SCANOUTCOME_SCAN_SUCCEEDED_BLOCK = 2;
+    SCANOUTCOME_SCAN_SUCCEEDED_WARN = 3;
+    SCANOUTCOME_SCAN_SUCCEEDED_AUDIT_ONLY = 4;
+    SCANOUTCOME_SCAN_FAILURE_EXCEPTION = 5;
+    SCANOUTCOME_SCAN_FAILURE_TIMEOUT = 6;
+    SCANOUTCOME_SCAN_FAILURE_ALL_RULES_FAILED = 7;
+    SCANOUTCOME_SCAN_SKIPPED_EXPERIMENT_DISABLED = 8;
+    SCANOUTCOME_SCAN_SKIPPED_CONSUMER = 9;
+    SCANOUTCOME_SCAN_SKIPPED_NO_MESSAGE = 10;
+    SCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_RULES_FOUND = 11;
+    SCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_APPLICABLE_RULES_FOR_ACTION_PARAMS = 12;
+    SCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_CHANGELING_PERMANENT_ERROR = 13;
+    SCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_CHANGELING_EMPTY_RESPONSE = 14;
+    SCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_APPLICABLE_RULES_FOR_TRIGGER = 15;
+    SCANOUTCOME_SCAN_SKIPPED_NON_HUMAN_USER = 16;
+    SCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_NO_VIOLATION = 18;
+    SCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_BLOCK = 19;
+    SCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_WARN = 20;
+    SCANOUTCOME_SCAN_SUCCEEDED_WITH_FAILURES_AUDIT_ONLY = 21;
+    SCANOUTCOME_SCAN_FAILURE_ILLEGAL_STATE_FOR_ATTACHMENTS = 22;
+    SCANOUTCOME_SCAN_SKIPPED_USER_ACKNOWLEDGED_WARNING = 23;
+    SCANOUTCOME_SCAN_SKIPPED_MESSAGE_FROM_UNSUPPORTED_ORIGIN = 24;
+    SCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_UNSUPPORTED_FILE_TYPE = 25;
+    SCANOUTCOME_SCAN_FAILURE_RULE_FETCH_FAILED = 26;
+    SCANOUTCOME_SCAN_SKIPPED_MESSAGE_SENT_DURING_SPACE_MIGRATION = 27;
+    SCANOUTCOME_SCAN_RULE_EVALUATION_SKIPPED_NO_APPLICABLE_RULES = 28;
+    SCANOUTCOME_SCAN_SKIPPED_MESSAGE_SENT_TO_SHORTCUT_SPACE = 29;
+}
+
+message DlpAction {
+   ActionType_Enum action_type = 1;
+   string unsafe_html_message_body = 2;
+}
+
+enum ActionType_Enum {
+    // ACTIONTYPE_UNRECOGNIZED = -1;
+    ACTIONTYPE_NO_ACTION = 0;
+    ACTIONTYPE_BLOCK = 1;
+    ACTIONTYPE_AUDIT_ONLY = 2;
+    ACTIONTYPE_WARN = 3;
+}
+
+enum ScanTrigger_Enum {
+    // SCANTRIGGER_UNRECOGNIZED = -1;
+    SCANTRIGGER_UNKNOWN_TRIGGER_TYPE = 0;
+    SCANTRIGGER_MESSAGE_SENT = 1;
+    SCANTRIGGER_ATTACHMENT_UPLOADED = 2;
+}
+
+enum experiment_Enum {
+    EXPERIMENT_UNKNOWN_EXPERIMENT = 0;
+    EXPERIMENT_KRONOS_FAST_FORMAT = 1;
+    EXPERIMENT_TRANSMUXED_STREAM = 2;
+    EXPERIMENT_FRAME_ZERO_THUMBNAIL = 3;
+}
+
+message MigratedFromHangoutsMetadata {
+   PhotoId photo_id = 1;
+   int64 update_timestamp_usec = 2;
+}
+
+message PhotoId {
+   int64 user_id = 1;
+   int64 photo_id = 2;
+}
+
+message VideoReference {
+   status_Enum status = 1;
+   repeated int32 format = 2;
+}
+
+enum ClonedDriveAction_Enum {
+    CLONEDDRIVEACTION_DRIVE_ACTION_UNSPECIFIED = 0;
+    CLONEDDRIVEACTION_ADD_TO_DRIVE = 1;
+    CLONEDDRIVEACTION_ORGANIZE = 2;
+    CLONEDDRIVEACTION_ADD_SHORTCUT = 3;
+    CLONEDDRIVEACTION_ADD_ANOTHER_SHORTCUT = 4;
+}
+
+message DlpMetricsMetadata {
+   DlpStatus_Enum dlp_status = 1;
+}
+
+enum DlpStatus_Enum {
+    DLPSTATUS_DLP_STATUS_UNKNOWN = 0;
+    DLPSTATUS_DLP_DISABLED = 1;
+    DLPSTATUS_DLP_ENABLED_NO_RULE_FETCH = 2;
+    DLPSTATUS_DLP_ENABLED_RULES_FETCHED_NO_RULES = 3;
+    DLPSTATUS_DLP_ENABLED_RULES_FETCHED_NO_APPLICABLE_RULES = 4;
+    DLPSTATUS_DLP_ENABLED_RULES_FETCHED_AND_EVALUATED = 5;
+    DLPSTATUS_DLP_ENABLED_SCAN_TIMEOUT = 6;
+    DLPSTATUS_DLP_ENABLED_SCAN_FAILED = 7;
+}
+
+message MessageComponentSearchInfo {
+   TextWithDescription title_text_with_description = 1;
+   bool matched_search = 2;
+}
+
+message TextWithDescription {
+   string text_body = 1;
+   repeated TextSegmentsWithDescription text_segments_with_description = 2;
+}
+
+message TextSegmentsWithDescription {
+   repeated TextSegment text_segment = 1;
+   DescriptionType_Enum description_type = 2;
+}
+
+message TextSegment {
+   int32 start_index = 1;
+   int32 length = 2;
+}
+
+enum DescriptionType_Enum {
+    DESCRIPTIONTYPE_DESCRIPTION_TYPE_UNSPECIFIED = 0;
+    DESCRIPTIONTYPE_KEYWORD_MATCH = 1;
+    DESCRIPTIONTYPE_SNIPPET = 2;
+    DESCRIPTIONTYPE_SNIPPET_IS_FULL_MESSAGE_WITH_FORMAT = 3;
+    DESCRIPTIONTYPE_SNIPPET_IS_FULL_MESSAGE = 4;
+}
+
+message AudioVoiceMessage {
+   Duration media_duration = 1;
+   repeated int32 waveform = 2;
+   string transcript = 3;
+}
+
+message Duration {
+   int64 seconds = 1;
+   int32 nanos = 2;
+}
+
+message VideoMessage {
+   Duration media_duration = 1;
+}
+
+message GroupMetadata {
+   GroupId group_id = 1;
+   MessageId message_id = 2;
+   AvatarInfo avatar_info = 3;
+   oneof monogram_avatar_info {
+      string monogram_avatar_token = 4;
+      string monogram_avatar_fife_url = 5;
+   }
+}
+
+message AvatarInfo {
+   Emoji emoji = 1;
+}
+
+message ListItem {
+   repeated AnnotatedSpan spans = 1;
+}
+
+message AnnotatedSpan {
+   string text = 1;
+   repeated int32 annotation_index = 2;
+   Formatting formatting = 3;
+   repeated ListItem list_items = 4;
+}
+
+message Formatting {
+   UrlMetadata url_metadata = 1;
+   UserMentionMetadata user_mention_metadata = 2;
+   bool bold = 3;
+   bool italic = 4;
+   bool strike = 5;
+   bool hidden = 6;
+   bool monospace = 7;
+   bool monospace_block = 8;
+   SlashCommandMetadata slash_command_metadata = 9;
+   string font_color = 10;
+   bool unordered_list = 11;
+   bool underline = 12;
+   CustomEmojiMetadata custom_emoji_metadata = 13;
+   InlineChipMetadata inline_chip_metadata = 14;
+   bool search_highlight = 15;
+}
+
+message UrlMetadata {
+   string title = 1;
+   string snippet = 2;
+   string image_url = 3;
+   string image_height = 4;
+   string image_width = 5;
+   SafeUrlProto url = 7;
+   string domain = 8;
+   bool should_not_render = 9;
+   int32 int_image_height = 10;
+   int32 int_image_width = 11;
+   string mime_type = 12;
+   SafeUrlProto gws_url = 13;
+   SafeUrlProto redirect_url = 14;
+   int64 gws_url_expiration_timestamp = 15;
+   UrlSource_Enum url_source = 16;
+   string favicon_url = 18;
+   repeated int32 enabled_experiments = 19;
+}
+
+enum UrlSource_Enum {
+    URLSOURCE_URL_SOURCE_UNKNOWN = 0;
+    URLSOURCE_SERVER_SUPPLIED_POLICY_VIOLATION = 2;
+    URLSOURCE_AUTO_DETECTED_PLAIN_TEXT = 3;
+    URLSOURCE_RICH_TEXT = 4;
+}
+
+message UserMentionMetadata {
+   UserId id = 1;
+   Usertype_Enum type = 2;
+   InviteeInfo invitee_info = 3;
+   string display_name = 4;
+   string gender = 5;
+   UserMentionError_Enum user_mention_error = 6;
+}
+
+message InviteeInfo {
+   UserId user_id = 1;
+   string email = 2;
+}
+
+enum UserMentionError_Enum {
+    USERMENTIONERROR_USER_MENTION_ERROR_UNSPECIFIED = 0;
+    USERMENTIONERROR_MEMBERSHIP_LIMIT_EXCEEDED = 1;
+}
+
+message SlashCommandMetadata {
+   UserId id = 1;
+   Usertype_Enum type = 2;
+   string command_name = 3;
+   int64 command_id = 4;
+   string arguments_hint = 5;
+   bool triggers_dialog = 6;
+}
+
+message CustomEmojiMetadata {
+   CustomEmoji custom_emoji = 1;
+}
+
+message Snippet {
+   MessageId message_id = 1;
+   User creator = 2;
+   repeated AnnotatedSpan annotated_span = 3;
+   string last_update_time_usec = 4;
+   repeated Annotation annotation = 5;
+   string creation_time_usec = 6;
+   bool is_blocked = 8;
+   bool has_card_attachment = 9;
+   bool is_inline_reply = 10;
+}
+
+message Annotation {
+   Usertype_Enum type = 1;
+   int32 start_index = 2;
+   int32 length = 3;
+   oneof metadata {
+      DriveMetadata drive_metadata = 4;
+      UserMentionMetadata user_mention_metadata = 5;
+      YoutubeMetadata youtube_metadata = 6;
+      UrlMetadata url_metadata = 7;
+      FormatMetadata format_metadata = 8;
+      UploadMetadata upload_metadata = 10;
+      MembershipChangedMetadata membership_changed = 11;
+      VideoCallMetadata video_call_metadata = 12;
+      RoomUpdatedMetadata room_updated = 14;
+      SlashCommandMetadata slash_command_metadata = 15;
+      GsuiteIntegrationMetadata gsuite_integration_metadata = 16;
+      GroupRetentionSettingsUpdatedMetaData group_retention_settings_updated = 17;
+      BabelPlaceholderMetadata babel_placeholder_metadata = 18;
+      ReadReceiptsSettingsUpdatedMetadata read_receipts_settings_metadata = 21;
+      IncomingWebhookChangedMetadata incoming_webhook_changed_metadata = 22;
+      IntegrationConfigUpdatedMetadata integration_config_updated = 23;
+      ConsentedAppUnfurlMetadata consented_app_unfurl_metadata = 24;
+      CardCapabilityMetadata card_capability_metadata = 25;
+      CustomEmojiMetadata custom_emoji_metadata = 26;
+      DataLossPreventionMetadata data_loss_prevention_metadata = 27;
+      RequiredMessageFeaturesMetadata required_message_features_metadata = 28;
+      MigratedFromLegacyThreadedRoomMetadata migrated_from_legacy_threaded_room_metadata = 32;
+      GroupMetadata group_metadata = 33;
+   }
+   string local_id = 9;
+   bool server_invalidated = 13;
+   string unique_id = 19;
+   ChipRenderType_Enum chip_render_type = 20;
+   InlineRenderFormat_Enum inline_render_format = 29;
+   InteractionData interaction_data = 30;
+   MessageComponentSearchInfo component_search_info = 31;
+}
+
+message FormatMetadata {
+   FormatType_Enum format_type = 1;
+   uint32 font_color = 2;
+}
+
+enum FormatType_Enum {
+    FORMATTYPE_TYPE_UNSPECIFIED = 0;
+    FORMATTYPE_BOLD = 1;
+    FORMATTYPE_ITALIC = 2;
+    FORMATTYPE_STRIKE = 3;
+    FORMATTYPE_SOURCE_CODE = 4;
+    FORMATTYPE_MONOSPACE = 5;
+    FORMATTYPE_HIDDEN = 6;
+    FORMATTYPE_MONOSPACE_BLOCK = 7;
+    FORMATTYPE_UNDERLINE = 8;
+    FORMATTYPE_FONT_COLOR = 9;
+    FORMATTYPE_BULLETED_LIST = 10;
+    FORMATTYPE_BULLETED_LIST_ITEM = 11;
+    FORMATTYPE_CLIENT_HIDDEN = 12;
+    FORMATTYPE_SEARCH_HIGHLIGHT = 13;
+}
+
+message YoutubeMetadata {
+   string id = 1;
+   bool should_not_render = 2;
+   int32 start_time = 3;
+}
+
+message VideoCallMetadata {
+   MeetingSpace meeting_space = 1;
+   bool was_created_in_current_group = 2;
+   bool should_not_render = 3;
+}
+
+message MeetingSpace {
+   string meeting_space_id = 1;
+   string meeting_code = 2;
+   string meeting_url = 3;
+   repeated PhoneAccess phone_access = 5;
+   CallInfo call_info = 6;
+   string meeting_alias = 7;
+   UniversalPhoneAccess universal_phone_access = 8;
+   GatewayAccess gateway_access = 9;
+   string more_join_url = 10;
+   repeated AcceptedNumberClass_Enum accepted_number_class = 11;
+   repeated GatewaySipAccess gateway_sip_access = 13;
+   BroadcastAccess broadcast_access = 14;
+   Settings settings = 15;
+   repeated IdentityProvider identity_providers = 16;
+   bool creator_app_access_only = 17;
+}
+
+message PhoneAccess {
+   string phone_number = 1;
+   string pin = 2;
+   string region_code = 3;
+   string language_code = 4;
+   string formatted_phone_number = 5;
+}
+
+message UniversalPhoneAccess {
+   string pin = 1;
+   string pstn_info_url = 2;
+}
+
+message CallInfo {
+   Presenter presenter = 1;
+   RecordingInfo recording_info = 2;
+   string calendar_event_id = 3;
+   string organization_name = 4;
+   int32 max_joined_devices = 6;
+   repeated StreamingSessionInfo streaming_sessions = 9;
+   CallSettings settings = 11;
+   PaygateInfo paygate_info = 13;
+   CseInfo cse_info = 15;
+   UserDisplayInfo artifact_owner = 16;
+   TranscriptionSessionInfo transcription_session_info = 17;
+   AbuseReportingConfig abuse_reporting_config = 18;
+   repeated YouTubeBroadcastSessionInfo you_tube_broadcast_session_infos = 19;
+   RecordingSessionInfo recording_session_info = 20;
+   BroadcastSessionInfo broadcast_session_info = 21;
+   repeated ReactionInfo available_reactions = 22;
+   Collaboration collaboration = 23;
+   CoActivity co_activity = 24;
+   int32 viewer_count = 25;
+   repeated AvailableAccessTypes_Enum available_access_types = 27;
+   repeated AvailableAnnotationToolTypes_Enum available_annotation_tool_types = 28;
+   SmartNotesSessionInfo smart_notes_session_info = 29;
+   MeetingNotesInfo meeting_notes_info = 30;
+   repeated MediaApiSessionInfo media_api_session_infos = 31;
+   GeminiSessionInfo gemini_session_info = 32;
+   WatermarkingSessionInfo watermarking_session_info = 33;
+}
+
+message Presenter {
+   string presenter_device_id = 1;
+   string by_device_id = 2;
+   repeated string copresenter_device_ids = 3;
+   AnnotationInfo annotation_info = 4;
+}
+
+message AnnotationInfo {
+   bool is_active = 1;
+   repeated string coannotator_device_ids = 2;
+}
+
+message RecordingInfo {
+   RecordingStatus_Enum recording_status = 1;
+   string recording_id = 2;
+   string producer_device_id = 3;
+   RecordingEvent latest_recording_event = 4;
+   string owner_display_name = 5;
+   RecordingApplicationType_Enum recording_application_type = 6;
+}
+
+enum RecordingStatus_Enum {
+    // RECORDINGSTATUS_UNRECOGNIZED = -1;
+    RECORDINGSTATUS_RECORDING_UNSPECIFIED = 0;
+    RECORDINGSTATUS_RECORDING_INACTIVE = 1;
+    RECORDINGSTATUS_RECORDING_STARTING = 2;
+    RECORDINGSTATUS_RECORDING_STARTED = 3;
+}
+
+message RecordingEvent {
+   string device_id = 1;
+   Usertype_Enum type = 2;
+}
+
+enum RecordingApplicationType_Enum {
+    // RECORDINGAPPLICATIONTYPE_UNRECOGNIZED = -1;
+    RECORDINGAPPLICATIONTYPE_RECORDING_APPLICATION_TYPE_UNSPECIFIED = 0;
+    RECORDINGAPPLICATIONTYPE_RECORDING = 1;
+    RECORDINGAPPLICATIONTYPE_GLIVE_STREAM = 3;
+    RECORDINGAPPLICATIONTYPE_BROADCAST = 4;
+}
+
+message UserDisplayInfo {
+   string display_name = 1;
+   string avatar_url = 2;
+}
+
+message StreamingSessionInfo {
+   status_Enum status = 1;
+   string session_id = 2;
+   ApplicationType_Enum application_type = 3;
+   SessionEvent latest_session_event = 4;
+   string owner_display_name = 5;
+   ViewerAccessPolicy_Enum viewer_access_policy = 6;
+   bool training_enabled = 7;
+   StreamViewerStats viewer_stats = 8;
+}
+
+enum ApplicationType_Enum {
+    // APPLICATIONTYPE_UNRECOGNIZED = -1;
+    APPLICATIONTYPE_RECORDING_APPLICATION_TYPE_UNSPECIFIED = 0;
+    APPLICATIONTYPE_RECORDING = 1;
+    APPLICATIONTYPE_GLIVE_STREAM = 3;
+    APPLICATIONTYPE_BROADCAST = 4;
+}
+
+message SessionEvent {
+   string device_id = 1;
+   Usertype_Enum type = 2;
+}
+
+enum ViewerAccessPolicy_Enum {
+    // VIEWERACCESSPOLICY_UNRECOGNIZED = -1;
+    VIEWERACCESSPOLICY_BROADCASTING_ACCESS_POLICY_UNSPECIFIED = 0;
+    VIEWERACCESSPOLICY_ORGANIZATION = 1;
+    VIEWERACCESSPOLICY_PUBLIC = 2;
+}
+
+message StreamViewerStats {
+   int64 estimated_viewer_count = 1;
+}
+
+message CallSettings {
+   bool access_lock = 1;
+   bool chat_lock = 2;
+   bool present_lock = 3;
+   bool attendance_report_enabled = 4;
+   bool audio_lock = 5;
+   bool video_lock = 6;
+   bool moderation_enabled = 7;
+   bool cse_enabled = 8;
+   bool reactions_lock = 9;
+   bool allow_joining_before_host = 11;
+   AccessType_Enum access_type = 12;
+   bool co_activity_lock = 13;
+   bool meeting_notes_enabled = 14;
+   bool e2ee_enabled = 15;
+   EncryptionType_Enum encryption_type = 16;
+   MeetingMediaType_Enum meeting_media_type = 17;
+   bool auto_start_recording = 18;
+   bool auto_start_transcription = 19;
+   bool auto_start_smart_notes = 20;
+   bool attend_for_me_enabled = 21;
+   bool waiting_room_enabled = 22;
+   bool auto_transition_participants = 23;
+   bool watermarking_enabled = 24;
+   bool gemini_enabled = 25;
+   StartCoActivityLock_Enum start_co_activity_lock = 26;
+}
+
+enum AccessType_Enum {
+    // ACCESSTYPE_UNRECOGNIZED = -1;
+    ACCESSTYPE_ACCESS_TYPE_UNSPECIFIED = 0;
+    ACCESSTYPE_ACCESS_TYPE_OPEN = 1;
+    ACCESSTYPE_ACCESS_TYPE_TRUSTED = 2;
+    ACCESSTYPE_ACCESS_TYPE_RESTRICTED = 3;
+    ACCESSTYPE_ACCESS_TYPE_CLOSED = 4;
+}
+
+enum EncryptionType_Enum {
+    // ENCRYPTIONTYPE_UNRECOGNIZED = -1;
+    ENCRYPTIONTYPE_ENCRYPTION_TYPE_UNSPECIFIED = 0;
+    ENCRYPTIONTYPE_ENCRYPTION_TYPE_CLIENT_SIDE_ENCRYPTION = 1;
+    ENCRYPTIONTYPE_ENCRYPTION_TYPE_END_TO_END_ENCRYPTION = 2;
+}
+
+enum MeetingMediaType_Enum {
+    // MEETINGMEDIATYPE_UNRECOGNIZED = -1;
+    MEETINGMEDIATYPE_MEETING_MEDIA_TYPE_UNSPECIFIED = 0;
+    MEETINGMEDIATYPE_MEETING_MEDIA_TYPE_AUDIO_VIDEO = 1;
+    MEETINGMEDIATYPE_MEETING_MEDIA_TYPE_AUDIO_ONLY = 2;
+}
+
+enum StartCoActivityLock_Enum {
+    // STARTCOACTIVITYLOCK_UNRECOGNIZED = -1;
+    STARTCOACTIVITYLOCK_START_CO_ACTIVITY_LOCK_UNSPECIFIED = 0;
+    STARTCOACTIVITYLOCK_START_CO_ACTIVITY_LOCK_ALLOW_EVERYONE = 1;
+    STARTCOACTIVITYLOCK_START_CO_ACTIVITY_LOCK_ALLOW_HOSTS_AND_COHOSTS = 2;
+}
+
+enum AvailableAccessTypes_Enum {
+    // AVAILABLEACCESSTYPES_UNRECOGNIZED = -1;
+    AVAILABLEACCESSTYPES_ACCESS_TYPE_UNSPECIFIED = 0;
+    AVAILABLEACCESSTYPES_ACCESS_TYPE_OPEN = 1;
+    AVAILABLEACCESSTYPES_ACCESS_TYPE_TRUSTED = 2;
+    AVAILABLEACCESSTYPES_ACCESS_TYPE_RESTRICTED = 3;
+    AVAILABLEACCESSTYPES_ACCESS_TYPE_CLOSED = 4;
+}
+
+message PaygateInfo {
+   bool show_upgrade_promos = 1;
+   Timestamp call_ending_soon_warning_time = 2;
+   Timestamp call_ending_time = 3;
+}
+
+message Timestamp {
+   int64 seconds = 1;
+   int32 nanos = 2;
+}
+
+message CseInfo {
+   bytes wrapped_key = 1;
+   string cse_domain = 2;
+}
+
+message TranscriptionSessionInfo {
+   string transcription_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+}
+
+message SessionStateInfo {
+   SessionState_Enum session_state = 1;
+   SessionStopReason_Enum session_stop_reason = 2;
+   string last_actor_device_id = 3;
+   Timestamp max_end_time = 4;
+   AckInfo ack_info = 5;
+   LanguageConfig language_config = 6;
+}
+
+enum SessionState_Enum {
+    // SESSIONSTATE_UNRECOGNIZED = -1;
+    SESSIONSTATE_SESSION_STATE_UNSPECIFIED = 0;
+    SESSIONSTATE_STARTING = 1;
+    SESSIONSTATE_ACTIVE = 2;
+    SESSIONSTATE_STOPPED = 3;
+}
+
+enum SessionStopReason_Enum {
+    // SESSIONSTOPREASON_UNRECOGNIZED = -1;
+    SESSIONSTOPREASON_SESSION_STOP_REASON_UNSPECIFIED = 0;
+    SESSIONSTOPREASON_USER_ACTION = 1;
+    SESSIONSTOPREASON_STOPPED_INITIALIZATION_FAILED = 2;
+    SESSIONSTOPREASON_STOPPED_TOO_LONG = 3;
+    SESSIONSTOPREASON_STOPPED_ALL_DEVICES_LEFT = 4;
+    SESSIONSTOPREASON_STOPPED_INTERNAL_FAILURES = 5;
+    SESSIONSTOPREASON_STOPPED_YOU_TUBE_LIVE_EVENT_ENDED = 6;
+    SESSIONSTOPREASON_STOPPED_AUTO_START_FAILURE = 7;
+    SESSIONSTOPREASON_STOPPED_INCOMPATIBLE_DEVICE_PRESENT = 8;
+}
+
+message AckInfo {
+   repeated string unacked_device_ids = 1;
+   int32 unacked_device_count = 2;
+}
+
+message LanguageConfig {
+   repeated string spoken_languages = 1;
+}
+
+message AbuseReportingConfig {
+   bool recording_allowed = 1;
+   bool written_ugc_allowed = 2;
+}
+
+message YouTubeBroadcastSessionInfo {
+   string you_tube_broadcast_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+   YouTubeLiveBroadcastEvent you_tube_live_broadcast_event = 3;
+   YouTubeBroadcastStats broadcast_stats = 4;
+}
+
+message YouTubeLiveBroadcastEvent {
+   string channel_id = 1;
+   string broadcast_id = 2;
+   string view_url = 3;
+   string brand_account_gaia_id = 4;
+}
+
+message YouTubeBroadcastStats {
+   int64 estimated_viewer_count = 1;
+}
+
+message RecordingSessionInfo {
+   string recording_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+   string owner_email = 3;
+}
+
+message BroadcastSessionInfo {
+   string broadcast_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+   BroadcastStats broadcast_stats = 3;
+   string ingestion_id = 4;
+}
+
+message BroadcastStats {
+   int64 estimated_viewer_count = 1;
+}
+
+message SmartNotesSessionInfo {
+   string smart_notes_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+}
+
+message MediaApiSessionInfo {
+   string media_api_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+   int64 project_number = 3;
+}
+
+message ReactionInfo {
+   string emoji = 1;
+}
+
+message Collaboration {
+   string attachment_id = 1;
+   UserDisplayInfo initiator = 2;
+   string uri = 3;
+}
+
+message CoActivity {
+   CoActivityApp_Enum co_activity_app = 1;
+   string activity_title = 2;
+   string add_on_id = 3;
+   int64 project_number = 4;
+   string initiator_device_id = 5;
+   string presentation_device_id = 6;
+   AddOnStartingState add_on_starting_state = 7;
+}
+
+enum CoActivityApp_Enum {
+    // COACTIVITYAPP_UNRECOGNIZED = -1;
+    COACTIVITYAPP_CO_ACTIVITY_APP_UNSPECIFIED = 0;
+    COACTIVITYAPP_CO_ACTIVITY_APP_YOU_TUBE_MAIN = 1;
+    COACTIVITYAPP_CO_ACTIVITY_APP_SPOTIFY = 2;
+    COACTIVITYAPP_CO_ACTIVITY_APP_UNO = 3;
+    COACTIVITYAPP_CO_ACTIVITY_APP_HEADSUP = 4;
+    COACTIVITYAPP_CO_ACTIVITY_APP_KAHOOT = 5;
+    COACTIVITYAPP_CO_ACTIVITY_APP_GQUEUES = 6;
+    COACTIVITYAPP_CO_ACTIVITY_APP_YOU_TUBE_MUSIC = 7;
+    COACTIVITYAPP_CO_ACTIVITY_APP_SAMSUNG_NOTES = 8;
+    COACTIVITYAPP_CO_ACTIVITY_APP_HAPPY_AARDVARK = 9;
+    COACTIVITYAPP_CO_ACTIVITY_APP_ADD_ON = 10;
+}
+
+message AddOnStartingState {
+   repeated AddOnFrameStartingStates add_on_frame_starting_states = 1;
+}
+
+message AddOnFrameStartingStates {
+   int32 key = 1;
+   AddOnFrameStartingState value = 2;
+}
+
+message AddOnFrameStartingState {
+   string uri = 1;
+   string additional_data = 2;
+}
+
+enum AvailableAnnotationToolTypes_Enum {
+    // AVAILABLEANNOTATIONTOOLTYPES_UNRECOGNIZED = -1;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_TYPE_UNSPECIFIED = 0;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_CLEAR_ALL = 1;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_LINE = 2;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_MAGIC_ERASER = 3;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_PEN = 4;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_TEXT_BOX = 6;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_CIRCLE = 7;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_RECTANGLE = 8;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_ARROW = 9;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_VANISHING_PEN = 10;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_STICKER = 11;
+    AVAILABLEANNOTATIONTOOLTYPES_ANNOTATION_TOOL_STICKY_NOTES = 12;
+}
+
+message MeetingNotesInfo {
+   string document_id = 1;
+   string document_uri = 2;
+}
+
+message GeminiSessionInfo {
+   string gemini_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+}
+
+message WatermarkingSessionInfo {
+   string watermarking_session_id = 1;
+   SessionStateInfo session_state_info = 2;
+}
+
+message GatewayAccess {
+   bool enabled = 2;
+}
+
+enum AcceptedNumberClass_Enum {
+    // ACCEPTEDNUMBERCLASS_UNRECOGNIZED = -1;
+    ACCEPTEDNUMBERCLASS_NUMBER_CLASS_UNSPECIFIED = 0;
+    ACCEPTEDNUMBERCLASS_LOW_COST = 1;
+    ACCEPTEDNUMBERCLASS_HIGH_COST = 2;
+    ACCEPTEDNUMBERCLASS_LEGACY = 3;
+}
+
+message GatewaySipAccess {
+   string uri = 1;
+   string sip_access_code = 2;
+}
+
+message BroadcastAccess {
+   string view_url = 1;
+   AccessPolicy_Enum access_policy = 2;
+}
+
+enum AccessPolicy_Enum {
+    // ACCESSPOLICY_UNRECOGNIZED = -1;
+    ACCESSPOLICY_BROADCASTING_ACCESS_POLICY_UNSPECIFIED = 0;
+    ACCESSPOLICY_ORGANIZATION = 1;
+    ACCESSPOLICY_PUBLIC = 2;
+}
+
+message Settings {
+   bool access_lock = 1;
+   bool attendance_report_enabled = 2;
+   bool chat_lock = 3;
+   bool present_lock = 4;
+   bool moderation_enabled = 5;
+   bool cse_enabled = 6;
+   bool reactions_lock = 7;
+   bool cohost_artifact_sharing_enabled = 8;
+   bool default_as_viewer = 9;
+   bool allow_joining_before_host = 10;
+   AccessType_Enum access_type = 11;
+   bool co_activity_lock = 12;
+   bool e2ee_enabled = 13;
+   EncryptionType_Enum encryption_type = 14;
+   bool auto_start_recording = 15;
+   bool auto_start_transcription = 16;
+   bool auto_start_smart_notes = 17;
+   string smart_notes_document_id = 18;
+   MeetingLanguageConfig meeting_language_config = 19;
+   bool attend_for_me_enabled = 20;
+   bool waiting_room_enabled = 21;
+   bool auto_transition_participants = 22;
+   bool gemini_enabled = 23;
+   StartCoActivityLock_Enum start_co_activity_lock = 24;
+}
+
+message MeetingLanguageConfig {
+   repeated string spoken_languages = 1;
+}
+
+message IdentityProvider {
+   string display_name = 1;
+   string discovery_uri = 2;
+   string client_id = 3;
+   //repeated KaclsOidcApplications kacls_oidc_applications = 4;
+   //repeated OidcApplications oidc_applications = 5;
+   GrantType_Enum grant_type = 6;
+}
+
+enum GrantType_Enum {
+    // GRANTTYPE_UNRECOGNIZED = -1;
+    GRANTTYPE_GRANT_TYPE_UNSPECIFIED = 0;
+    GRANTTYPE_IMPLICIT = 1;
+    GRANTTYPE_AUTHORIZATION_CODE = 2;
+}
+
+message ConsentedAppUnfurlMetadata {
+   UserId client_specified_app_id = 1;
+}
+
+message DataLossPreventionMetadata {
+   bool warn_acknowledged = 1;
+   DlpScanSummary dlp_scan_summary = 2;
+   DlpMessageScanRecord dlp_message_scan_record = 3;
+}
+
+message DlpMessageScanRecord {
+   DlpScanSummary message_scan_summary = 1;
+   DlpScanSummary attachment_scan_summary = 2;
+   ScanOutcome_Enum scan_outcome = 3;
+   DlpAction dlp_action = 4;
+}
+
+message RequiredMessageFeaturesMetadata {
+   repeated RequiredFeatures_Enum required_features = 1;
+}
+
+enum RequiredFeatures_Enum {
+    REQUIREDFEATURES_REQUIRED_FEATURE_UNSPECIFIED = 0;
+    REQUIREDFEATURES_REQUIRED_FEATURE_MESSAGE_QUOTING = 1;
+    REQUIREDFEATURES_REQUIRED_FEATURE_TOMBSTONES_IN_DMS_AND_UFRS = 2;
+    REQUIREDFEATURES_REQUIRED_FEATURE_CUSTOM_HYPERLINK = 3;
+    REQUIREDFEATURES_REQUIRED_FEATURE_DRIVE_SMART_CHIP = 4;
+    REQUIREDFEATURES_REQUIRED_FEATURE_LEGACY_TOPIC_START = 5;
+    REQUIREDFEATURES_REQUIRED_FEATURE_GROUP_SMART_CHIP = 6;
+}
+
+message GsuiteIntegrationMetadata {
+   ClientType_Enum client_type = 1;
+   oneof data {
+      TasksAnnotationData tasks_data = 3;
+      CalendarEventAnnotationData calendar_event_data = 4;
+      CallAnnotationData call_data = 6;
+      AssistantAnnotationData assistant_data = 7;
+      ActivityFeedAnnotationData activity_feed_data = 8;
+   }
+   repeated string indexable_texts = 5;
+}
+
+enum ClientType_Enum {
+    CLIENTTYPE_UNKNOWN_CLIENT_TYPE = 0;
+    CLIENTTYPE_MEET = 1;
+    CLIENTTYPE_TASKS = 2;
+    CLIENTTYPE_CALENDAR_EVENT = 3;
+    CLIENTTYPE_ASSISTANT = 4;
+    CLIENTTYPE_ACTIVITY_FEED_SERVICE = 5;
+}
+
+message TasksAnnotationData {
+   string task_id = 1;
+   TaskProperties task_properties = 4;
+   oneof event_type {
+      Creation creation = 5;
+      DeletionChange deletion_change = 6;
+      CompletionChange completion_change = 7;
+      AssigneeChange assignee_change = 8;
+      UserDefinedMessage user_defined_message = 9;
+   }
+}
+
+message TaskProperties {
+   string title = 1;
+   bool completed = 2;
+   bool deleted = 3;
+   string description = 4;
+   UserId assignee = 5;
+   oneof start_date_or_time {
+      Date start_date = 9;
+      Timestamp start_time = 10;
+   }
+}
+
+message Date {
+   int32 year = 1;
+   int32 month = 2;
+   int32 day = 3;
+}
+
+message Creation {
+}
+
+message DeletionChange {
+}
+
+message CompletionChange {
+}
+
+message AssigneeChange {
+   UserId old_assignee = 1;
+}
+
+message UserDefinedMessage {
+}
+
+message CalendarEventAnnotationData {
+   CalendarEvent calendar_event = 1;
+   oneof message_type {
+      EventCreation event_creation = 2;
+   }
+}
+
+message CalendarEvent {
+   string title = 1;
+   string event_id = 2;
+   Time start_time = 3;
+   Time end_time = 4;
+}
+
+message Time {
+   oneof kind {
+      Timestamp timed = 1;
+      Date all_day = 2;
+   }
+}
+
+message EventCreation {
+}
+
+message CallAnnotationData {
+   CallMetadata call_metadata = 1;
+   CallStatus_Enum call_status = 2;
+   Timestamp call_ended_timestamp = 3;
+   Timestamp participant_list_revision_timestamp = 4;
+   CalendarEventAnnotationData calendar_event_annotation_data = 5;
+}
+
+message CallMetadata {
+   oneof metadata {
+      MeetMetadata meet_metadata = 1;
+   }
+}
+
+message MeetMetadata {
+   string meeting_code = 1;
+   string meeting_url = 2;
+   MeetingType_Enum meeting_type = 3;
+   string conference_name = 4;
+}
+
+enum MeetingType_Enum {
+    MEETINGTYPE_MEETING_TYPE_UNSPECIFIED = 0;
+    MEETINGTYPE_HUDDLE = 1;
+    MEETINGTYPE_CALL = 2;
+}
+
+enum CallStatus_Enum {
+    CALLSTATUS_CALL_STATUS_UNSPECIFIED = 0;
+    CALLSTATUS_CALL_STARTED = 1;
+    CALLSTATUS_CALL_MISSED = 2;
+    CALLSTATUS_CALL_ENDED = 3;
+}
+
+message AssistantAnnotationData {
+   oneof data {
+      AssistantSuggestion suggestion = 1;
+      AssistantUnfulfillableRequest unfulfillable = 2;
+   }
+}
+
+message AssistantSuggestion {
+   oneof suggestion {
+      FindDocumentSuggestion find_document_suggestion = 1;
+   }
+   AssistantSessionContext session_context = 2;
+   AssistantDebugContext debug_context = 3;
+   AssistantFeedbackContext feedback_context = 4;
+   string serialized_suggestions = 5;
+}
+
+message FindDocumentSuggestion {
+   repeated Document document_suggestions = 1;
+   bool show_action_buttons = 2;
+}
+
+message Document {
+   string title = 1;
+   string url = 2;
+   string mime_type = 3;
+   string file_id = 4;
+   Timestamp last_modified_time = 5;
+   Justification justification = 6;
+}
+
+message Justification {
+   ActionType_Enum action_type = 1;
+   Timestamp action_time = 2;
+   repeated string topics = 3;
+   JustificationPerson document_owner = 4;
+}
+
+message JustificationPerson {
+   UserId user = 1;
+   bool is_recipient = 2;
+}
+
+message AssistantSessionContext {
+   string contextual_session_id = 1;
+}
+
+message AssistantDebugContext {
+   string query = 1;
+}
+
+message AssistantFeedbackContext {
+   ThumbsFeedback_Enum thumbs_feedback = 1;
+   repeated FeedbackChip feedback_chips = 2;
+}
+
+enum ThumbsFeedback_Enum {
+    THUMBSFEEDBACK_THUMBS_FEEDBACK_UNSPECIFIED = 0;
+    THUMBSFEEDBACK_NONE_SELECTED = 1;
+    THUMBSFEEDBACK_UP = 2;
+    THUMBSFEEDBACK_DOWN = 3;
+}
+
+message FeedbackChip {
+   FeedbackChipType_Enum feedback_chip_type = 1;
+   state_Enum state = 2;
+}
+
+enum FeedbackChipType_Enum {
+    FEEDBACKCHIPTYPE_FEEDBACK_CHIP_TYPE_UNSPECIFIED = 0;
+    FEEDBACKCHIPTYPE_WRONG_TRIGGER = 1;
+    FEEDBACKCHIPTYPE_WRONG_FILE = 2;
+    FEEDBACKCHIPTYPE_CORRECT_TRIGGER = 3;
+    FEEDBACKCHIPTYPE_CORRECT_FILE = 4;
+    FEEDBACKCHIPTYPE_DISRUPTIVE = 5;
+    FEEDBACKCHIPTYPE_OTHER = 6;
+}
+
+message AssistantUnfulfillableRequest {
+}
+
+message ActivityFeedAnnotationData {
+   MessageId activity_feed_message_id = 5;
+   Timestamp activity_feed_message_create_time = 6;
+   oneof ActivityFeedItem {
+      ChatItem chat_item = 1;
+   }
+   UserInfo user_info = 2;
+   UserInfo shared_user_info = 3;
+}
+
+message ChatItem {
+   MessageInfo message_info = 1;
+   GroupInfo group_info = 2;
+   repeated ActivityInfo activity_info = 3;
+}
+
+message MessageInfo {
+   MessageId message_id = 1;
+   int64 topic_read_time_usec = 2;
+   MessageType_Enum message_type = 3;
+}
+
+enum MessageType_Enum {
+    MESSAGETYPE_MESSAGE_TYPE_UNSPECIFIED = 0;
+    MESSAGETYPE_INLINE_REPLY = 1;
+}
+
+message GroupInfo {
+   string group_name = 2;
+   AttributeCheckerGroupType_Enum attribute_checker_group_type = 3;
+   int64 group_read_time_usec = 4;
+   bool inline_threading_enabled = 5;
+}
+
+enum AttributeCheckerGroupType_Enum {
+    ATTRIBUTECHECKERGROUPTYPE_ATTRIBUTE_CHECKER_GROUP_TYPE_UNSPECIFIED = 0;
+    ATTRIBUTECHECKERGROUPTYPE_ONE_TO_ONE_HUMAN_DM = 1;
+    ATTRIBUTECHECKERGROUPTYPE_ONE_TO_ONE_BOT_DM = 2;
+    ATTRIBUTECHECKERGROUPTYPE_IMMUTABLE_MEMBERSHIP_GROUP_DM = 3;
+    ATTRIBUTECHECKERGROUPTYPE_FLAT_ROOM = 4;
+    ATTRIBUTECHECKERGROUPTYPE_THREADED_ROOM = 5;
+    ATTRIBUTECHECKERGROUPTYPE_IMMUTABLE_MEMBERSHIP_HUMAN_DM = 6;
+    ATTRIBUTECHECKERGROUPTYPE_ACTIVITY_FEED = 8;
+    ATTRIBUTECHECKERGROUPTYPE_SHORTCUT = 9;
+}
+
+message ActivityInfo {
+   oneof activity {
+      FeedItemUserMention feed_item_user_mention = 2;
+      FeedItemReactions feed_item_reactions = 3;
+      FeedItemThreadReply feed_item_thread_reply = 4;
+      FeedItemNudge feed_item_nudge = 5;
+   }
+}
+
+message FeedItemUserMention {
+   Usertype_Enum type = 1;
+}
+
+message FeedItemReactions {
+}
+
+message FeedItemThreadReply {
+   ReplyType_Enum reply_type = 1;
+}
+
+enum ReplyType_Enum {
+    REPLYTYPE_UNSPECIFIED = 0;
+    REPLYTYPE_ROOT = 1;
+    REPLYTYPE_FOLLOWER = 2;
+}
+
+message FeedItemNudge {
+   NudgeType_Enum nudge_type = 1;
+}
+
+enum NudgeType_Enum {
+    NUDGETYPE_UNDEFINED = 0;
+    NUDGETYPE_REPLY = 1;
+    NUDGETYPE_FOLLOW_UP = 2;
+}
+
+message UserInfo {
+   UserId updater_to_show = 1;
+   int32 updater_count_to_show = 2;
+   UpdaterCountDisplayType_Enum updater_count_display_type = 3;
+}
+
+enum UpdaterCountDisplayType_Enum {
+    UPDATERCOUNTDISPLAYTYPE_UPDATER_COUNT_DISPLAY_TYPE_UNSPECIFIED = 0;
+    UPDATERCOUNTDISPLAYTYPE_EXACT_COUNT = 1;
+    UPDATERCOUNTDISPLAYTYPE_NONZERO_COUNT = 2;
+}
+
+message CardCapabilityMetadata {
+   repeated RequiredCapabilities_Enum required_capabilities = 1;
+}
+
+enum RequiredCapabilities_Enum {
+    REQUIREDCAPABILITIES_UNKNOWN = 0;
+    REQUIREDCAPABILITIES_SUPPORTS_BASE_CARDS = 1;
+}
+
+message MembershipChangedMetadata {
+   Usertype_Enum type = 1;
+   UserId initiator = 2;
+   repeated MemberId affected_members = 3;
+   User initiator_profile = 4;
+   repeated Member affected_member_profiles = 5;
+   repeated AffectedMembership affected_memberships = 6;
+   InitiatorType_Enum initiator_type = 7;
+}
+
+message AffectedMembership {
+   MemberId affected_member = 1;
+   PriorMembershipState_Enum prior_membership_state = 2;
+   PriorMembershipRole_Enum prior_membership_role = 3;
+   TargetMembershipRole_Enum target_membership_role = 4;
+}
+
+message RosterId {
+   string id = 1;
+}
+
+enum PriorMembershipState_Enum {
+    PRIORMEMBERSHIPSTATE_MEMBER_UNKNOWN = 0;
+    PRIORMEMBERSHIPSTATE_MEMBER_INVITED = 1;
+    PRIORMEMBERSHIPSTATE_MEMBER_JOINED = 2;
+    PRIORMEMBERSHIPSTATE_MEMBER_NOT_A_MEMBER = 3;
+    PRIORMEMBERSHIPSTATE_MEMBER_FAILED = 4;
+}
+
+enum PriorMembershipRole_Enum {
+    PRIORMEMBERSHIPROLE_ROLE_UNKNOWN = 0;
+    PRIORMEMBERSHIPROLE_ROLE_NONE = 1;
+    PRIORMEMBERSHIPROLE_ROLE_INVITEE = 2;
+    PRIORMEMBERSHIPROLE_ROLE_MEMBER = 3;
+    PRIORMEMBERSHIPROLE_ROLE_OWNER = 4;
+    PRIORMEMBERSHIPROLE_ROLE_APP_OWNER = 5;
+}
+
+enum TargetMembershipRole_Enum {
+    TARGETMEMBERSHIPROLE_ROLE_UNKNOWN = 0;
+    TARGETMEMBERSHIPROLE_ROLE_NONE = 1;
+    TARGETMEMBERSHIPROLE_ROLE_INVITEE = 2;
+    TARGETMEMBERSHIPROLE_ROLE_MEMBER = 3;
+    TARGETMEMBERSHIPROLE_ROLE_OWNER = 4;
+    TARGETMEMBERSHIPROLE_ROLE_APP_OWNER = 5;
+}
+
+message Member {
+   oneof profile {
+      User user = 1;
+      Roster roster = 2;
+   }
+}
+
+message Roster {
+   RosterId id = 1;
+   string name = 2;
+   string avatar_url = 3;
+   int32 membership_count = 4;
+   string roster_gaia_key = 5;
+   RosterState_Enum roster_state = 6;
+   SegmentedMembershipCounts segmented_membership_counts = 7;
+   bool is_membership_visible_to_caller = 8;
+}
+
+enum RosterState_Enum {
+    ROSTERSTATE_ROSTER_STATE_UNKNOWN = 0;
+    ROSTERSTATE_ROSTER_ACTIVE = 1;
+    ROSTERSTATE_ROSTER_DELETED = 2;
+}
+
+message SegmentedMembershipCounts {
+   repeated SegmentedMembershipCount value = 1;
+}
+
+message SegmentedMembershipCount {
+   int32 membership_count = 1;
+   MemberType_Enum member_type = 2;
+   MembershipState_Enum membership_state = 3;
+}
+
+enum MemberType_Enum {
+    MEMBERTYPE_MEMBER_TYPE_UNSPECIFIED = 0;
+    MEMBERTYPE_HUMAN_USER = 1;
+    MEMBERTYPE_ROSTER_MEMBER = 2;
+}
+
+enum MembershipState_Enum {
+    MEMBERSHIPSTATE_MEMBER_UNKNOWN = 0;
+    MEMBERSHIPSTATE_MEMBER_INVITED = 1;
+    MEMBERSHIPSTATE_MEMBER_JOINED = 2;
+    MEMBERSHIPSTATE_MEMBER_NOT_A_MEMBER = 3;
+    MEMBERSHIPSTATE_MEMBER_FAILED = 4;
+}
+
+enum InitiatorType_Enum {
+    INITIATORTYPE_INITIATOR_TYPE_UNSPECIFIED = 0;
+    INITIATORTYPE_INITIATOR_TYPE_END_USER = 1;
+    INITIATORTYPE_INITIATOR_TYPE_ADMIN = 2;
+    INITIATORTYPE_INITIATOR_TYPE_APP = 3;
+}
+
+message RoomUpdatedMetadata {
+   string name = 2;
+   GroupVisibility visibility = 3;
+   User initiator = 4;
+   bool group_link_sharing_enabled = 5;
+   RoomRenameMetadata rename_metadata = 6;
+   GroupDetailsUpdatedMetadata group_details_metadata = 7;
+   InitiatorType_Enum initiator_type = 8;
+   ChatBoardMetadata chat_board_metadata = 9;
+}
+
+message GroupVisibility {
+   state_Enum state = 1;
+}
+
+message RoomRenameMetadata {
+   string new_name = 1;
+   string prev_name = 2;
+}
+
+message GroupDetailsUpdatedMetadata {
+   GroupDetails new_group_details = 1;
+   GroupDetails prev_group_details = 2;
+}
+
+message GroupDetails {
+   string description = 1;
+   string guidelines = 2;
+}
+
+message ChatBoardMetadata {
+   action_Enum action = 1;
+   EntityType_Enum entity_type = 2;
+}
+
+enum action_Enum {
+    ACTION_CHAT_BOARD_ACTION_UNSPECIFIED = 0;
+    ACTION_CREATED = 1;
+}
+
+enum EntityType_Enum {
+    ENTITYTYPE_CHAT_BOARD_ENTITY_UNSPECIFIED = 0;
+    ENTITYTYPE_PINNED_MESSAGE = 1;
+    ENTITYTYPE_KEY_RESOURCE = 2;
+}
+
+message GroupRetentionSettingsUpdatedMetaData {
+   RetentionSettings retention_settings = 1;
+   UserId initiator = 2;
+}
+
+message RetentionSettings {
+   state_Enum state = 1;
+   int64 expiry_timestamp = 2;
+}
+
+message BabelPlaceholderMetadata {
+   oneof placeholder {
+      EditMetadata edit_metadata = 1;
+      HangoutVideoEventMetadata hangout_video_metadata = 2;
+      DeleteMetadata delete_metadata = 3;
+   }
+}
+
+message EditMetadata {
+}
+
+message HangoutVideoEventMetadata {
+   HangoutVideoType_Enum hangout_video_type = 1;
+}
+
+enum HangoutVideoType_Enum {
+    HANGOUTVIDEOTYPE_UNKNOWN_HANGOUT_VIDEO_EVENT_TYPE = 0;
+    HANGOUTVIDEOTYPE_VIDEO_START = 1;
+    HANGOUTVIDEOTYPE_VIDEO_END = 2;
+}
+
+message DeleteMetadata {
+}
+
+message ReadReceiptsSettingsUpdatedMetadata {
+   bool read_receipts_enabled = 1;
+}
+
+message IncomingWebhookChangedMetadata {
+   Usertype_Enum type = 1;
+   string incoming_webhook_name = 2;
+   string old_incoming_webhook_name = 3;
+   UserId initiator_id = 4;
+   User initiator_profile = 5;
+   string obfuscated_incoming_webhook_id = 6;
+}
+
+message IntegrationConfigUpdatedMetadata {
+   repeated IntegrationConfigMutation mutations = 1;
+   UserId initiator_id = 2;
+}
+
+message IntegrationConfigMutation {
+   oneof mutation {
+      AppId add_app = 1;
+      AppId remove_app = 2;
+      PinnedItemId add_pinned_item = 3;
+      PinnedItemId remove_pinned_item = 4;
+   }
+}
+
+message PinnedItemId {
+   oneof id {
+      string drive_id = 1;
+   }
+}
+
+message MigratedFromLegacyThreadedRoomMetadata {
+   bool is_migrated = 1;
+}
+
+enum ChipRenderType_Enum {
+    CHIPRENDERTYPE_CHIP_RENDER_TYPE_UNSPECIFIED = 0;
+    CHIPRENDERTYPE_RENDER = 1;
+    CHIPRENDERTYPE_RENDER_IF_POSSIBLE = 2;
+    CHIPRENDERTYPE_DO_NOT_RENDER = 3;
+}
+
+enum InlineRenderFormat_Enum {
+    INLINERENDERFORMAT_INLINE_RENDER_FORMAT_UNSPECIFIED = 0;
+    INLINERENDERFORMAT_SMART_CHIP = 1;
+}
+
+message InteractionData {
+   SafeUrlProto url = 1;
+}
+
+message ReadReceiptSet {
+   bool enabled = 1;
+   repeated ReadReceipt read_receipts = 2;
+}
+
+message ReadReceipt {
+   User user = 1;
+   int64 read_time_useci = 10;
+}
+
+message Reaction {
+   Emoji emoji = 1;
+   int32 count = 2;
+   bool current_user_participated = 3;
+   string create_timestamp_usec = 4;
+}
+
+message MembershipId {
+   GroupId group_id = 1;
+   MemberId member_id = 2;
+}
+
+message Membership {
+   MembershipId membership_id = 1;
+   MembershipState_Enum membership_state = 2;
+   MembershipRole_Enum membership_role = 3;
+}
+
+message MemberId {
+   string synthetic_id = 1;
+   string user_id = 3;
+   UserId user_id_full = 5;
+   string full_synthetic_id = 6;
+}
+
+enum MembershipRole_Enum {
+    MEMBERSHIPROLE_ROLE_UNKNOWN = 0;
+    MEMBERSHIPROLE_ROLE_NONE = 1;
+    MEMBERSHIPROLE_ROLE_INVITEE = 2;
+    MEMBERSHIPROLE_ROLE_MEMBER = 3;
+    MEMBERSHIPROLE_ROLE_OWNER = 4;
+    MEMBERSHIPROLE_ROLE_APP_OWNER = 5;
+}
+
+message BotResponse {
+   ResponseType_Enum response_type = 1;
+   User bot_user = 2;
+   RequiredAction_Enum required_action = 3;
+   string setup_url = 4;
+}
+
+enum ResponseType_Enum {
+    RESPONSETYPE_UNKNOWN_RESPONSE_TYPE = 0;
+    RESPONSETYPE_ERROR = 1;
+    RESPONSETYPE_SETUP_REQUIRED = 2;
+    RESPONSETYPE_DISABLED_BY_ADMIN = 3;
+    RESPONSETYPE_DISABLED_BY_DEVELOPER = 4;
+    RESPONSETYPE_PRIVATE = 5;
+    RESPONSETYPE_APP_SUGGESTION = 6;
+    RESPONSETYPE_SENSITIVE_ACTION_NOT_ALLOWED_BY_ADMIN = 7;
+}
+
+enum RequiredAction_Enum {
+    REQUIREDACTION_UNKNOWN_SETUP_TYPE = 0;
+    REQUIREDACTION_CONFIGURATION = 1;
+    REQUIREDACTION_AUTHENTICATION = 2;
+}
+
+message Attachment {
+   oneof type {
+      ContextualAddOn add_on_data = 1;
+      CardItem card_add_on_data = 3;
+   }
+   User app_user = 2;
+   string attachment_id = 4;
+   CardItemFormInput local_card_input_cache = 5;
+}
+
+message ContextualAddOn {
+   Toolbar toolbar = 1;
+   repeated Card cards = 2;
+}
+
+message Toolbar {
+   FormattedText name = 1;
+   string icon_url = 2;
+   int32 color = 3;
+   ThemeColors theme_colors = 4;
+}
+
+message FormattedText {
+   string original_text = 1;
+   repeated FormattedTextElement formatted_text_elements = 2;
+   TextAlign_Enum text_align = 3;
+   Identifier id = 4;
+}
+
+message Identifier {
+   string id = 1;
+}
+
+message FormattedTextElement {
+   oneof element {
+      StyledText styled_text = 1;
+      HyperLink hyperlink = 2;
+      Chip chip = 4;
+   }
+}
+
+message StyledText {
+   string text = 1;
+   oneof element {
+      DateTime datetime = 4;
+      DateTimeRange date_time_range = 8;
+   }
+   repeated styles_Enum styles = 2;
+   int32 color = 3;
+   FontWeight_Enum font_weight = 5;
+   ThemeColors theme_colors = 7;
+}
+
+message DateTime {
+   int64 time_millis = 1;
+   int32 time_zone_offset_minutes = 2;
+   bool date_only = 3;
+   bool floating_time = 4;
+}
+
+message DateTimeRange {
+   DateTime start_time = 1;
+   DateTime end_time = 2;
+}
+
+enum styles_Enum {
+    STYLES_NONE = 0;
+    STYLES_BOLD_DEPRECATED = 1;
+    STYLES_ITALIC = 2;
+    STYLES_UNDERLINE = 3;
+    STYLES_STRIKETHROUGH = 4;
+    STYLES_BR = 5;
+    STYLES_UPPERCASE = 6;
+}
+
+enum FontWeight_Enum {
+    FONTWEIGHT_REGULAR = 0;
+    FONTWEIGHT_LIGHT = 1;
+    FONTWEIGHT_MEDIUM = 2;
+    FONTWEIGHT_BOLD = 3;
+}
+
+message ThemeColors {
+   int32 light_theme_color = 1;
+   int32 dark_theme_color = 2;
+}
+
+message HyperLink {
+   string link = 1;
+   string text = 2;
+   string original_link = 3;
+}
+
+message Chip {
+   Icon icon = 1;
+   FormattedText label = 2;
+   OnClick on_click = 3;
+   bool enabled = 4;
+   string alt_text = 5;
+   bool disabled = 6;
+}
+
+message Icon {
+   string icon_url = 1;
+   string alt_text = 2;
+   ImageStyle_Enum image_style = 3;
+   MaterialIcon material_icon = 4;
+   CorsMode_Enum cors_mode = 5;
+}
+
+message MaterialIcon {
+   string name = 1;
+   bool fill = 2;
+   int32 weight = 3;
+   int32 grade = 4;
+}
+
+enum ImageStyle_Enum {
+    IMAGESTYLE_CROP_TYPE_NOT_SET = 0;
+    IMAGESTYLE_SQUARE = 1;
+    IMAGESTYLE_CIRCLE = 2;
+    IMAGESTYLE_RECTANGLE_CUSTOM = 3;
+    IMAGESTYLE_RECTANGLE_4_3 = 4;
+}
+
+enum CorsMode_Enum {
+    CORSMODE_CORS_MODE_NONE = 0;
+    CORSMODE_CORS_MODE_ANONYMOUS = 1;
+    CORSMODE_CORS_MODE_CREDENTIALS = 2;
+}
+
+message OnClick {
+   oneof data {
+      string link = 1;
+      FormAction action = 2;
+      OpenLink open_link = 5;
+      FormAction open_link_action = 7;
+      PushCard push_card = 8;
+      HostAppAction host_app_action = 9;
+      DialogCard dialog_card = 12;
+      OpenGwm open_gwm = 13;
+      OptOutSuggestion opt_out_suggestion = 14;
+      OverflowMenu overflow_menu = 15;
+   }
+}
+
+message FormAction {
+   string action_method_name = 1;
+   repeated string parameters_deprecated = 3;
+   repeated ActionParameter parameters = 4;
+   LoadIndicator_Enum load_indicator = 5;
+   bool persist_values = 6;
+   string encrypted_action = 7;
+   interaction_Enum interaction = 8;
+   repeated string required_widget_ids = 9;
+   bool all_widgets_are_required = 10;
+}
+
+message ActionParameter {
+   string key = 1;
+   string value = 2;
+}
+
+enum LoadIndicator_Enum {
+    LOADINDICATOR_SPINNER = 0;
+    LOADINDICATOR_NONE = 1;
+}
+
+enum interaction_Enum {
+    INTERACTION_INTERACTION_UNSPECIFIED = 0;
+    INTERACTION_OPEN_DIALOG = 1;
+}
+
+message OpenLink {
+   string url = 1;
+   OpenAs_Enum open_as = 2;
+   OnClose_Enum on_close = 3;
+   LoadIndicator_Enum load_indicator = 4;
+   string original_link = 5;
+}
+
+enum OpenAs_Enum {
+    OPENAS_FULL_SIZE = 0;
+    OPENAS_OVERLAY = 1;
+}
+
+enum OnClose_Enum {
+    ONCLOSE_NOTHING = 0;
+    ONCLOSE_RELOAD_ADD_ON = 1;
+    ONCLOSE_DISMISS_DIALOG = 2;
+}
+
+message PushCard {
+   CardItem card = 1;
+}
+
+message CardItem {
+   CardItemHeader header = 1;
+   repeated CardItemSection sections = 2;
+   repeated CardItemAction card_actions = 3;
+   string name = 4;
+   CardItemFixedFooter fixed_footer = 5;
+   CardItemRefreshAction refresh_action = 6;
+   DisplayStyle_Enum display_style = 7;
+   CardItemHeader peek_card_header = 8;
+   ThemeColors background_theme_colors = 9;
+   repeated int32 feature_capabilities = 10;
+   BorderStyle border_style = 11;
+   bool is_gsuite_card = 12;
+   SectionDividerStyle_Enum section_divider_style = 13;
+}
+
+message CardItemHeader {
+   FormattedText title = 1;
+   FormattedText subtitle = 2;
+   ImageStyle_Enum image_style = 3;
+   string image_url = 4;
+   string image_alt_text = 5;
+   CorsMode_Enum cors_mode = 6;
+}
+
+message CardItemSection {
+   string description = 1;
+   repeated Widget widgets = 2;
+   bool collapsable = 3;
+   int32 num_uncollapsable_widgets = 4;
+   FormattedText header = 5;
+   Identifier id = 6;
+   CollapseControl collapse_control = 7;
+}
+
+message Widget {
+   oneof data {
+      TextWidget text_widget = 1;
+      LabelContentPairWidget label_content_pair_widget = 2;
+      TextParagraph text_paragraph = 3;
+      TextKeyValue text_key_value = 4;
+      ImageKeyValue image_key_value = 5;
+      Image image = 9;
+      Menu menu = 10;
+      TextField text_field = 11;
+      SelectionControl selection_control = 12;
+      KeyValue key_value = 13;
+      DateTimePicker date_time_picker = 14;
+      Divider divider = 16;
+      Grid grid = 17;
+      Columns columns = 18;
+      Carousel carousel = 20;
+      ChipList chip_list = 21;
+   }
+   repeated Button buttons = 8;
+   HorizontalAlign_Enum horizontal_align = 15;
+   Identifier id = 19;
+}
+
+message TextWidget {
+   repeated string line = 1;
+}
+
+message LabelContentPairWidget {
+   repeated LabelContentPair label_content_pair = 1;
+}
+
+message LabelContentPair {
+   string label = 1;
+   string content = 2;
+}
+
+message TextParagraph {
+   FormattedText text = 1;
+   int32 max_lines = 2;
+}
+
+message TextKeyValue {
+   FormattedText key = 1;
+   FormattedText text = 2;
+   OnClick on_click = 3;
+}
+
+message ImageKeyValue {
+   string icon_url = 1;
+   FormattedText text = 2;
+   OnClick on_click = 3;
+}
+
+message Image {
+   string fife_image_url = 1;
+   OnClick on_click = 2;
+   double aspect_ratio = 3;
+   string alt_text = 4;
+   Identifier id = 5;
+   CorsMode_Enum cors_mode = 6;
+   Dimension width = 7;
+}
+
+message KeyValue {
+   string icon_url = 1;
+   FormattedText top_label = 2;
+   FormattedText content = 3;
+   FormattedText bottom_label = 4;
+   OnClick on_click = 5;
+   bool content_multiline = 8;
+   string icon_alt_text = 9;
+   ImageStyle_Enum image_style = 10;
+   Icon start_icon = 11;
+   CorsMode_Enum cors_mode = 13;
+   StartIconVerticalAlign_Enum start_icon_vertical_align = 14;
+   oneof control {
+      Button button = 6;
+      SwitchWidget switch_widget = 7;
+      Icon end_icon = 12;
+   }
+   ControlVerticalAlign_Enum control_vertical_align = 15;
+}
+
+enum StartIconVerticalAlign_Enum {
+    STARTICONVERTICALALIGN_VERTICAL_ALIGN_UNSPECIFIED = 0;
+    STARTICONVERTICALALIGN_VERTICAL_ALIGN_TOP = 1;
+    STARTICONVERTICALALIGN_VERTICAL_ALIGN_CENTER = 2;
+    STARTICONVERTICALALIGN_VERTICAL_ALIGN_BOTTOM = 3;
+}
+
+message Button {
+   oneof type {
+      TextButton text_button = 1;
+      ImageButton image_button = 2;
+   }
+}
+
+message TextButton {
+   FormattedText text = 1;
+   OnClick on_click = 2;
+   Identifier id = 3;
+   bool disabled = 4;
+   style_Enum style = 5;
+   int32 background_color = 6;
+   ThemeColors background_theme_colors = 7;
+   string alt_text = 8;
+   string icon_url = 9;
+   MaterialIcon material_icon = 10;
+   CorsMode_Enum cors_mode = 11;
+   Dimension width = 12;
+}
+
+enum style_Enum {
+    STYLE_UNSPECIFIED = 0;
+    STYLE_OUTLINED = 1;
+    STYLE_FILLED = 2;
+    STYLE_FILLED_TONAL = 3;
+    STYLE_TEXT = 4;
+}
+
+message ImageButton {
+   string icon_url = 1;
+   OnClick on_click = 2;
+   string name = 3;
+   Identifier id = 4;
+   bool disabled = 5;
+   MaterialIcon material_icon = 6;
+   CorsMode_Enum cors_mode = 7;
+   style_Enum style = 8;
+}
+
+message SwitchWidget {
+   string name = 1;
+   string value = 2;
+   bool selected = 3;
+   FormAction on_change = 4;
+   Identifier id = 5;
+   ControlType_Enum control_type = 6;
+}
+
+enum ControlType_Enum {
+    CONTROLTYPE_UNSPECIFIED = 0;
+    CONTROLTYPE_SWITCH = 1;
+    CONTROLTYPE_CHECKBOX = 2;
+}
+
+enum ControlVerticalAlign_Enum {
+    CONTROLVERTICALALIGN_VERTICAL_ALIGN_UNSPECIFIED = 0;
+    CONTROLVERTICALALIGN_VERTICAL_ALIGN_TOP = 1;
+    CONTROLVERTICALALIGN_VERTICAL_ALIGN_CENTER = 2;
+    CONTROLVERTICALALIGN_VERTICAL_ALIGN_BOTTOM = 3;
+}
+
+message Divider {
+}
+
+message Grid {
+   Identifier id = 1;
+   string title = 2;
+   repeated GridItem items = 3;
+   BorderStyle border_style = 4;
+   int32 num_columns = 5;
+   OnClick on_click = 6;
+}
+
+message GridItem {
+   string identifier = 1;
+   ImageComponent image = 2;
+   string title = 3;
+   string subtitle = 4;
+   TextAlignment_Enum text_alignment = 5;
+   layout_Enum layout = 9;
+   OnClick on_click = 10;
+}
+
+message ImageComponent {
+   string image_url = 1;
+   string alt_text = 2;
+   ImageCropStyle crop_style = 3;
+   BorderStyle border_style = 4;
+   CorsMode_Enum cors_mode = 5;
+}
+
+message ImageCropStyle {
+   Usertype_Enum type = 1;
+   double aspect_ratio = 2;
+}
+
+message BorderStyle {
+   Usertype_Enum type = 1;
+   ThemeColors stroke_color = 2;
+   int32 corner_radius = 3;
+}
+
+enum TextAlignment_Enum {
+    TEXTALIGNMENT_NOT_SET = 0;
+    TEXTALIGNMENT_START = 1;
+    TEXTALIGNMENT_CENTER = 2;
+    TEXTALIGNMENT_END = 3;
+}
+
+enum layout_Enum {
+    LAYOUT_NOT_SET = 0;
+    LAYOUT_TEXT_BELOW = 1;
+    LAYOUT_TEXT_ABOVE = 2;
+}
+
+message Columns {
+   WrapStyle_Enum wrap_style = 1;
+   repeated Column column_items = 2;
+}
+
+enum WrapStyle_Enum {
+    WRAPSTYLE_UNSPECIFIED_WRAP_STYLE = 0;
+    WRAPSTYLE_NOWRAP = 1;
+    WRAPSTYLE_WRAP = 2;
+}
+
+message Column {
+   HorizontalSizeStyle_Enum horizontal_size_style = 1;
+   HorizontalAlignment_Enum horizontal_alignment = 2;
+   VerticalAlignment_Enum vertical_alignment = 3;
+   repeated Widgets widgets = 4;
+}
+
+enum HorizontalSizeStyle_Enum {
+    HORIZONTALSIZESTYLE_UNSPECIFIED_HORIZONTAL_SIZE_STYLE = 0;
+    HORIZONTALSIZESTYLE_FILL_AVAILABLE_SPACE = 1;
+    HORIZONTALSIZESTYLE_FILL_MINIMUM_SPACE = 2;
+}
+
+enum HorizontalAlignment_Enum {
+    HORIZONTALALIGNMENT_NOT_SET = 0;
+    HORIZONTALALIGNMENT_START = 1;
+    HORIZONTALALIGNMENT_CENTER = 2;
+    HORIZONTALALIGNMENT_END = 3;
+}
+
+enum VerticalAlignment_Enum {
+    VERTICALALIGNMENT_UNSPECIFIED_VERTICAL_ALIGNMENT = 0;
+    VERTICALALIGNMENT_CENTER = 1;
+    VERTICALALIGNMENT_TOP = 2;
+    VERTICALALIGNMENT_BOTTOM = 3;
+}
+
+message Widgets {
+   oneof data {
+      DateTimePicker date_time_picker = 1;
+      Image image = 2;
+      KeyValue key_value = 3;
+      SelectionControl selection_control = 4;
+      TextField text_field = 5;
+      TextParagraph text_paragraph = 6;
+      ChipList chip_list = 8;
+   }
+   repeated Button buttons = 7;
+}
+
+message DateTimePicker {
+   string name = 1;
+   string label = 2;
+   Usertype_Enum type = 3;
+   int64 value_ms_epoch = 4;
+   int32 timezone_offset_date = 5;
+   FormAction on_change = 6;
+   int32 color = 7;
+   ThemeColors theme_colors = 8;
+   Validation validation = 9;
+   bool disabled = 10;
+}
+
+message Validation {
+   bool is_required = 1;
+   int32 character_limit = 2;
+   InputType_Enum input_type = 3;
+}
+
+enum InputType_Enum {
+    INPUTTYPE_INPUT_TYPE_UNSPECIFIED = 0;
+    INPUTTYPE_TEXT = 1;
+    INPUTTYPE_INTEGER = 2;
+    INPUTTYPE_FLOAT = 3;
+    INPUTTYPE_EMAIL = 4;
+    INPUTTYPE_EMOJI_PICKER = 5;
+}
+
+message SelectionControl {
+   string name = 1;
+   Usertype_Enum type = 2;
+   repeated SelectionItem items = 3;
+   FormAction on_change = 4;
+   string label = 5;
+   Identifier id = 6;
+   int32 multi_select_max_selected_items = 7;
+   int32 multi_select_min_query_length = 8;
+   oneof multi_select_data_source {
+      FormAction dynamic_data_source = 9;
+      PlatformDataSource platform_data_source = 10;
+   }
+   Validation validation = 11;
+   bool disabled = 12;
+}
+
+message SelectionItem {
+   string text = 1;
+   bool selected = 2;
+   string value = 3;
+   Identifier id = 4;
+   string start_icon_uri = 5;
+   string bottom_text = 6;
+   CorsMode_Enum cors_mode = 7;
+}
+
+message PlatformDataSource {
+   oneof data_source {
+      CommonDataSource_Enum common_data_source = 1;
+      HostAppDataSource host_app_data_source = 2;
+   }
+   oneof data_source_spec {
+      DriveDataSourceSpec drive_data_source_spec = 3;
+   }
+}
+
+enum CommonDataSource_Enum {
+    COMMONDATASOURCE_UNKNOWN = 0;
+    COMMONDATASOURCE_USER = 1;
+    COMMONDATASOURCE_DRIVE = 2;
+    COMMONDATASOURCE_MINPICK = 3;
+}
+
+message HostAppDataSource {
+   oneof source {
+      ChatDataSource chat_data_source = 1;
+      WorkflowDataSource workflow_data_source = 2;
+   }
+}
+
+message ChatDataSource {
+   oneof source {
+      SpaceDataSource space_data_source = 1;
+   }
+}
+
+message SpaceDataSource {
+   bool default_to_current_space = 1;
+}
+
+message WorkflowDataSource {
+   bool include_variables = 1;
+   Usertype_Enum type = 2;
+}
+
+message DriveDataSourceSpec {
+   repeated IncludeItemTypes_Enum include_item_types = 1;
+}
+
+enum IncludeItemTypes_Enum {
+    INCLUDEITEMTYPES_DRIVE_ITEM_TYPE_UNSPECIFIED = 0;
+    INCLUDEITEMTYPES_FORM = 1;
+}
+
+message TextField {
+   string name = 1;
+   int32 max_lines = 2;
+   string label = 3;
+   string hint_text = 4;
+   Usertype_Enum type = 5;
+   string value = 6;
+   LineType_Enum line_type = 7;
+   FormAction on_change = 8;
+   AutoComplete auto_complete = 9;
+   FormAction auto_complete_callback = 10;
+   Identifier id = 11;
+   bool auto_complete_multiple_selections = 12;
+   Validation validation = 13;
+   bool enable_email_autocomplete = 14;
+   string placeholder_text = 15;
+   oneof data_source {
+      HostAppDataSource host_app_data_source = 16;
+   }
+   bool disabled = 18;
+}
+
+enum LineType_Enum {
+    LINETYPE_SINGLE = 0;
+    LINETYPE_MULTIPLE = 1;
+}
+
+message AutoComplete {
+   repeated AutoCompleteItem items = 1;
+}
+
+message AutoCompleteItem {
+   string text = 1;
+}
+
+message ChipList {
+   layout_Enum layout = 1;
+   repeated Chip chips = 2;
+}
+
+message Carousel {
+   FormattedText title = 1;
+   repeated NestedWidget widgets = 4;
+}
+
+message NestedWidget {
+   oneof data {
+      TextParagraph text_paragraph = 1;
+      KeyValue key_value = 2;
+      TextField text_field = 3;
+      DateTimePicker date_time_picker = 4;
+      SelectionControl selection_control = 6;
+      Divider divider = 7;
+      Columns columns = 8;
+      ChipList chip_list = 9;
+   }
+   repeated Button buttons = 5;
+}
+
+message Menu {
+   string name = 1;
+   repeated MenuItem items = 2;
+   FormAction on_change = 4;
+   string label = 5;
+}
+
+message MenuItem {
+   string text = 1;
+   bool selected = 3;
+   string value = 4;
+}
+
+enum HorizontalAlign_Enum {
+    HORIZONTALALIGN_NOT_SET = 0;
+    HORIZONTALALIGN_START = 1;
+    HORIZONTALALIGN_CENTER = 2;
+    HORIZONTALALIGN_END = 3;
+}
+
+message CollapseControl {
+   HorizontalAlign_Enum horizontal_align = 1;
+   Button expand_button = 2;
+   Button collapse_button = 3;
+}
+
+enum SectionDividerStyle_Enum {
+    SECTIONDIVIDERSTYLE_DIVIDER_STYLE_UNSPECIFIED = 0;
+    SECTIONDIVIDERSTYLE_SOLID_DIVIDER = 1;
+    SECTIONDIVIDERSTYLE_NO_DIVIDER = 2;
+}
+
+message CardItemAction {
+   string action_label = 1;
+   OnClick on_click = 2;
+}
+
+message CardItemFixedFooter {
+   repeated Button buttons = 1;
+   TextButton primary_button = 2;
+   TextButton secondary_button = 3;
+   repeated NestedWidget widgets = 4;
+}
+
+message CardItemRefreshAction {
+   FormAction method = 1;
+}
+
+enum DisplayStyle_Enum {
+    DISPLAYSTYLE_DISPLAY_STYLE_UNSPECIFIED = 0;
+    DISPLAYSTYLE_PEEK = 1;
+    DISPLAYSTYLE_REPLACE = 2;
+}
+
+message HostAppAction {
+   oneof action {
+      GmailActions gmail_action = 1;
+      CalendarActions calendar_action = 2;
+      DriveActions drive_action = 3;
+      SheetsActions sheets_action = 4;
+      EditorActions editor_action = 5;
+      ChatActions chat_action = 6;
+      WorkflowActions workflow_action = 7;
+      DuetAiAction duet_ai_action = 8;
+   }
+}
+
+message GmailActions {
+   OpenCreatedDraftAction open_created_draft_action = 1;
+   OpenChatAction open_chat_action = 2;
+   InsertHtmlToDraftAction insert_html_to_draft_action = 3;
+   UpdateDraftAction update_draft_action = 4;
+   AddonComposeUiAction addon_compose_ui_action = 5;
+}
+
+message OpenCreatedDraftAction {
+   string message_server_perm_id = 1;
+   string thread_server_perm_id = 2;
+   Usertype_Enum type = 3;
+}
+
+message OpenChatAction {
+   repeated Invitee invitee = 1;
+   string name = 2;
+}
+
+message Invitee {
+   string email = 1;
+}
+
+message InsertHtmlToDraftAction {
+   repeated InsertContent insert_contents = 1;
+   Usertype_Enum type = 2;
+}
+
+message InsertContent {
+   ContentType_Enum content_type = 1;
+   oneof content {
+      string plain_text_content = 2;
+      SafeHtmlProto safe_html_content = 3;
+   }
+}
+
+enum ContentType_Enum {
+    // CONTENTTYPE_UNRECOGNIZED = -1;
+    CONTENTTYPE_UNSPECIFIED = 0;
+    CONTENTTYPE_TEXT = 1;
+    CONTENTTYPE_MUTABLE_HTML = 2;
+    CONTENTTYPE_IMMUTABLE_HTML = 3;
+}
+
+message SafeHtmlProto {
+   string private_do_not_access_or_else_safe_html_wrapped_value = 2;
+}
+
+message UpdateDraftAction {
+   InsertHtmlToDraftAction insert_html_to_draft_action = 1;
+   UpdateRecipients update_recipients = 2;
+   UpdateSubject update_subject = 3;
+   SendStatus_Enum send_status = 4;
+}
+
+message UpdateRecipients {
+   repeated Recipient recipient = 1;
+}
+
+message Recipient {
+   RecipientType_Enum recipient_type = 1;
+   string email = 2;
+}
+
+enum RecipientType_Enum {
+    // RECIPIENTTYPE_UNRECOGNIZED = -1;
+    RECIPIENTTYPE_RECIPIENT_TYPE_UNSPECIFIED = 0;
+    RECIPIENTTYPE_TO = 1;
+    RECIPIENTTYPE_CC = 2;
+    RECIPIENTTYPE_BCC = 3;
+}
+
+message UpdateSubject {
+   string subject = 1;
+}
+
+enum SendStatus_Enum {
+    // SENDSTATUS_UNRECOGNIZED = -1;
+    SENDSTATUS_NOT_SEND = 0;
+    SENDSTATUS_CONTINUE_SEND = 1;
+}
+
+message AddonComposeUiAction {
+   Usertype_Enum type = 1;
+}
+
+message CalendarActions {
+   oneof action {
+      EditConferenceDataAction edit_conference_data_action = 1;
+      EditAttendeesAction edit_attendees_action = 2;
+      AddAttachmentsAction add_attachments_action = 3;
+   }
+}
+
+message EditConferenceDataAction {
+   ConferenceData set_conference_data = 1;
+   bytes set_conference_data_bytes = 2;
+}
+
+message ConferenceData {
+   repeated Conference conference = 1;
+   CreateConferenceRequest create_request = 3;
+   ConferenceProvider provider = 5;
+   ConferenceParameters parameters = 7;
+   string signature = 8;
+   ConferenceSolution conference_solution = 9;
+   string conference_id = 10;
+   string notes = 11;
+   SafeHtmlProto notes_html = 12;
+}
+
+message CreateConferenceRequest {
+   string request_id = 1;
+   Key provider_key = 2;
+   NamedHangoutOptions named_hangout_options = 3;
+   ConferenceRequestStatus status = 5;
+   Key conference_solution_key = 6;
+}
+
+message Key {
+   Usertype_Enum type = 1;
+   AddOnId add_on_id = 2;
+}
+
+message AddOnId {
+   string apps_script_id = 1;
+   string deployment_id = 2;
+   string solution_id = 3;
+}
+
+message NamedHangoutOptions {
+   string name = 1;
+}
+
+message ConferenceRequestStatus {
+   StatusCode_Enum status_code = 1;
+   ConferenceError error = 3;
+}
+
+enum StatusCode_Enum {
+    STATUSCODE_UNKNOWN = 0;
+    STATUSCODE_PENDING = 1;
+    STATUSCODE_SUCCESS = 2;
+    STATUSCODE_FAILURE = 3;
+}
+
+message ConferenceError {
+   string error_message = 2;
+   int32 code = 3;
+}
+
+message Conference {
+   Usertype_Enum type = 1;
+   string uri = 2;
+   string name = 3;
+   string passcode = 4;
+   string region_code = 5;
+   string language_code = 6;
+   EntryPointType_Enum entry_point_type = 8;
+   string label = 9;
+   string pin = 10;
+   string access_code = 11;
+   string meeting_code = 12;
+   string passcode2 = 13;
+   string password = 14;
+   bool gateway_access_enabled = 15;
+   repeated features_Enum features = 16;
+   SafeUrlProto redirected_uri = 17;
+}
+
+enum EntryPointType_Enum {
+    ENTRYPOINTTYPE_UNKNOWN_ENTRY_POINT = 0;
+    ENTRYPOINTTYPE_VIDEO = 1;
+    ENTRYPOINTTYPE_PHONE = 2;
+    ENTRYPOINTTYPE_MORE = 3;
+    ENTRYPOINTTYPE_SIP = 4;
+    ENTRYPOINTTYPE_STREAM = 5;
+}
+
+enum features_Enum {
+    FEATURES_UNKNOWN_FEATURE = 0;
+    FEATURES_TOLL = 1;
+    FEATURES_TOLL_FREE = 2;
+}
+
+message ConferenceSolution {
+   Key key = 1;
+   string name = 2;
+   string icon_uri = 3;
+}
+
+message ConferenceProvider {
+   Key key = 1;
+   string provider_name = 2;
+   string provider_icon_uri = 3;
+}
+
+message ConferenceParameters {
+   AddOnParameters add_on_parameters = 1;
+   HangoutsMeetParameters hangouts_meet_parameters = 2;
+}
+
+message AddOnParameters {
+   //repeated parameters parameters = 1;
+}
+
+message HangoutsMeetParameters {
+   repeated MeetDialInNumberClasses_Enum meet_dial_in_number_classes = 1;
+   bool cse_enabled = 2;
+   bool attend_for_me_eligible = 3;
+   AttendForMeState_Enum attend_for_me_state = 4;
+}
+
+enum MeetDialInNumberClasses_Enum {
+    MEETDIALINNUMBERCLASSES_UNKNOWN_NUMBER_CLASS = 0;
+    MEETDIALINNUMBERCLASSES_LOW_COST = 1;
+    MEETDIALINNUMBERCLASSES_HIGH_COST = 2;
+    MEETDIALINNUMBERCLASSES_LEGACY = 3;
+}
+
+enum AttendForMeState_Enum {
+    ATTENDFORMESTATE_ATTEND_FOR_ME_STATE_UNSPECIFIED = 0;
+    ATTENDFORMESTATE_CAN_BE_REQUESTED = 1;
+    ATTENDFORMESTATE_DISABLED = 2;
+    ATTENDFORMESTATE_DISABLED_BY_HOST = 3;
+}
+
+message EditAttendeesAction {
+   repeated string add_attendee_emails = 1;
+}
+
+message AddAttachmentsAction {
+   repeated AddonAttachment addon_attachments = 1;
+}
+
+message AddonAttachment {
+   string resource_url = 1;
+   string title = 2;
+   string mime_type = 3;
+   string icon_url = 4;
+}
+
+message DriveActions {
+   oneof action {
+      RequestFileScope request_file_scope = 1;
+   }
+}
+
+message RequestFileScope {
+   string app_id = 1;
+   string app_name = 2;
+   string item_id = 3;
+}
+
+message SheetsActions {
+   oneof action {
+      CustomFunctionReturnValueAction custom_function_return_value = 1;
+   }
+}
+
+message CustomFunctionReturnValueAction {
+   oneof result {
+      Value value = 1;
+      string error_message = 2;
+   }
+}
+
+message Value {
+   oneof kind {
+      NullValue_Enum null_value = 1;
+      double number_value = 2;
+      string string_value = 3;
+      bool bool_value = 4;
+      Struct struct_value = 5;
+      ListValue list_value = 6;
+   }
+}
+
+enum NullValue_Enum {
+    // NULLVALUE_UNRECOGNIZED = -1;
+    NULLVALUE_NULL_VALUE = 0;
+}
+
+message Struct {
+   //repeated fields fields = 1;
+}
+
+message ListValue {
+   repeated Value values = 1;
+}
+
+message EditorActions {
+   oneof action {
+      RequestFileScope request_file_scope = 1;
+      CreateTable create_table = 2;
+   }
+}
+
+message CreateTable {
+   Table table = 1;
+}
+
+message Table {
+   SchemaDef schema_def = 1;
+   repeated Row rows = 2;
+}
+
+message SchemaDef {
+   repeated FieldSchema fields = 1;
+   OutputSchema output_schema = 2;
+   string id = 3;
+}
+
+message FieldSchema {
+   string name = 1;
+   Usertype_Enum type = 2;
+   bool is_optional = 3;
+}
+
+message OutputSchema {
+   string name = 2;
+}
+
+message Row {
+   //repeated values values = 1;
+}
+
+message ChatActions {
+   oneof action {
+      UpdateDraftWithDriveItem update_draft_drive_item = 1;
+      GsuiteTasksActions gsuite_tasks_actions = 2;
+      GsuiteCallActions gsuite_call_actions = 3;
+      GsuiteFallbackActions gsuite_fallback_actions = 4;
+   }
+}
+
+message UpdateDraftWithDriveItem {
+   oneof drive_item {
+      UpdateDraftWithDriveItemID update_drive_item = 1;
+      UpdateDraftWithDriveItemFromPicker select_drive_item = 2;
+   }
+}
+
+message UpdateDraftWithDriveItemID {
+   string drive_item_id = 1;
+}
+
+message UpdateDraftWithDriveItemFromPicker {
+}
+
+message GsuiteTasksActions {
+   string task_id = 1;
+}
+
+message GsuiteCallActions {
+   string meeting_url = 1;
+}
+
+message GsuiteFallbackActions {
+}
+
+message WorkflowActions {
+   oneof action {
+      SaveWorkflowAction save_workflow_action = 1;
+      ReturnOutputVariablesAction return_output_variables_action = 2;
+      ResourceRetrievedAction resource_retrieved_action = 3;
+      RemoveWorkflowElementAction remove_workflow_element_action = 4;
+   }
+}
+
+message SaveWorkflowAction {
+}
+
+message ReturnOutputVariablesAction {
+   repeated WorkflowVariableValue variable_values = 1;
+}
+
+message WorkflowVariableValue {
+   string variable_id = 1;
+   WorkflowVariableData variable_data = 2;
+}
+
+message WorkflowVariableData {
+   repeated bool boolean_values = 11;
+   repeated int64 integer_values = 12;
+   repeated float float_values = 13;
+   repeated string string_values = 14;
+   repeated Timestamp timestamp_values = 15;
+   repeated WorkflowResourceReference resource_references = 16;
+   repeated WorkflowResourceData resource_values = 17;
+   repeated string email_address_values = 18;
+   repeated string google_user_values = 19;
+}
+
+message WorkflowResourceReference {
+   WorkflowResourceType resource_type = 1;
+   string resource_id = 2;
+}
+
+message WorkflowResourceType {
+   string workflow_bundle_id = 1;
+   string workflow_resource_definition_id = 2;
+}
+
+message WorkflowResourceData {
+   WorkflowResourceType resource_type = 1;
+   //repeated fields fields = 2;
+}
+
+message ResourceRetrievedAction {
+   WorkflowVariableData resource = 2;
+}
+
+message RemoveWorkflowElementAction {
+}
+
+message DuetAiAction {
+   oneof use_case {
+      LinkAccount link_account = 1;
+      Prompt prompt = 2;
+   }
+}
+
+message LinkAccount {
+   string service_id = 1;
+}
+
+message Prompt {
+   string prompt = 1;
+}
+
+message DialogCard {
+   CardItem card = 1;
+}
+
+message OpenGwm {
+   uint64 gsm_id = 1;
+}
+
+message OptOutSuggestion {
+   uint64 gsm_id = 1;
+   intent_Enum intent = 2;
+}
+
+enum intent_Enum {
+    INTENT_UNSPECIFIED = 0;
+    INTENT_OPT_OUT_TEMPORARY = 1;
+    INTENT_OPT_OUT_PERMANENT = 2;
+    INTENT_OPT_OUT_AUTO_SNOOZE = 3;
+}
+
+message OverflowMenu {
+   repeated OverflowMenuItem items = 1;
+}
+
+message OverflowMenuItem {
+   Icon start_icon = 1;
+   string text = 2;
+   OnClick on_click = 3;
+   bool disabled = 4;
+}
+
+enum TextAlign_Enum {
+    TEXTALIGN_LEFT = 0;
+    TEXTALIGN_CENTER = 1;
+    TEXTALIGN_RIGHT = 2;
+}
+
+message Card {
+   CardHeader header = 1;
+   repeated Section sections = 2;
+   repeated CardAction card_actions = 3;
+   string name = 4;
+   FixedFooter fixed_footer = 5;
+   RefreshAction refresh_action = 6;
+   ThemeColors background_theme_colors = 7;
+}
+
+message CardHeader {
+   FormattedText title = 1;
+   FormattedText subtitle = 2;
+   ImageStyle_Enum image_style = 3;
+   string image_url = 4;
+   string image_alt_text = 5;
+   CorsMode_Enum cors_mode = 6;
+}
+
+message Section {
+   string description = 1;
+   repeated Widget widgets = 2;
+   bool collapsable = 3;
+   int32 num_uncollapsable_widgets = 4;
+   FormattedText header = 5;
+   Identifier id = 6;
+}
+
+message CardAction {
+   string action_label = 1;
+   OnClick on_click = 2;
+}
+
+message FixedFooter {
+   repeated Button buttons = 1;
+   TextButton primary_button = 2;
+   TextButton secondary_button = 3;
+}
+
+message RefreshAction {
+   FormAction method = 1;
+}
+
+message CardItemFormInput {
+   //repeated FormInput form_input = 1;
+}
+
+message MessageTranslation {
+   string text_body = 1;
+   repeated Annotation annotation = 2;
+   repeated AnnotatedSpan annotated_span = 3;
+   string original_detected_locale = 4;
+   string translated_locale = 5;
+}
+
+message DriveArtifact {
+   string url = 1;
+   string title = 2;
+   string thumbnail_url = 3;
+   string mimetype = 4;
+}
+
+message ComposeMetadata {
+   bool smart_compose_suggestion_displayed = 1;
+   repeated string smart_compose_accepted_suggestions = 2;
+   int32 number_of_deletes = 3;
+   int32 number_of_undos = 4;
+   int32 number_of_redos = 5;
+   bool has_dropped_or_pasted_files = 6;
+   bool autocorrect_applied = 7;
+   int32 number_of_pastes = 8;
+   bool smart_reply_displayed = 9;
+   bool smart_reply_selected = 10;
+   int32 number_of_mention_inserts = 11;
+}
+
+message QuotedMessageMetadata {
+   MessageId message_id = 1;
+   int64 last_update_time_when_quoted_micros = 2;
+   MessageState_Enum message_state = 3;
+   UserId creator_id = 4;
+   User creator_profile = 5;
+   string text_body = 6;
+   repeated Annotation annotation = 7;
+   repeated AnnotatedSpan annotated_span = 8;
+   AppId origin_app_id = 9;
+   string app_profile_name = 10;
+   BotAttachmentState_Enum bot_attachment_state = 11;
+   bool is_blocked = 12;
+   int64 off_the_record_expiry_time_msec = 13;
+   User acting_creator = 14;
+   User acting_updater = 15;
+   User updater = 16;
+   int64 last_edit_time_micros = 17;
+   bool is_edited = 18;
+}
+
+enum MessageState_Enum {
+    MESSAGESTATE_MESSAGE_STATE_UNSPECIFIED = 0;
+    MESSAGESTATE_MESSAGE_STATE_ACTIVE = 1;
+    MESSAGESTATE_MESSAGE_STATE_DELETED = 2;
+    MESSAGESTATE_MESSAGE_STATE_OTR_EDITED = 3;
+}
+
+enum BotAttachmentState_Enum {
+    BOTATTACHMENTSTATE_BOT_ATTACHMENT_STATE_UNSPECIFIED = 0;
+    BOTATTACHMENTSTATE_BOT_ATTACHMENT_STATE_HAS_BOT_ATTACHMENT = 1;
+    BOTATTACHMENTSTATE_BOT_ATTACHMENT_STATE_NO_BOT_ATTACHMENT = 2;
+}
+
+message MigratedFromLegacyThreadedSpaceMetadata {
+   string parent_id = 1;
+   bool is_migrated = 2;
+}
+
+message GroupRetentionSettingsUpdatedMetadata {
+   RetentionSettings retention_settings = 1;
+   Member initiator = 2;
+   string parent_local_id = 3;
+   User acting_initiator = 4;
+}
+
+message SystemMessageMetadata {
+   Usertype_Enum type = 1;
+   oneof metadata {
+      MembershipChangedMetadata membership_changed = 2;
+      RoomUpdatedMetadata room_updated = 4;
+      GroupRetentionSettingsUpdatedMetadata group_retention_settings_updated = 5;
+      ReadReceiptsSettingsUpdatedMetadata read_receipts_settings_updated = 6;
+      IncomingWebhookChangedMetadata incoming_webhook_changed_metadata = 7;
+      MigratedFromLegacyThreadedSpaceMetadata migrated_from_legacy_threaded_space_metadata = 8;
+   }
+   string parent_local_id = 3;
+}
+
+message Message {
+   string DEPRECATED_local_id = 2;
+   GroupId DEPRECATED_group_id = 3;
+   string DEPRECATED_topic_id = 4;
+   User creator = 5;
+   string text_body = 6;
+   repeated Message replies = 8;
+   repeated Annotation annotation = 9;
+   repeated AnnotatedSpan annotated_span = 10;
+   bool display_read_line = 11;
+   string creation_time_usec = 12;
+   bool is_local_only = 13;
+   bool is_unread = 15;
+   bool mentions_self = 16;
+   int64 creation_time_msec = 17;
+   MessageId message_id = 18;
+   bool is_coalesced = 19;
+   string last_update_time_usec = 20;
+   bool has_failed_remotely = 22;
+   int64 local_creation_time_msec = 23;
+   int64 local_last_update_time_msec = 24;
+   int64 collapsed_messages_count = 26;
+   repeated SystemMessageMetadata system_message = 27;
+   bool is_edited = 28;
+   bool is_local_edit = 29;
+   bool topic_is_off_the_record = 30;
+   ReadState_Enum read_state = 32;
+   int64 off_the_record_expiry_time_msec = 33;
+   string app_profile_avatar = 34;
+   string app_profile_name = 35;
+   repeated BotResponse bot_response = 38;
+   VisibilityState_Enum visibility_state = 39;
+   repeated Reaction reactions = 40;
+   MessageIntegrationPayload message_integration_payload = 42;
+   AppId origin_app_id = 45;
+   EditableBy_Enum editable_by = 46;
+   DeletableBy_Enum deletable_by = 47;
+   bool is_blocked = 48;
+   Membership creator_membership = 49;
+   MessageAttributes attributes = 50;
+   TombstoneMetadata tombstone_metadata = 51;
+   int64 delete_time_in_msec = 52;
+   repeated Attachment attachment = 53;
+   bool failed_due_to_dlp = 54;
+   DlpMetricsMetadata dlp_metrics_metadata = 55;
+   repeated OriginAppSuggestion origin_app_suggestions = 56;
+   repeated PrivateMessage private_messages = 57;
+   bool is_inline_reply = 58;
+   bool is_local_tombstone = 59;
+   ErrorReason_Enum error_reason = 60;
+   QuotedMessageMetadata quoted_message_metadata = 61;
+   QuotedByState_Enum quoted_by_state = 62;
+   User updater = 63;
+   User acting_creator = 64;
+   User acting_updater = 65;
+   Message draft_edit = 66;
+   bool is_local_delete = 67;
+   RichTextFormattingType_Enum rich_text_formatting_type = 68;
+   ComposeMetadata compose_metadata = 69;
+   int32 number_of_unicode_emojis = 70;
+   repeated MessageLabel message_labels = 71;
+   bool request_reply_in_thread = 72;
+   repeated MatchedAnnotation matched_annotation = 73;
+   repeated AnnotatedSpan snippet_span = 74;
+   MessageTranslation message_translation = 75;
+}
+
+enum VisibilityState_Enum {
+    VISIBILITYSTATE_UNKNOWN = 0;
+    VISIBILITYSTATE_PUBLIC = 1;
+    VISIBILITYSTATE_PRIVATE = 2;
+}
+
+message MatchedAnnotation {
+   Annotation annotation = 1;
+   repeated AnnotatedSpan annotated_title = 2;
+}
+
+enum ReadState_Enum {
+    READSTATE_UNKNOWN = 0;
+    READSTATE_IS_UNREAD = 1;
+    READSTATE_WAS_UNREAD_WHEN_DRAWN = 2;
+    READSTATE_WAS_READ_WHEN_DRAWN = 3;
+}
+
+message MessageIntegrationPayload {
+   Usertype_Enum type = 1;
+   int64 project_number = 2;
+   oneof payload {
+      TasksMessageIntegrationPayload tasks_message_integration_payload = 101;
+   }
+}
+
+message TasksMessageIntegrationPayload {
+}
+
+enum EditableBy_Enum {
+    EDITABLEBY_PERMISSION_UNSPECIFIED = 0;
+    EDITABLEBY_NO_ONE = 1;
+    EDITABLEBY_CREATOR = 2;
+    EDITABLEBY_MEMBER = 3;
+}
+
+enum DeletableBy_Enum {
+    DELETABLEBY_PERMISSION_UNSPECIFIED = 0;
+    DELETABLEBY_NO_ONE = 1;
+    DELETABLEBY_CREATOR = 2;
+    DELETABLEBY_MEMBER = 3;
+}
+
+message MessageAttributes {
+   bool is_tombstone = 1;
+}
+
+message TombstoneMetadata {
+   TombstoneType_Enum tombstone_type = 1;
+}
+
+enum TombstoneType_Enum {
+    TOMBSTONETYPE_TOMBSTONE_UNSPECIFIED = 0;
+    TOMBSTONETYPE_CREATOR = 1;
+    TOMBSTONETYPE_ROOM_OWNER = 2;
+    TOMBSTONETYPE_ADMIN = 3;
+    TOMBSTONETYPE_APP_MESSAGE_EXPIRY = 4;
+    TOMBSTONETYPE_CREATOR_VIA_APP = 5;
+    TOMBSTONETYPE_ROOM_OWNER_VIA_APP = 6;
+}
+
+message OriginAppSuggestion {
+   AppId app_id = 1;
+   oneof source {
+      CardClickSuggestion card_click_suggestion = 2;
+   }
+}
+
+message CardClickSuggestion {
+   string action_id = 1;
+   MessageId suggestion_message_id = 2;
+}
+
+message PrivateMessage {
+   UserId user_id = 1;
+   string text = 2;
+   repeated ContextualAddOn contextual_add_ons = 3;
+   repeated GsuiteIntegrationMetadata gsuite_integration_metadata = 4;
+   repeated BotResponse bot_response = 5;
+}
+
+enum ErrorReason_Enum {
+    ERRORREASON_UNKNOWN = 0;
+    ERRORREASON_SERVICE_DISABLED = 10001;
+    ERRORREASON_STORAGE_LAYER_UNKNOWN = 10002;
+    ERRORREASON_CLIENT_VERSION_OUTDATED = 10003;
+    ERRORREASON_CALLING_USER_GUEST_ACCESS_DISABLED = 10004;
+    ERRORREASON_TARGET_USER_GUEST_ACCESS_DISABLED = 10005;
+    ERRORREASON_TARGET_GROUP_GUEST_ACCESS_DISABLED = 10006;
+    ERRORREASON_ROOM_GUEST_ACCESS_DISABLED_BY_ADMIN = 10007;
+    ERRORREASON_EXTERNAL_GOOGLE_GROUP_CANNOT_BE_ADDED_TO_ROOM = 10008;
+    ERRORREASON_GROUP_DM_GUEST_ACCESS_DISABLED = 10009;
+    ERRORREASON_GOOGLE_GROUP_CANNOT_BE_ADDED_TO_CONSUMER_ROOM = 10010;
+    ERRORREASON_MESSAGE_NOT_FOUND = 20001;
+    ERRORREASON_BAD_SEARCH_QUERY = 20002;
+    ERRORREASON_USER_NOT_FOUND_IN_SPACE = 20003;
+    ERRORREASON_CONFLICTING_OTR_SETTINGS = 20004;
+    ERRORREASON_USER_NOT_FOUND = 20005;
+    ERRORREASON_MESSAGE_ALREADY_EXISTS = 20006;
+    ERRORREASON_DND_STATE_DISCREPANCY = 20007;
+    ERRORREASON_SPACE_NOT_FOUND = 20008;
+    ERRORREASON_INCOMPATIBLE_WITH_ATTRIBUTES = 20009;
+    ERRORREASON_LARGE_SPACE_ROLLBACK_MUTATION_DISABLED = 20010;
+    ERRORREASON_UNSUPPORTED_GROUP = 20013;
+    ERRORREASON_UNSUPPORTED_GROUP_CREATION = 20014;
+    ERRORREASON_DLP_VIOLATION_BLOCK = 20015;
+    ERRORREASON_DLP_VIOLATION_WARN = 20016;
+    ERRORREASON_QUOTING_INVALID_MESSAGE = 20017;
+    ERRORREASON_QUOTING_THREADED_REPLY_OUTSIDE_OF_THREAD = 20018;
+    ERRORREASON_GROUP_ID_REQUIRED = 20019;
+    ERRORREASON_QUOTED_MESSAGE_NOT_FOUND = 20020;
+    ERRORREASON_CREATE_MEMBERSHIP_ROOM_FULL = 30001;
+    ERRORREASON_UPDATE_REACTION_PER_USER_LIMIT_REACHED = 30002;
+    ERRORREASON_UPDATE_REACTION_PER_MESSAGE_LIMIT_REACHED = 30003;
+    ERRORREASON_UPDATE_REACTION_PER_TOPIC_DISTINCT_USERS_LIMIT_REACHED = 30004;
+    ERRORREASON_REQUESTER_HAS_BLOCKED_RECEIVER = 30005;
+    ERRORREASON_REQUESTER_HAS_BEEN_BLOCKED_BY_RECEIVER = 30006;
+    ERRORREASON_TARGET_DASHER_USER_IN_PENDING_STATE = 30007;
+    ERRORREASON_TARGET_DASHER_USER_SERVICE_DISABLED = 30008;
+    ERRORREASON_TOPIC_NOT_FOUND = 30009;
+    ERRORREASON_GAIA_LIMIT_HIT = 30010;
+    ERRORREASON_FLAT_ROOM_CREATION_DISABLED = 30011;
+    ERRORREASON_CONFLICTING_OTR_SETTINGS_IN_FLAT_ROOM = 30012;
+    ERRORREASON_GROUP_DM_CREATION_DISABLED = 30013;
+    ERRORREASON_INVALID_INVITEE_EMAIL = 30014;
+    ERRORREASON_INLINE_REPLY_CREATION_LIMIT_REACHED = 30015;
+    ERRORREASON_INLINE_REPLY_CREATION_DISABLED = 30016;
+    ERRORREASON_CUSTOM_EMOJI_LIMIT_REACHED = 30017;
+    ERRORREASON_GROUP_TYPE_DISABLED = 30018;
+    ERRORREASON_SESSION_SERVER_DARK_LAUNCH_CLIENT_NOT_SUPPORTED = 30019;
+    ERRORREASON_INVALID_TARGET_AUDIENCE_SELECTED = 30020;
+    ERRORREASON_CUSTOM_EMOJI_SHORTCODE_ALREADY_IN_USE = 30021;
+    ERRORREASON_CUSTOM_EMOJI_USER_CREATION_LIMIT_REACHED = 30022;
+    ERRORREASON_QUOTED_MESSAGE_UPDATE_NOT_SUPPORTED = 30023;
+    ERRORREASON_CUSTOM_EMOJI_CUSTOMER_CREATION_LIMIT_REACHED = 30024;
+    ERRORREASON_CUSTOM_EMOJI_CUSTOMER_ID_NOT_FOUND_OR_MATCHED = 30025;
+    ERRORREASON_QUOTED_MESSAGE_CREATION_LIMIT_REACHED = 30026;
+    ERRORREASON_LEAVE_SPACE_NOT_ALLOWED_INDIRECT_MEMBER = 30027;
+    ERRORREASON_BLOCK_SPACE_NOT_ALLOWED_INDIRECT_MEMBER = 30028;
+    ERRORREASON_DUPLICATE_SPACE_NAME = 30029;
+    ERRORREASON_QUOTING_FROM_DIFFERENT_SPACE_NOT_SUPPORTED = 30030;
+    ERRORREASON_QUOTING_PRIVATE_MESSAGE_NOT_SUPPORTED = 30031;
+    ERRORREASON_QUOTING_TIMESTAMP_MISMATCHED = 30032;
+    ERRORREASON_LEAVE_SPACE_NOT_ALLOWED_LAST_SPACE_MANAGER = 30033;
+    ERRORREASON_UPDATE_MEMBERSHIP_ROLE_NOT_ALLOWED_LAST_SPACE_MANAGER = 30034;
+    ERRORREASON_UPDATE_REACTION_FOR_PRIVATE_MESSAGE_NOT_SUPPORTED = 30035;
+    ERRORREASON_REMOVE_APP_NOT_ALLOWED_OWNS_SPACE_NO_HUMAN_MANAGERS = 30036;
+    ERRORREASON_DM_CREATION_RESTRICTED_BY_ADMIN = 30037;
+    ERRORREASON_CHAT_ROSTER_CREATION_RESTRICTED_BY_ADMIN = 30038;
+    ERRORREASON_CHAT_MEMBERSHIP_MANAGEMENT_RESTRICTED_BY_ADMIN = 30039;
+    ERRORREASON_TARGET_DASHER_USER_ROLE_UPDATE_NOT_ALLOWED_BY_ADMIN = 30040;
+    ERRORREASON_EPHEMERAL_RETENTION_STATE_EXPECTED = 200011;
+    ERRORREASON_PERMANENT_RETENTION_STATE_EXPECTED = 200012;
+}
+
+enum QuotedByState_Enum {
+    QUOTEDBYSTATE_QUOTED_BY_STATE_UNSPECIFIED = 0;
+    QUOTEDBYSTATE_QUOTED_BY_STATE_HAS_BEEN_QUOTED = 1;
+    QUOTEDBYSTATE_QUOTED_BY_STATE_HAS_NOT_BEEN_QUOTED = 2;
+}
+
+enum RichTextFormattingType_Enum {
+    RICHTEXTFORMATTINGTYPE_NONE = 0;
+    RICHTEXTFORMATTINGTYPE_MARKDOWN = 1;
+    RICHTEXTFORMATTINGTYPE_FORMAT_ANNOTATIONS = 2;
+    RICHTEXTFORMATTINGTYPE_FORMAT_ANNOTATIONS_IGNORED = 3;
+    RICHTEXTFORMATTINGTYPE_FORMAT_ANNOTATIONS_IGNORED_WITH_MARKDOWN = 4;
+}
+
+message MessageLabel {
+   LabelType_Enum label_type = 1;
+   string label_secondary_key = 2;
+   int64 sort_value = 3;
+   UserId label_applier_actor_id = 4;
+}
+
+enum LabelType_Enum {
+    LABELTYPE_LABEL_TYPE_UNDEFINED = 0;
+    LABELTYPE_STAR = 1;
+    LABELTYPE_PINNED = 2;
+    LABELTYPE_HASHTAG = 3;
+}
+
+message Group {
+   GroupId id = 1;
+   string name = 3;
+   bool is_unread = 7;
+   string sort_time_usec = 9;
+   string last_read_time_usec = 10;
+   int64 unread_subscribed_topic_count = 12;
+   bool starred = 13;
+   int64 sort_time_msec = 14;
+   int64 local_update_time_msec = 16;
+   Message draft = 17;
+   repeated User dm_members = 18;
+   bool show_welcome_mat = 19;
+   TopicId invitation_topic_id = 20;
+   User inviter_user = 21;
+   User creator = 22;
+   int64 creation_time_msec = 23;
+   repeated Membership memberships = 24;
+   bool is_dm_hidden = 25;
+   bool off_the_record_was_last_toggled = 27;
+   int64 group_revision_time_usec = 28;
+   bool is_single_user_dm = 29;
+   bool is_bot_only = 30;
+   DasherDomainPolicies dasher_domain_policies = 31;
+   RetentionSettings retention_settings = 33;
+   bool is_flat = 34;
+   InviteType invite_type = 35;
+   bool user_is_joined = 36;
+   bool interop_enabled = 37;
+   int64 last_read_time_msec = 38;
+   GroupGuestAccessSettings group_guest_access_settings = 39;
+   OrganizationInfo owner_organization = 40;
+   bool blocked = 42;
+   InviteCategory_Enum invite_category = 43;
+   repeated User dm_human_members = 44;
+   Snippet snippet = 47;
+   string room_avatar_url = 48;
+   string roster_email = 49;
+   int64 mark_as_unread_timestamp_usec_deprecated = 50;
+   ReadReceiptSet read_receipt_set = 51;
+   string mark_as_unread_timestamp_usec = 52;
+   ThreadingModel_Enum threading_model = 53;
+   AvatarInfo avatar_info = 54;
+   repeated User name_users = 56;
+   bool has_more_name_users = 57;
+   AttributeCheckerGroupType_Enum attribute_checker_group_type = 58;
+   bool show_notifications_card_in_stream = 59;
+   TopicId notifications_card_topic_id = 60;
+   bool visible_in_world_view = 61;
+   GroupIntegrationSettings group_integration_settings = 62;
+   string creation_time_usec = 64;
+   GroupPolicies group_policies = 68;
+   GroupNotificationSettings notification_settings = 81;
+   int64 default_sort_msec = 84;
+   oneof threaded_model {
+      FlatGroup flat_group = 45;
+      ThreadedGroup threaded_group = 46;
+   }
+   GroupDetails group_details = 63;
+   GroupSupportLevel_Enum group_support_level = 65;
+   repeated SpaceIntegrationPayload space_integration_payloads = 66;
+   SelfUserMembershipRole_Enum self_user_membership_role = 67;
+   bool typing_indicators_enabled = 69;
+   UfrUpgradeInfo ufr_upgrade_info = 70;
+   bool inline_threading_enabled = 71;
+   InlineThreadingGroupAttributes inline_threading_group_attributes = 72;
+   repeated int32 active_backend_group_experiments_for_logging = 73;
+   AbuseLabels abuse_labels = 74;
+   bool dm_created_by_admin = 75;
+   User acting_creator = 76;
+   SegmentedMembershipCounts segmented_membership_counts = 77;
+   SpacePermissions space_permissions = 78;
+   CallAnnotationData call_annotation_data = 79;
+   GroupUnsupportedReason_Enum group_unsupported_reason = 82;
+   LTRMigrationStatus ltr_migration_status = 83;
+   repeated GroupLabelId group_label_id = 85;
+   string default_sort_usec = 86;
+}
+
+message InviteType {
+   Usertype_Enum type = 1;
+}
+
+message GroupNotificationSettings {
+   state_Enum state = 1;
+   RoomState_Enum room_state = 2;
+   GroupMuteSettings mute_settings = 3;
+   string acting_user_id = 4;
+}
+
+enum RoomState_Enum {
+    ROOMSTATE_NOTIFY_ALWAYS = 0;
+    ROOMSTATE_NOTIFY_LESS_WITH_NEW_THREADS = 1;
+    ROOMSTATE_NOTIFY_LESS = 2;
+    ROOMSTATE_NOTIFY_NEVER = 3;
+    ROOMSTATE_NOTIFY_FOR_MAIN_CONVERSATIONS_WITH_AUTOFOLLOW = 4;
+    ROOMSTATE_NOTIFY_FOR_MAIN_CONVERSATIONS = 5;
+}
+
+message GroupMuteSettings {
+   state_Enum state = 1;
+}
+
+message DasherDomainPolicies {
+   bool bot_features_enabled = 1;
+   OffTheRecordState_Enum off_the_record_state = 2;
+   UserGuestAccessSettings user_guest_access_settings = 3;
+   RoomGuestAccessKillSwitch room_guest_access_kill_switch = 4;
+   bool google_drive_enabled = 5;
+   bool wolverine_enabled = 6;
+   bool incoming_webhook_features_enabled = 7;
+   AutoAcceptInvitationsSettings auto_accept_invitations_settings = 8;
+   IntegrationCustomerPolicies integration_customer_policies = 9;
+   UserFileSharingSettings user_file_sharing_settings = 10;
+   bool create_threaded_rooms_enabled = 11;
+   RoomCreationCapabilities room_creation_capabilities = 12;
+   bool gif_picker_enabled = 13;
+   ContentReportingSettings content_reporting_settings = 14;
+   EmojiOptions emoji_options = 15;
+   bool search_and_assistant_workspace_enabled = 16;
+   CallOptions call_options = 17;
+   ChatGenAiSettings chat_gen_ai_settings = 18;
+   bool conversation_and_member_management_enabled = 19;
+   bool is_edu = 20;
+}
+
+enum OffTheRecordState_Enum {
+    OFFTHERECORDSTATE_UNSPECIFIED = 0;
+    OFFTHERECORDSTATE_DEFAULT_ON_THE_RECORD = 1;
+    OFFTHERECORDSTATE_DEFAULT_OFF_THE_RECORD = 2;
+    OFFTHERECORDSTATE_ALWAYS_ON_THE_RECORD = 3;
+    OFFTHERECORDSTATE_ALWAYS_OFF_THE_RECORD = 4;
+}
+
+message UserGuestAccessSettings {
+   GuestAccessState_Enum guest_access_state = 1;
+   ExternalConversationRestriction_Enum external_conversation_restriction = 2;
+}
+
+enum GuestAccessState_Enum {
+    GUESTACCESSSTATE_UNKNOWN = 0;
+    GUESTACCESSSTATE_DISABLED = 1;
+    GUESTACCESSSTATE_ENABLED = 2;
+}
+
+enum ExternalConversationRestriction_Enum {
+    EXTERNALCONVERSATIONRESTRICTION_RESTRICTION_UNSPECIFIED = 0;
+    EXTERNALCONVERSATIONRESTRICTION_NO_RESTRICTION = 1;
+    EXTERNALCONVERSATIONRESTRICTION_TRUSTED_DOMAINS = 2;
+}
+
+message RoomGuestAccessKillSwitch {
+   KillSwitchState_Enum kill_switch_state = 1;
+   GuestRoomRestriction_Enum guest_room_restriction = 2;
+}
+
+enum KillSwitchState_Enum {
+    KILLSWITCHSTATE_UNKNOWN = 0;
+    KILLSWITCHSTATE_GUEST_ACCESS_ROOMS_DISABLED = 1;
+    KILLSWITCHSTATE_GUEST_ACCESS_ROOMS_ENABLED = 2;
+}
+
+enum GuestRoomRestriction_Enum {
+    GUESTROOMRESTRICTION_RESTRICTION_UNSPECIFIED = 0;
+    GUESTROOMRESTRICTION_NO_RESTRICTION = 1;
+    GUESTROOMRESTRICTION_TRUSTED_DOMAINS = 2;
+}
+
+message IntegrationCustomerPolicies {
+   ServicesEnabled services_enabled = 1;
+   FeaturesEnabled features_enabled = 2;
+}
+
+message ServicesEnabled {
+   bool tasks_enabled = 1;
+   bool calendar_enabled = 2;
+   bool gmail_enabled = 3;
+   bool is_admin_account = 4;
+}
+
+message FeaturesEnabled {
+   bool document_creation_enabled = 1;
+   bool file_creation_enabled = 2;
+}
+
+message AutoAcceptInvitationsSettings {
+   bool auto_accept_invitations = 1;
+}
+
+message UserFileSharingSettings {
+   ExternalFileSharingState_Enum external_file_sharing_state = 1;
+   InternalFileSharingState_Enum internal_file_sharing_state = 2;
+}
+
+enum ExternalFileSharingState_Enum {
+    EXTERNALFILESHARINGSTATE_UNKNOWN = 0;
+    EXTERNALFILESHARINGSTATE_ALL_FILES = 1;
+    EXTERNALFILESHARINGSTATE_IMAGES_ONLY = 2;
+    EXTERNALFILESHARINGSTATE_NO_FILES = 3;
+}
+
+enum InternalFileSharingState_Enum {
+    INTERNALFILESHARINGSTATE_UNKNOWN = 0;
+    INTERNALFILESHARINGSTATE_ALL_FILES = 1;
+    INTERNALFILESHARINGSTATE_IMAGES_ONLY = 2;
+    INTERNALFILESHARINGSTATE_NO_FILES = 3;
+}
+
+message RoomCreationCapabilities {
+   bool create_threaded_rooms_enabled = 1;
+   bool create_guest_access_rooms_enabled = 2;
+   TargetAudienceSettings target_audience_settings = 3;
+}
+
+message TargetAudienceSettings {
+   repeated TargetAudience default_recommended_target_audiences = 1;
+   TargetAudience default_selected_target_audience = 2;
+}
+
+message TargetAudience {
+   string name = 1;
+   RosterId roster_id = 2;
+   state_Enum state = 3;
+}
+
+message ContentReportingSettings {
+   repeated ContentReportType allowed_report_types = 1;
+   ReportDialogSettings dialog_settings = 2;
+}
+
+message ContentReportType {
+   SystemViolation_Enum system_violation = 1;
+}
+
+enum SystemViolation_Enum {
+    SYSTEMVIOLATION_VIOLATION_UNSPECIFIED = 0;
+    SYSTEMVIOLATION_HARASSMENT = 1;
+    SYSTEMVIOLATION_DISCRIMINATION = 2;
+    SYSTEMVIOLATION_EXPLICIT_CONTENT = 3;
+    SYSTEMVIOLATION_SPAM = 4;
+    SYSTEMVIOLATION_CONFIDENTIAL_INFORMATION = 5;
+    SYSTEMVIOLATION_OTHER = 6;
+    SYSTEMVIOLATION_SENSITIVE_INFORMATION = 7;
+    SYSTEMVIOLATION_FRAUD = 8;
+    SYSTEMVIOLATION_MALWARE = 9;
+    SYSTEMVIOLATION_ILLEGAL_ACTIVITIES = 10;
+}
+
+message ReportDialogSettings {
+   bool custom_report_dialog = 1;
+   string custom_title = 2;
+   CustomDescription dialog_description = 3;
+}
+
+message CustomDescription {
+   repeated AdminSuppliedTextSegment text_segments = 1;
+}
+
+message AdminSuppliedTextSegment {
+   string text = 1;
+   SafeUrlProto link = 2;
+}
+
+message EmojiOptions {
+   bool can_create_custom_emoji = 1;
+   string community_guidelines_text = 2;
+   string community_guidelines_url = 3;
+   bool can_manage_all_custom_emojis = 4;
+}
+
+message CallOptions {
+   bool can_create_huddle = 1;
+}
+
+message ChatGenAiSettings {
+   bool chat_sidekick_enabled = 1;
+   SplashScreenOption_Enum splash_screen_option = 2;
+   bool chat_home_summary_enabled = 3;
+   bool chat_auto_translate_enabled = 4;
+   GenaiUserTypeOption_Enum genai_user_type_option = 5;
+}
+
+enum SplashScreenOption_Enum {
+    SPLASHSCREENOPTION_SPLASH_SCREEN_OPTION_UNSPECIFIED = 0;
+    SPLASHSCREENOPTION_NONE = 1;
+    SPLASHSCREENOPTION_GOOGLE = 2;
+    SPLASHSCREENOPTION_LABS = 3;
+    SPLASHSCREENOPTION_GENERAL = 4;
+}
+
+enum GenaiUserTypeOption_Enum {
+    GENAIUSERTYPEOPTION_GENAI_USER_TYPE_UNSPECIFIED = 0;
+    GENAIUSERTYPEOPTION_GOOGLER = 1;
+    GENAIUSERTYPEOPTION_LABS_ENTERPRISE = 2;
+    GENAIUSERTYPEOPTION_LABS_CONSUMER = 3;
+    GENAIUSERTYPEOPTION_ALPHA = 4;
+    GENAIUSERTYPEOPTION_GA = 5;
+}
+
+message GroupPolicies {
+   HistoryPolicy_Enum history_policy = 1;
+}
+
+enum HistoryPolicy_Enum {
+    HISTORYPOLICY_HISTORY_POLICY_UNSPECIFIED = 0;
+    HISTORYPOLICY_MUTABLE = 1;
+    HISTORYPOLICY_ALWAYS_ON = 2;
+    HISTORYPOLICY_ALWAYS_OFF = 3;
+}
+
+message GroupIntegrationSettings {
+   ServicesEnabled services_enabled = 1;
+}
+
+message GroupGuestAccessSettings {
+   GuestAccessState_Enum guest_access_state = 1;
+}
+
+enum InviteCategory_Enum {
+    INVITECATEGORY_UNKNOWN_INVITE = 0;
+    INVITECATEGORY_REGULAR_INVITE = 1;
+    INVITECATEGORY_SPAM_INVITE = 2;
+}
+
+message FlatGroup {
+}
+
+message ThreadedGroup {
+}
+
+enum ThreadingModel_Enum {
+    THREADINGMODEL_UNKNOWN = 0;
+    THREADINGMODEL_FLAT = 1;
+    THREADINGMODEL_THREADED = 2;
+}
+
+enum GroupSupportLevel_Enum {
+    GROUPSUPPORTLEVEL_UNSUPPORTED = 0;
+    GROUPSUPPORTLEVEL_DATA_SUPPORTED = 1;
+    GROUPSUPPORTLEVEL_FULLY_SUPPORTED = 2;
+    GROUPSUPPORTLEVEL_DATA_SUPPORTED_HIDE = 3;
+}
+
+enum GroupUnsupportedReason_Enum {
+    GROUPUNSUPPORTEDREASON_GROUP_UNSUPPORTED_REASON_UNSPECIFIED = 0;
+    GROUPUNSUPPORTEDREASON_GROUP_DISABLED_ON_CLIENT = 1;
+    GROUPUNSUPPORTEDREASON_GROUP_DISABLED_ON_SERVER = 2;
+    GROUPUNSUPPORTEDREASON_GROUP_DISABLED_LTR_MIGRATING = 3;
+}
+
+message SpaceIntegrationPayload {
+   Usertype_Enum type = 1;
+   oneof payload {
+      TasksSpaceIntegrationPayload tasks_integration_payload = 101;
+      SharedDriveSpaceIntegrationPayload shared_drive_integration_payload = 102;
+      ActivityFeedSpaceIntegrationPayload activity_feed_integration_payload = 103;
+      ShortcutSpaceIntegrationPayload shortcut_integration_payload = 104;
+      CallSpaceIntegrationPayload call_integration_payload = 105;
+   }
+   int64 project_number = 2;
+}
+
+message TasksSpaceIntegrationPayload {
+   string tickle_version = 1;
+}
+
+message SharedDriveSpaceIntegrationPayload {
+   string root_folder_id = 1;
+   string name = 2;
+   MigratedState_Enum migrated_state = 3;
+   Timestamp last_migrated_timestamp = 4;
+   string shared_drive_id = 5;
+}
+
+enum MigratedState_Enum {
+    MIGRATEDSTATE_MIGRATED_STATE_UNSPECIFIED = 0;
+    MIGRATEDSTATE_NOT_REQUIRED = 1;
+    MIGRATEDSTATE_MIGRATED = 2;
+}
+
+message ActivityFeedSpaceIntegrationPayload {
+}
+
+message ShortcutSpaceIntegrationPayload {
+   ShortcutId shortcut_id = 1;
+}
+
+message ShortcutId {
+   Usertype_Enum type = 1;
+}
+
+message CallSpaceIntegrationPayload {
+   CallMetadata call_metadata = 1;
+   CallStatus_Enum call_status = 2;
+   Timestamp participant_list_revision_timestamp = 3;
+}
+
+enum SelfUserMembershipRole_Enum {
+    SELFUSERMEMBERSHIPROLE_ROLE_UNKNOWN = 0;
+    SELFUSERMEMBERSHIPROLE_ROLE_NONE = 1;
+    SELFUSERMEMBERSHIPROLE_ROLE_INVITEE = 2;
+    SELFUSERMEMBERSHIPROLE_ROLE_MEMBER = 3;
+    SELFUSERMEMBERSHIPROLE_ROLE_OWNER = 4;
+    SELFUSERMEMBERSHIPROLE_ROLE_APP_OWNER = 5;
+}
+
+message UfrUpgradeInfo {
+   UpgradeFlowOtrWarning_Enum upgrade_flow_otr_warning = 1;
+}
+
+enum UpgradeFlowOtrWarning_Enum {
+    UPGRADEFLOWOTRWARNING_UNSPECIFIED = 0;
+    UPGRADEFLOWOTRWARNING_FORCED_ON = 1;
+    UPGRADEFLOWOTRWARNING_FORCED_OFF = 2;
+    UPGRADEFLOWOTRWARNING_MUTABLE = 3;
+    UPGRADEFLOWOTRWARNING_NO_WARNING = 4;
+}
+
+message InlineThreadingGroupAttributes {
+   string thread_summary_last_read_time_usec = 1;
+   bool has_unread_inline_thread = 2;
+   TopicId latest_unread_thread_topic_id = 3;
+}
+
+message AbuseLabels {
+   repeated AbuseLabels_Enum abuse_labels = 1;
+}
+
+enum AbuseLabels_Enum {
+    ABUSELABELS_ABUSE_LABEL_UNSPECIFIED = 0;
+    ABUSELABELS_RECLASSIFIED = 1;
+    ABUSELABELS_USER_OVERRIDE = 2;
+    ABUSELABELS_HIDDEN = 3;
+    ABUSELABELS_SUSPICIOUS = 4;
+    ABUSELABELS_SPAM = 5;
+    ABUSELABELS_PHISHING = 6;
+}
+
+message SpacePermissions {
+   repeated SpacePermission space_permission = 1;
+}
+
+message SpacePermission {
+   SpacePermissionType_Enum space_permission_type = 1;
+   RolePermission role_permission = 2;
+}
+
+enum SpacePermissionType_Enum {
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_UNSPECIFIED = 0;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_TOGGLE_HISTORY = 1;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_AT_MENTION_ALL = 2;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_EDIT_SPACE_PROFILE = 3;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_POST_MESSAGES = 4;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_REPLY_TO_MESSAGES = 5;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_REACT_TO_MESSAGES = 6;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_VIEW_TASKS = 7;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_MANAGE_MEMBERS = 9;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_MANAGE_APPS = 20;
+    SPACEPERMISSIONTYPE_SPACE_PERMISSION_TYPE_MANAGE_WEBHOOKS = 21;
+}
+
+message RolePermission {
+   bool owners_allowed = 1;
+   bool members_allowed = 2;
+   bool invitees_allowed = 3;
+}
+
+message LTRMigrationStatus {
+   LtrMigrationState_Enum ltr_migration_state = 1;
+   Timestamp last_updated_timestamp = 2;
+}
+
+enum LtrMigrationState_Enum {
+    LTRMIGRATIONSTATE_PRE_MIGRATION_DEFAULT = 0;
+    LTRMIGRATIONSTATE_IN_DATA_COPY_PHASE = 1;
+    LTRMIGRATIONSTATE_IN_DATA_VERIFICATION_PHASE = 2;
+    LTRMIGRATIONSTATE_COMPLETED = 3;
+    LTRMIGRATIONSTATE_FULLY_MIGRATED = 4;
+}
+
+message GroupLabelId {
+   GroupLabelType_Enum group_label_type = 1;
+   string label_secondary_key = 2;
+}
+
+enum GroupLabelType_Enum {
+    GROUPLABELTYPE_LABEL_TYPE_UNSPECIFIED = 0;
+    GROUPLABELTYPE_PINNED = 1;
+    GROUPLABELTYPE_APP_SHORTCUT = 2;
+    GROUPLABELTYPE_MUTED = 3;
+    GROUPLABELTYPE_CUSTOM_SECTION = 4;
+    GROUPLABELTYPE_HAS_UNREAD_MAIN_MESSAGE = 5;
+    GROUPLABELTYPE_GROUP_TYPE = 6;
+}
+
+message WebDataAttribute {
+   string name = 1;
+   string value = 2;
+}
