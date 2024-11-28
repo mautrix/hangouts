@@ -1,0 +1,122 @@
+package connector
+
+import (
+	"context"
+	"fmt"
+
+	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow"
+	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/cookies"
+	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/debug"
+
+	"maunium.net/go/mautrix/bridge/status"
+	"maunium.net/go/mautrix/bridgev2"
+	"maunium.net/go/mautrix/bridgev2/database"
+	"maunium.net/go/mautrix/bridgev2/networkid"
+	"maunium.net/go/mautrix/id"
+)
+
+const (
+	LoginStepIDCookies  = "com.beeper.googlechat.login.cookies"
+	LoginStepIDComplete = "com.beeper.googlechat.login.complete"
+)
+
+func (gc *GChatConnector) CreateLogin(ctx context.Context, user *bridgev2.User, flowID string) (bridgev2.LoginProcess, error) {
+	return &GChatCookieLogin{User: user}, nil
+}
+
+func (gc *GChatConnector) GetLoginFlows() []bridgev2.LoginFlow {
+	return []bridgev2.LoginFlow{{
+		Name:        "Cookies",
+		Description: "Log in with your cookies",
+		ID:          "cookies",
+	}}
+}
+
+func (gc *GChatConnector) LoadUserLogin(ctx context.Context, login *bridgev2.UserLogin) error {
+	loginMetadata := login.Metadata.(*UserLoginMetadata)
+	var client *gchatmeow.Client
+	clientOptions := gchatmeow.ClientOpts{
+		Cookies: cookies.NewCookiesFromString(loginMetadata.Cookies),
+	}
+	client = gchatmeow.NewClient(&clientOptions, debug.NewLogger())
+	c := &GChatClient{
+		UserLogin: login,
+		Client:    client,
+	}
+	login.Client = c
+	return nil
+}
+
+type GChatCookieLogin struct {
+	User *bridgev2.User
+}
+
+type UserLoginMetadata struct {
+	Cookies string
+}
+
+var _ bridgev2.LoginProcessCookies = (*GChatCookieLogin)(nil)
+
+func (gl *GChatCookieLogin) Start(ctx context.Context) (*bridgev2.LoginStep, error) {
+	step := &bridgev2.LoginStep{
+		Type:         bridgev2.LoginStepTypeCookies,
+		StepID:       LoginStepIDCookies,
+		Instructions: "Enter a JSON object with your cookies, or a cURL command copied from browser devtools.",
+		CookiesParams: &bridgev2.LoginCookiesParams{
+			URL: "https://chat.google.com/",
+		},
+	}
+	return step, nil
+}
+
+func (gl *GChatCookieLogin) Cancel() {}
+
+func (gl *GChatCookieLogin) SubmitCookies(ctx context.Context, strCookies map[string]string) (*bridgev2.LoginStep, error) {
+	cookies := &cookies.Cookies{}
+	cookies.UpdateValues(strCookies)
+
+	clientOptions := gchatmeow.ClientOpts{
+		Cookies: cookies,
+	}
+	client := gchatmeow.NewClient(&clientOptions, debug.NewLogger())
+
+	initialData, err := client.LoadMessagesPage()
+	if err != nil {
+		return nil, err
+	}
+
+	user := initialData.CurrentUser.Data
+
+	userId := user.Id.Id
+	ul, err := gl.User.NewLogin(ctx, &database.UserLogin{
+		ID:         networkid.UserLoginID(userId),
+		RemoteName: user.Fullname,
+		RemoteProfile: status.RemoteProfile{
+			Name:   user.Fullname,
+			Email:  user.Email,
+			Avatar: id.ContentURIString(user.GetAvatarUrl()),
+		},
+		Metadata: &UserLoginMetadata{
+			Cookies: cookies.String(),
+		},
+	}, nil)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to save new login: %w", err)
+	}
+
+	ul.Client.Connect(ctx)
+	c := ul.Client.(*GChatClient)
+	c.UserLogin = ul
+	c.Client = client
+
+	return &bridgev2.LoginStep{
+		Type:         bridgev2.LoginStepTypeComplete,
+		StepID:       LoginStepIDComplete,
+		Instructions: fmt.Sprintf("Logged in as %s (%s)", user.Fullname, userId),
+		CompleteParams: &bridgev2.LoginCompleteParams{
+			UserLoginID: ul.ID,
+			UserLogin:   ul,
+		},
+	}, nil
+}
