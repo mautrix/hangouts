@@ -30,7 +30,7 @@ func (gc *GChatConnector) GetName() bridgev2.BridgeName {
 		NetworkURL:       "https://chat.google.com",
 		NetworkIcon:      "mxc://maunium.net/BDIWAQcbpPGASPUUBuEGWXnQ",
 		NetworkID:        "googlechat",
-		BeeperBridgeType: "go.mau.fi/googlechat",
+		BeeperBridgeType: "googlechat",
 		DefaultPort:      29320,
 	}
 }
