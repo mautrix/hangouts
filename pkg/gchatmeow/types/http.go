@@ -1,14 +1,5 @@
 package types
 
-type RequestMethod string
-
-const (
-	POST   RequestMethod = "POST"
-	GET    RequestMethod = "GET"
-	PUT    RequestMethod = "PUT"
-	DELETE RequestMethod = "DELETE"
-)
-
 type ContentType string
 
 const (

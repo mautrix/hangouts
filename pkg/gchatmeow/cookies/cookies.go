@@ -52,6 +52,15 @@ func NewCookies() *Cookies {
 	}
 }
 
+func (c *Cookies) UpdateValues(newValues map[string]string) {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	c.store = make(map[GChatCookieName]string)
+	for k, v := range newValues {
+		c.store[GChatCookieName(k)] = v
+	}
+}
+
 func NewCookiesFromString(cookieStr string) *Cookies {
 	c := NewCookies()
 	cookieStrings := strings.Split(cookieStr, ";")

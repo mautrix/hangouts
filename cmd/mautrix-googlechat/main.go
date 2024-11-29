@@ -16,6 +16,8 @@
 package main
 
 import (
+	"go.mau.fi/mautrix-googlechat/pkg/connector"
+
 	"maunium.net/go/mautrix/bridgev2/matrix/mxmain"
 )
 
@@ -31,7 +33,7 @@ var m = mxmain.BridgeMain{
 	Description: "A Matrix-Google Chat puppeting bridge",
 	URL:         "https://github.com/mautrix/googlechat",
 	Version:     "0.6.0",
-	//Connector:   c,
+	Connector:   &connector.GChatConnector{},
 }
 
 func main() {
