@@ -51,7 +51,7 @@ func (c *Client) makeAPIRequest(endpoint endpoints.APIEndpoint, payload proto.Me
 		return err
 	}
 
-	_, respBody, err := c.MakeRequest(url, "POST", headers, payloadBytes, types.PROTOBUF)
+	_, respBody, err := c.MakeRequest(url, http.MethodPost, headers, payloadBytes, types.PROTOBUF)
 	if err != nil {
 		return err
 	}

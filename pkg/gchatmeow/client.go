@@ -148,7 +148,7 @@ func (c *Client) LoadMessagesPage() (*types.InitialConfigData, error) {
 	})
 
 	url := fmt.Sprintf("%s?%s", endpoints.MOLE_BASE_URL, "wfi=gtn-brain-iframe-id&hs=%5B%22h_hs%22%2Cnull%2Cnull%2C%5B1%2C0%5D%2Cnull%2Cnull%2C%22gmail.pinto-server_20240610.06_p0%22%2C1%2Cnull%2C%5B15%2C48%2C6%2C43%2C36%2C35%2C26%2C44%2C39%2C46%2C41%2C18%2C24%2C11%2C21%2C14%2C1%2C51%2C53%5D%2Cnull%2Cnull%2C%22GgsaQvppfqU.en..es5%22%2Cnull%2Cnull%2Cnull%2C%5B2%5D%2Cnull%2C0%5D&hl=en&lts=chat%2Fhome&shell=9&has_stream_view=false&origin=https%3A%2F%2Fmail.google.com")
-	resp, respBody, err := c.MakeRequest(url, "GET", headers, nil, types.NONE)
+	resp, respBody, err := c.MakeRequest(url, http.MethodGet, headers, nil, types.NONE)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +199,6 @@ func (c *Client) SetProxy(proxyAddr string) error {
 		if err != nil {
 			return err
 		}
-		c.http.Transport.(*http.Transport).Dial = c.socksProxy.Dial
 		contextDialer, ok := c.socksProxy.(proxy.ContextDialer)
 		if ok {
 			c.http.Transport.(*http.Transport).DialContext = contextDialer.DialContext

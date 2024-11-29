@@ -78,7 +78,7 @@ func (rc *RealtimeClient) Connect() error {
 		WithCookies:     true,
 		WithXClientData: true,
 	})
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}
@@ -252,7 +252,7 @@ func (rc *RealtimeClient) sendPing() error {
 	}
 
 	url := endpoints.WEBCHANNEL_EVENTS + "?" + queryArgs
-	req, respBody, err := rc.client.MakeRequest(url, "POST", headers, []byte(encodedPayload), types.FORM)
+	req, respBody, err := rc.client.MakeRequest(url, http.MethodPost, headers, []byte(encodedPayload), types.FORM)
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func (rc *RealtimeClient) Register() error {
 		},
 	})
 
-	resp, respBody, err := rc.client.MakeRequest(url, "GET", headers, nil, types.NONE)
+	resp, respBody, err := rc.client.MakeRequest(url, http.MethodGet, headers, nil, types.NONE)
 	if err != nil {
 		return err
 	}

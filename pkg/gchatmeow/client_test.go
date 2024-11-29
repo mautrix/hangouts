@@ -1,3 +1,5 @@
+//lint:file-ignore U1000 ignore
+
 package gchatmeow_test
 
 import (

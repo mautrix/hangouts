@@ -36,7 +36,7 @@ func (c *Client) UploadMedia(fileName string, mediaContentType string, mediaByte
 		Extra:           extraHeaders,
 	})
 	url := fmt.Sprintf("%s?%s", endpoints.UPLOADS, queryString)
-	resp, _, err := c.MakeRequest(url, "POST", headers, nil, types.FORM_PLAINTEXT_UTF8)
+	resp, _, err := c.MakeRequest(url, http.MethodPost, headers, nil, types.FORM_PLAINTEXT_UTF8)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *Client) finalizeMediaUpload(uploadUrl string, mediaBytes []byte, header
 	headers.Set("X-Goog-Upload-Entity-MD5", md5Entity)
 	headers.Set("X-Goog-Upload-Offset", "0")
 
-	_, respBody, err := c.MakeRequest(uploadUrl, "PUT", headers, mediaBytes, types.FORM_PLAINTEXT_UTF8)
+	_, respBody, err := c.MakeRequest(uploadUrl, http.MethodPut, headers, mediaBytes, types.FORM_PLAINTEXT_UTF8)
 	if err != nil {
 		return nil, err
 	}
