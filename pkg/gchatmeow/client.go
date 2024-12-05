@@ -1,227 +1,292 @@
 package gchatmeow
 
 import (
-	"bytes"
+	_ "bytes"
+	"context"
+	_ "encoding/base64"
+	"encoding/json"
 	"fmt"
+	_ "io"
 	"log"
-	"net"
+	_ "math/rand"
+	_ "mime"
 	"net/http"
 	"net/url"
+	"os"
+	"regexp"
+	_ "strings"
+	"sync"
 	"time"
 
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/cookies"
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/data/endpoints"
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/data/methods"
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto/gchatproto"
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/types"
+	"go.mau.fi/util/pblite"
+	"go.mau.fi/util/ptr"
+	pb "google.golang.org/protobuf/proto"
 
-	"github.com/rs/zerolog"
-	"golang.org/x/net/html"
-	"golang.org/x/net/proxy"
+	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
 
-type EventHandler func(evt any)
-type ClientOpts struct {
-	GChatClientOpts *GChatClientOpts
-	Cookies         *cookies.Cookies
-	EventHandler    EventHandler
+const (
+	uploadURL = "https://chat.google.com/uploads"
+	apiKey    = "AIzaSyD7InnYR3VKdb4j2rMUEbTCIr2VyEazl6k"
+	gcBaseURL = "https://chat.google.com/u/0"
+)
+
+var (
+	wizPattern = regexp.MustCompile(`>window.WIZ_global_data = ({.+?});</script>`)
+	logger     = log.New(os.Stdout, "client: ", log.LstdFlags)
+)
+
+// Client represents an instant messaging client for Google Chat
+type Client struct {
+	session          *Session
+	channel          *Channel
+	maxRetries       int
+	retryBackoffBase int
+
+	// Events
+	OnConnect     *Event
+	OnReconnect   *Event
+	OnDisconnect  *Event
+	OnStreamEvent *Event
+
+	// State
+	gcRequestHeader   *proto.RequestHeader
+	clientID          string
+	email             string
+	lastActiveSecs    float64
+	activeClientState int
+	apiReqID          int64
+	xsrfToken         string
+	lastTokenRefresh  float64
+
+	// Mutex for thread safety
+	mu sync.RWMutex
 }
 
-func (opts *ClientOpts) updateDefaultGChatClientOpts() {
-	if opts.GChatClientOpts == nil {
-		opts.GChatClientOpts = &GChatClientOpts{}
+// NewClient creates a new Google Chat client
+func NewClient(cookies *Cookies, userAgent string, maxRetries, retryBackoffBase int) *Client {
+	if maxRetries == 0 {
+		maxRetries = 5
+	}
+	if retryBackoffBase == 0 {
+		retryBackoffBase = 2
 	}
 
-	gchatOpts := opts.GChatClientOpts
-	if gchatOpts.ClientType == gchatproto.ClientType_CLIENT_TYPE_UNKNOWN {
-		gchatOpts.ClientType = gchatproto.ClientType_CLIENT_TYPE_WEB_DYNTO
+	session, err := NewSession(cookies, userAgent, os.Getenv("HTTP_PROXY"))
+
+	if err != nil {
+		return nil
+	}
+	c := &Client{
+		maxRetries:       maxRetries,
+		retryBackoffBase: retryBackoffBase,
+		lastTokenRefresh: -86400,
+
+		// Initialize channels for events
+		OnConnect:     &Event{},
+		OnReconnect:   &Event{},
+		OnDisconnect:  &Event{},
+		OnStreamEvent: &Event{},
+
+		session: session,
+
+		gcRequestHeader: &proto.RequestHeader{
+			ClientType:    GetPointer(proto.RequestHeader_WEB),
+			ClientVersion: GetPointer(int64(2440378181258)),
+			ClientFeatureCapabilities: &proto.ClientFeatureCapabilities{
+				SpamRoomInvitesLevel: GetPointer(proto.ClientFeatureCapabilities_FULLY_SUPPORTED),
+			},
+		},
 	}
 
-	if gchatOpts.ClientVersion == 0 {
-		gchatOpts.ClientVersion = 1
-	}
+	return c
+}
 
-	if gchatOpts.Capabilities == nil {
-		// 2 = fully supported, these are my default client capabilites I see
-		gchatOpts.Capabilities = &gchatproto.ClientFeatureCapabilities{
-			SpamRoomInvitesLevel: 2,
-			TombstoneLevel:       2,
-			ThreadedSpacesLevel:  2,
-			FlatNamedRoomTopicOrderingByCreationTimeLevel: 2,
-			TargetAudienceLevel:                           2,
-			GroupScopedCapabilitiesLevel:                  2,
-			RosterAsMemberSupportLevel:                    2,
-			TombstoneInDmsAndUfrsLevel:                    2,
-			QuotedMessageSupportLevel:                     2,
-			RenderAnnouncementSpacesLevel:                 2,
-			DarkLaunchSpaceSupport:                        2,
-			AvoidHttp_400ErrorSupportLevel:                2,
-			CustomHyperlinkLevel:                          2,
-			SnippetsForNamedRooms:                         2,
-			CanAddContinuousDirectAddGroups:               2,
-			DriveSmartChipLevel:                           2,
-			GsuiteIntegrationInNativeRendererLevel:        2,
-			MentionsShortcutLevel:                         2,
-			StarredShortcutLevel:                          2,
-			SearchSnippetAndKeywordHighlightLevel:         2,
-			CanHandleBatchReactionUpdate:                  2,
-			LongerGroupSnippetsLevel:                      2,
-			AddExistingAppsLevel:                          2,
+// Connect establishes a connection to the chat server
+func (c *Client) Connect(ctx context.Context, maxAge time.Duration) error {
+	c.apiReqID = 0
+
+	if time.Now().Unix()-int64(c.lastTokenRefresh) > 86400 {
+		logger.Println("Refreshing xsrf token before connecting")
+		if err := c.RefreshTokens(ctx); err != nil {
+			return fmt.Errorf("failed to refresh tokens: %w", err)
 		}
 	}
-}
 
-type GChatClientOpts struct {
-	ClientType    gchatproto.ClientType
-	ClientVersion int64
-	Locale        string
-	Capabilities  *gchatproto.ClientFeatureCapabilities
-}
-
-type Client struct {
-	Logger       zerolog.Logger
-	cookies      *cookies.Cookies
-	rc           *RealtimeClient
-	http         *http.Client
-	httpProxy    func(*http.Request) (*url.URL, error)
-	socksProxy   proxy.Dialer
-	eventHandler EventHandler
-	XSRFToken    string
-	XClientData  string
-	opts         *ClientOpts
-}
-
-func NewClient(opts *ClientOpts, logger zerolog.Logger) *Client {
-	cli := Client{
-		http: &http.Client{
-			Transport: &http.Transport{
-				DialContext:           (&net.Dialer{Timeout: 10 * time.Second}).DialContext,
-				TLSHandshakeTimeout:   10 * time.Second,
-				ResponseHeaderTimeout: 40 * time.Second,
-				ForceAttemptHTTP2:     true,
-			},
-			Timeout: 60 * time.Second,
-		},
-		Logger:      logger,
-		opts:        opts,
-		XClientData: "COSJywE=", // base64 encoded protobuf data
-	}
-
-	err := cli.setupClientOptions()
+	channel, err := NewChannel(c.session, c.maxRetries, c.retryBackoffBase)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	c.channel = channel
 
-	cli.rc = cli.newRealtimeClient()
-
-	return &cli
-}
-
-func (c *Client) setupClientOptions() error {
-	if c.opts == nil {
-		return fmt.Errorf("client options struct can not be nil")
-	}
-
-	if c.opts.EventHandler != nil {
-		c.SetEventHandler(c.opts.EventHandler)
-	}
-
-	if c.opts.Cookies != nil {
-		c.cookies = c.opts.Cookies
-	} else {
-		c.cookies = cookies.NewCookies()
-	}
-
-	// set/update default values for gchat client options
-	c.opts.updateDefaultGChatClientOpts()
-
-	return nil
-}
-
-func (c *Client) LoadMessagesPage() (*types.InitialConfigData, error) {
-	headers := c.buildHeaders(types.HeaderOpts{
-		WithCookies:     true,
-		WithXClientData: true,
-		Extra: map[string]string{
-			"Referer": "https://mail.google.com/",
-		},
+	// Set up event forwarding
+	c.channel.OnConnect.AddObserver(func(interface{}) {
+		c.OnConnect.Fire(nil)
 	})
+	c.channel.OnReceiveArray.AddObserver(c.onReceiveArray)
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case <-c.channel.OnConnect:
+	// 			c.OnConnect <- struct{}{}
+	// 		case <-c.channel.OnReconnect:
+	// 			c.OnReconnect <- struct{}{}
+	// 		case <-c.channel.OnDisconnect:
+	// 			c.OnDisconnect <- struct{}{}
+	// 		case arr := <-c.channel.OnReceiveArray:
+	// 			if err := c.handleReceiveArray(arr); err != nil {
+	// 				logger.Printf("Error handling receive array: %v", err)
+	// 			}
+	// 		case <-ctx.Done():
+	// 			return
+	// 		}
+	// 	}
+	// }()
 
-	url := fmt.Sprintf("%s?%s", endpoints.MOLE_BASE_URL, "wfi=gtn-brain-iframe-id&hs=%5B%22h_hs%22%2Cnull%2Cnull%2C%5B1%2C0%5D%2Cnull%2Cnull%2C%22gmail.pinto-server_20240610.06_p0%22%2C1%2Cnull%2C%5B15%2C48%2C6%2C43%2C36%2C35%2C26%2C44%2C39%2C46%2C41%2C18%2C24%2C11%2C21%2C14%2C1%2C51%2C53%5D%2Cnull%2Cnull%2C%22GgsaQvppfqU.en..es5%22%2Cnull%2Cnull%2Cnull%2C%5B2%5D%2Cnull%2C0%5D&hl=en&lts=chat%2Fhome&shell=9&has_stream_view=false&origin=https%3A%2F%2Fmail.google.com")
-	resp, respBody, err := c.MakeRequest(url, http.MethodGet, headers, nil, types.NONE)
-	if err != nil {
-		return nil, err
-	}
-
-	c.cookies.UpdateFromResponse(resp)
-
-	doc, err := html.Parse(bytes.NewReader(respBody))
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse doc string for initial messaging page (%e)", err)
-	}
-
-	scriptTags := findScriptTags(doc)
-	initialData, err := c.parseInitialMessagesHTML(scriptTags)
-	if err != nil {
-		return nil, err
-	}
-
-	c.XSRFToken = initialData.PageConfig.XSRFToken
-	c.Logger.Info().Str("X-Framework-Xsrf-Token", c.XSRFToken).Msg("Successfully loaded initial messaging page config")
-
-	//err = c.cookies.SaveToTxt()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-
-	return initialData, nil
+	return c.channel.Listen(ctx, maxAge)
 }
 
-func (c *Client) Connect() error {
-	return c.rc.Connect()
-}
+// refreshTokens makes a request to /mole/world to get required tokens
+func (c *Client) RefreshTokens(ctx context.Context) error {
+	params := url.Values{
+		"origin": {"https://mail.google.com"},
+		"shell":  {"9"},
+		"hl":     {"en"},
+		"wfi":    {"gtn-roster-iframe-id"},
+		"hs":     {`["h_hs",null,null,[1,0],null,null,"gmail.pinto-server_20230730.06_p0",1,null,[15,38,36,35,26,30,41,18,24,11,21,14,6],null,null,"3Mu86PSulM4.en..es5",0,null,null,[0]]`},
+	}
 
-func (c *Client) Disconnect() error {
-	return nil
-}
+	headers := http.Header{
+		"authority": {"chat.google.com"},
+		"referer":   {"https://mail.google.com/"},
+	}
 
-func (c *Client) SetProxy(proxyAddr string) error {
-	proxyParsed, err := url.Parse(proxyAddr)
+	resp, err := c.session.Fetch(ctx, "GET", fmt.Sprintf("%s/mole/world", gcBaseURL), params, headers, true, nil)
 	if err != nil {
 		return err
 	}
 
-	if proxyParsed.Scheme == "http" || proxyParsed.Scheme == "https" {
-		c.httpProxy = http.ProxyURL(proxyParsed)
-		c.http.Transport.(*http.Transport).Proxy = c.httpProxy
-	} else if proxyParsed.Scheme == "socks5" {
-		c.socksProxy, err = proxy.FromURL(proxyParsed, &net.Dialer{Timeout: 20 * time.Second})
-		if err != nil {
-			return err
-		}
-		contextDialer, ok := c.socksProxy.(proxy.ContextDialer)
-		if ok {
-			c.http.Transport.(*http.Transport).DialContext = contextDialer.DialContext
-		}
+	os.WriteFile("body.html", resp.Body, 0644)
+	// fmt.Println(string(resp.Body))
+
+	matches := wizPattern.FindSubmatch(resp.Body)
+	if len(matches) != 2 {
+		return fmt.Errorf("didn't find WIZ_global_data in /mole/world response")
 	}
 
-	c.Logger.Debug().
-		Str("scheme", proxyParsed.Scheme).
-		Str("host", proxyParsed.Host).
-		Msg("Using proxy")
+	var wizData struct {
+		QwAQke string `json:"qwAQke"`
+		SMqcke string `json:"SMqcke"`
+	}
+	if err := json.Unmarshal(matches[1], &wizData); err != nil {
+		return fmt.Errorf("non-JSON WIZ_global_data in /mole/world response: %w", err)
+	}
+
+	if wizData.QwAQke == "AccountsSignInUi" {
+		// return ErrNotLoggedIn
+		return fmt.Errorf("ErrNotLoggedIn")
+	}
+
+	fmt.Println("Done")
+	c.mu.Lock()
+	c.xsrfToken = wizData.SMqcke
+	c.lastTokenRefresh = float64(time.Now().Unix())
+	c.mu.Unlock()
+
 	return nil
 }
 
-func (c *Client) SetEventHandler(handler EventHandler) {
-	c.eventHandler = handler
+// OnReceiveArray parses channel array and calls appropriate events
+func (c *Client) onReceiveArray(arg interface{}) {
+	array, ok := arg.([]interface{})
+	if !ok {
+		fmt.Printf("expected arg to be []interface{}, got %T", array[0])
+		return
+	}
+
+	if len(array) == 0 {
+		fmt.Printf("received empty array")
+		return
+	}
+
+	// Check for noop (keep-alive)
+	if str, ok := array[0].(string); ok && str == "noop" {
+		return // Ignore keep-alive
+	}
+
+	// Get the data from array
+	data, ok := array[0].([]interface{})
+	if !ok {
+		fmt.Printf("expected array[0] to be []interface{}, got %T", array[0])
+	}
+
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Create and decode protobuf response
+	resp := &proto.StreamEventsResponse{}
+	if err := pblite.Unmarshal(bytes, resp); err != nil {
+		fmt.Printf("failed to decode proto: %w", err)
+		return
+	}
+
+	fmt.Println(resp)
+
+	// Process each event body
+	for _, evt := range c.splitEventBodies(resp.GetEvent()) {
+		log.Printf("Dispatching stream event: %v", evt)
+		c.OnStreamEvent.Fire(evt)
+	}
+
 }
 
-func (c *Client) buildRequestHeader() *gchatproto.RequestHeader {
-	return &gchatproto.RequestHeader{
-		TraceId:                   methods.RandomInt64(),
-		ClientType:                c.opts.GChatClientOpts.ClientType,
-		ClientVersion:             c.opts.GChatClientOpts.ClientVersion,
-		Locale:                    c.opts.GChatClientOpts.Locale,
-		ClientFeatureCapabilities: c.opts.GChatClientOpts.Capabilities,
+// SplitEventBodies splits an event with multiple bodies into separate events
+func (c *Client) splitEventBodies(evt *proto.Event) []*proto.Event {
+	if evt == nil {
+		return nil
 	}
+
+	var events []*proto.Event
+
+	// Handle embedded bodies
+	embeddedBodies := evt.GetBodies()
+	if len(embeddedBodies) > 0 {
+		// Clear the bodies field in the original event
+		evt.Bodies = nil
+	}
+
+	// If there's a body in the main event, include it
+	if evt.Body != nil {
+		events = append(events, pb.Clone(evt).(*proto.Event))
+	}
+
+	// Process each embedded body
+	for _, body := range embeddedBodies {
+		evtCopy := pb.Clone(evt).(*proto.Event)
+		evtCopy.Body = pb.Clone(body).(*proto.Event_EventBody)
+		evtCopy.Type = ptr.Ptr(body.GetEventType())
+		events = append(events, evtCopy)
+	}
+
+	return events
+}
+
+func (c *Client) GetSelf(ctx context.Context) (*proto.User, error) {
+	status, err := c.getSelfUserStatus(ctx)
+	if err != nil {
+		return nil, err
+	}
+	gcid := status.UserStatus.UserId.Id
+	members, err := c.getMembers(ctx, gcid)
+	if err != nil {
+		return nil, err
+	}
+	return members.Members[0].GetUser(), nil
+}
+
+func (c *Client) Sync(ctx context.Context) (*proto.PaginatedWorldResponse, error) {
+	return c.paginatedWorld(ctx)
 }

@@ -4,15 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow"
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/cookies"
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/debug"
-
 	"maunium.net/go/mautrix/bridge/status"
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/id"
+
+	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow"
 )
 
 const (
@@ -35,10 +33,9 @@ func (gc *GChatConnector) GetLoginFlows() []bridgev2.LoginFlow {
 func (gc *GChatConnector) LoadUserLogin(ctx context.Context, login *bridgev2.UserLogin) error {
 	loginMetadata := login.Metadata.(*UserLoginMetadata)
 	var client *gchatmeow.Client
-	clientOptions := gchatmeow.ClientOpts{
-		Cookies: cookies.NewCookiesFromString(loginMetadata.Cookies),
+	if loginMetadata.Cookies != nil {
+		client = gchatmeow.NewClient(loginMetadata.Cookies, "", 0, 0)
 	}
-	client = gchatmeow.NewClient(&clientOptions, debug.NewLogger())
 	c := &GChatClient{
 		UserLogin: login,
 		Client:    client,
@@ -52,7 +49,7 @@ type GChatCookieLogin struct {
 }
 
 type UserLoginMetadata struct {
-	Cookies string
+	Cookies *gchatmeow.Cookies
 }
 
 var _ bridgev2.LoginProcessCookies = (*GChatCookieLogin)(nil)
@@ -72,32 +69,31 @@ func (gl *GChatCookieLogin) Start(ctx context.Context) (*bridgev2.LoginStep, err
 func (gl *GChatCookieLogin) Cancel() {}
 
 func (gl *GChatCookieLogin) SubmitCookies(ctx context.Context, strCookies map[string]string) (*bridgev2.LoginStep, error) {
-	cookies := &cookies.Cookies{}
+	cookies := &gchatmeow.Cookies{}
 	cookies.UpdateValues(strCookies)
 
-	clientOptions := gchatmeow.ClientOpts{
-		Cookies: cookies,
-	}
-	client := gchatmeow.NewClient(&clientOptions, debug.NewLogger())
-
-	initialData, err := client.LoadMessagesPage()
+	client := gchatmeow.NewClient(cookies, "", 0, 0)
+	err := client.RefreshTokens(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user := initialData.CurrentUser.Data
+	user, err := client.GetSelf(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	userId := user.Id.Id
+	userId := user.UserId.Id
 	ul, err := gl.User.NewLogin(ctx, &database.UserLogin{
-		ID:         networkid.UserLoginID(userId),
-		RemoteName: user.Fullname,
+		ID:         networkid.UserLoginID(*userId),
+		RemoteName: user.GetName(),
 		RemoteProfile: status.RemoteProfile{
-			Name:   user.Fullname,
-			Email:  user.Email,
+			Name:   user.GetName(),
+			Email:  *user.Email,
 			Avatar: id.ContentURIString(user.GetAvatarUrl()),
 		},
 		Metadata: &UserLoginMetadata{
-			Cookies: cookies.String(),
+			Cookies: cookies,
 		},
 	}, nil)
 
@@ -113,7 +109,7 @@ func (gl *GChatCookieLogin) SubmitCookies(ctx context.Context, strCookies map[st
 	return &bridgev2.LoginStep{
 		Type:         bridgev2.LoginStepTypeComplete,
 		StepID:       LoginStepIDComplete,
-		Instructions: fmt.Sprintf("Logged in as %s (%s)", user.Fullname, userId),
+		Instructions: fmt.Sprintf("Logged in as %s (%d)", user.GetName(), userId),
 		CompleteParams: &bridgev2.LoginCompleteParams{
 			UserLoginID: ul.ID,
 			UserLogin:   ul,
