@@ -1,20 +1,14 @@
 package gchatmeow
 
 import (
-	_ "bytes"
 	"context"
-	_ "encoding/base64"
 	"encoding/json"
 	"fmt"
-	_ "io"
 	"log"
-	_ "math/rand"
-	_ "mime"
 	"net/http"
 	"net/url"
 	"os"
 	"regexp"
-	_ "strings"
 	"sync"
 	"time"
 
@@ -36,7 +30,6 @@ var (
 	logger     = log.New(os.Stdout, "client: ", log.LstdFlags)
 )
 
-// Client represents an instant messaging client for Google Chat
 type Client struct {
 	session          *Session
 	channel          *Channel
@@ -50,20 +43,15 @@ type Client struct {
 	OnStreamEvent *Event
 
 	// State
-	gcRequestHeader   *proto.RequestHeader
-	clientID          string
-	email             string
-	lastActiveSecs    float64
-	activeClientState int
-	apiReqID          int64
-	xsrfToken         string
-	lastTokenRefresh  float64
+	gcRequestHeader  *proto.RequestHeader
+	apiReqID         int64
+	xsrfToken        string
+	lastTokenRefresh float64
 
 	// Mutex for thread safety
 	mu sync.RWMutex
 }
 
-// NewClient creates a new Google Chat client
 func NewClient(cookies *Cookies, userAgent string, maxRetries, retryBackoffBase int) *Client {
 	if maxRetries == 0 {
 		maxRetries = 5
@@ -91,10 +79,10 @@ func NewClient(cookies *Cookies, userAgent string, maxRetries, retryBackoffBase 
 		session: session,
 
 		gcRequestHeader: &proto.RequestHeader{
-			ClientType:    GetPointer(proto.RequestHeader_WEB),
-			ClientVersion: GetPointer(int64(2440378181258)),
+			ClientType:    ptr.Ptr(proto.RequestHeader_WEB),
+			ClientVersion: ptr.Ptr(int64(2440378181258)),
 			ClientFeatureCapabilities: &proto.ClientFeatureCapabilities{
-				SpamRoomInvitesLevel: GetPointer(proto.ClientFeatureCapabilities_FULLY_SUPPORTED),
+				SpamRoomInvitesLevel: ptr.Ptr(proto.ClientFeatureCapabilities_FULLY_SUPPORTED),
 			},
 		},
 	}
@@ -102,7 +90,6 @@ func NewClient(cookies *Cookies, userAgent string, maxRetries, retryBackoffBase 
 	return c
 }
 
-// Connect establishes a connection to the chat server
 func (c *Client) Connect(ctx context.Context, maxAge time.Duration) error {
 	c.apiReqID = 0
 
@@ -124,29 +111,10 @@ func (c *Client) Connect(ctx context.Context, maxAge time.Duration) error {
 		c.OnConnect.Fire(nil)
 	})
 	c.channel.OnReceiveArray.AddObserver(c.onReceiveArray)
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case <-c.channel.OnConnect:
-	// 			c.OnConnect <- struct{}{}
-	// 		case <-c.channel.OnReconnect:
-	// 			c.OnReconnect <- struct{}{}
-	// 		case <-c.channel.OnDisconnect:
-	// 			c.OnDisconnect <- struct{}{}
-	// 		case arr := <-c.channel.OnReceiveArray:
-	// 			if err := c.handleReceiveArray(arr); err != nil {
-	// 				logger.Printf("Error handling receive array: %v", err)
-	// 			}
-	// 		case <-ctx.Done():
-	// 			return
-	// 		}
-	// 	}
-	// }()
 
 	return c.channel.Listen(ctx, maxAge)
 }
 
-// refreshTokens makes a request to /mole/world to get required tokens
 func (c *Client) RefreshTokens(ctx context.Context) error {
 	params := url.Values{
 		"origin": {"https://mail.google.com"},
@@ -161,13 +129,10 @@ func (c *Client) RefreshTokens(ctx context.Context) error {
 		"referer":   {"https://mail.google.com/"},
 	}
 
-	resp, err := c.session.Fetch(ctx, "GET", fmt.Sprintf("%s/mole/world", gcBaseURL), params, headers, true, nil)
+	resp, err := c.session.Fetch(ctx, http.MethodGet, fmt.Sprintf("%s/mole/world", gcBaseURL), params, headers, true, nil)
 	if err != nil {
 		return err
 	}
-
-	os.WriteFile("body.html", resp.Body, 0644)
-	// fmt.Println(string(resp.Body))
 
 	matches := wizPattern.FindSubmatch(resp.Body)
 	if len(matches) != 2 {
@@ -187,7 +152,6 @@ func (c *Client) RefreshTokens(ctx context.Context) error {
 		return fmt.Errorf("ErrNotLoggedIn")
 	}
 
-	fmt.Println("Done")
 	c.mu.Lock()
 	c.xsrfToken = wizData.SMqcke
 	c.lastTokenRefresh = float64(time.Now().Unix())
@@ -196,7 +160,6 @@ func (c *Client) RefreshTokens(ctx context.Context) error {
 	return nil
 }
 
-// OnReceiveArray parses channel array and calls appropriate events
 func (c *Client) onReceiveArray(arg interface{}) {
 	array, ok := arg.([]interface{})
 	if !ok {
@@ -229,7 +192,7 @@ func (c *Client) onReceiveArray(arg interface{}) {
 	// Create and decode protobuf response
 	resp := &proto.StreamEventsResponse{}
 	if err := pblite.Unmarshal(bytes, resp); err != nil {
-		fmt.Printf("failed to decode proto: %w", err)
+		fmt.Println(fmt.Errorf("failed to decode proto: %w", err))
 		return
 	}
 
@@ -243,7 +206,6 @@ func (c *Client) onReceiveArray(arg interface{}) {
 
 }
 
-// SplitEventBodies splits an event with multiple bodies into separate events
 func (c *Client) splitEventBodies(evt *proto.Event) []*proto.Event {
 	if evt == nil {
 		return nil

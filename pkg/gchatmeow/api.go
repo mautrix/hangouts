@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	pb "google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
+
+	"go.mau.fi/util/ptr"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
@@ -27,7 +30,7 @@ func (c *Client) gcRequest(ctx context.Context, endpoint string, requestPB proto
 	}
 
 	params := url.Values{}
-	params.Set("c", string(c.apiReqID))
+	params.Set("c", strconv.FormatInt(c.apiReqID, 10))
 	params.Set("rt", "b")
 	res, err := c.baseRequest(
 		ctx,
@@ -37,7 +40,7 @@ func (c *Client) gcRequest(ctx context.Context, endpoint string, requestPB proto
 		requestData,
 		headers,
 		params,
-		"POST",
+		http.MethodPost,
 	)
 	if err != nil {
 		return err
@@ -114,7 +117,7 @@ func (c *Client) getMembers(ctx context.Context, gcid *string) (*proto.GetMember
 func (c *Client) paginatedWorld(ctx context.Context) (*proto.PaginatedWorldResponse, error) {
 	request := &proto.PaginatedWorldRequest{
 		RequestHeader:       c.gcRequestHeader,
-		FetchFromUserSpaces: GetPointer(true),
+		FetchFromUserSpaces: ptr.Ptr(true),
 		FetchOptions: []proto.PaginatedWorldRequest_FetchOptions{
 			proto.PaginatedWorldRequest_EXCLUDE_GROUP_LITE,
 		},

@@ -63,6 +63,7 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 		return
 	}
 	for _, item := range res.WorldItems {
+		// TODO room name for DM, and full members list
 		name := item.RoomName
 		if name == nil {
 			name = ptr.Ptr("dm")
@@ -100,7 +101,6 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 		fmt.Println("Invalid event", raw)
 		return
 	}
-	fmt.Println("- onEvent", evt)
 	switch *evt.Type {
 	case proto.Event_MESSAGE_POSTED:
 		msg := evt.Body.GetMessagePosted().Message
@@ -108,13 +108,6 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 		c.UserLogin.Bridge.QueueRemoteEvent(c.UserLogin, &simplevent.Message[*proto.Message]{
 			EventMeta: simplevent.EventMeta{
 				Type: bridgev2.RemoteEventMessage,
-				// LogContext: func(c zerolog.Context) zerolog.Context {
-				// 	return c.
-				// 		Str("message_id", evtData.MessageID).
-				// 		Str("sender", sender.IDStr).
-				// 		Str("sender_login", sender.ScreenName).
-				// 		Bool("is_from_me", isFromMe)
-				// },
 				PortalKey: networkid.PortalKey{
 					ID:       networkid.PortalID(evt.GroupId.String()),
 					Receiver: c.UserLogin.ID,
@@ -127,9 +120,7 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 				},
 				// Timestamp: evtData.CreatedAt,
 			},
-			ID: networkid.MessageID(*msg.LocalId),
-			// TargetMessage: networkid.MessageID(evtData.MessageID),
-			// Data:          XMDFromEventMessage(&evtData),
+			ID:   networkid.MessageID(*msg.LocalId),
 			Data: msg,
 			ConvertMessageFunc: func(ctx context.Context, portal *bridgev2.Portal, intent bridgev2.MatrixAPI, data *proto.Message) (*bridgev2.ConvertedMessage, error) {
 				return c.convertToMatrix(ctx, portal, intent, data), nil

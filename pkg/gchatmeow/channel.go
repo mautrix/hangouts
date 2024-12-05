@@ -1,7 +1,6 @@
 package gchatmeow
 
 import (
-	_ "bytes"
 	"context"
 	"encoding/base64"
 	"encoding/binary"
@@ -18,7 +17,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	_ "unicode/utf16"
 	"unicode/utf8"
 
 	"go.mau.fi/util/pblite"
@@ -45,7 +43,6 @@ var (
 	lenRegex = regexp.MustCompile(lenRegexPattern)
 )
 
-// Channel represents a BrowserChannel client
 type Channel struct {
 	session          *Session
 	maxRetries       int
@@ -65,12 +62,10 @@ type Channel struct {
 	OnReceiveArray *Event
 }
 
-// ChunkParser parses data from the backward channel into chunks
 type ChunkParser struct {
 	buf []byte
 }
 
-// NewChunkParser creates a new ChunkParser instance
 func NewChunkParser() *ChunkParser {
 	return &ChunkParser{
 		buf: make([]byte, 0),
@@ -181,12 +176,10 @@ func NewChannel(session *Session, maxRetries, retryBackoffBase int) (*Channel, e
 	}, nil
 }
 
-// IsConnected returns whether the channel is currently connected
 func (c *Channel) IsConnected() bool {
 	return c.isConnected
 }
 
-// Listen listens for messages on the backwards channel
 func (c *Channel) Listen(ctx context.Context, maxAge time.Duration) error {
 	retries := 0
 	skipBackoff := false
@@ -205,12 +198,12 @@ func (c *Channel) Listen(ctx context.Context, maxAge time.Duration) error {
 		}
 
 		if retries > 0 && !skipBackoff {
-			backoffSeconds := time.Duration(pow(c.retryBackoffBase, retries)) * time.Second
-			log.Printf("Backing off for %v seconds", backoffSeconds)
+			backoffTime := time.Duration(pow(c.retryBackoffBase, retries)) * time.Second
+			log.Printf("Backing off for %v seconds", backoffTime)
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
-			case <-time.After(backoffSeconds):
+			case <-time.After(backoffTime):
 			}
 		}
 		skipBackoff = false
@@ -250,13 +243,12 @@ func (c *Channel) Listen(ctx context.Context, maxAge time.Duration) error {
 	return fmt.Errorf("ran out of retries for long-polling request")
 }
 
-// register registers a new channel and returns the csessionid
 func (c *Channel) register(ctx context.Context) (string, error) {
 	c.sidParam = ""
 	c.aid = 0
 	c.ofs = 0
 
-	resp, err := c.session.FetchRaw(ctx, "GET", channelURLBase+"register?ignore_compass_cookie=1", nil, http.Header{
+	resp, err := c.session.FetchRaw(ctx, http.MethodGet, channelURLBase+"register?ignore_compass_cookie=1", nil, http.Header{
 		"Content-Type": {"application/x-protobuf"},
 	}, true, nil)
 	if err != nil {
@@ -281,13 +273,13 @@ func (c *Channel) register(ctx context.Context) (string, error) {
 	return "", nil
 }
 
-func (c *Channel) sendStreamEvent(ctx context.Context, request proto.StreamEventsRequest) error {
+func (c *Channel) sendStreamEvent(ctx context.Context, request *proto.StreamEventsRequest) error {
 	params := url.Values{
 		"VER": []string{"8"},                      // channel protocol version
 		"RID": []string{fmt.Sprintf("%d", c.rid)}, // request identifier
 		"t":   []string{"1"},                      // trial
 		"SID": []string{c.sidParam},               // session ID
-		"AID": []string{string(c.aid)},            // last acknowledged id
+		"AID": []string{strconv.Itoa(c.aid)},      // last acknowledged id
 	}
 	c.rid++
 
@@ -296,7 +288,7 @@ func (c *Channel) sendStreamEvent(ctx context.Context, request proto.StreamEvent
 		"Content-Type": []string{"application/x-www-form-urlencoded"},
 	}
 
-	protoBytes, err := pblite.Marshal(&request)
+	protoBytes, err := pblite.Marshal(request)
 	if err != nil {
 		return fmt.Errorf("failed to marshal events request: %w", err)
 	}
@@ -314,7 +306,7 @@ func (c *Channel) sendStreamEvent(ctx context.Context, request proto.StreamEvent
 	}
 	c.ofs++
 
-	res, err := c.session.FetchRaw(ctx, "POST", channelURLBase+"events", params, headers, true, []byte(formData.Encode()))
+	res, err := c.session.FetchRaw(ctx, http.MethodPost, channelURLBase+"events", params, headers, true, []byte(formData.Encode()))
 	if err != nil {
 		return err
 	}
@@ -328,10 +320,9 @@ func (c *Channel) sendInitialPing(ctx context.Context) error {
 	interactiveState := proto.PingEvent_INTERACTIVE
 	notificationsEnabled := true
 	event := proto.PingEvent{State: &state, ApplicationFocusState: &focusState, ClientInteractiveState: &interactiveState, ClientNotificationsEnabled: &notificationsEnabled}
-	return c.sendStreamEvent(ctx, proto.StreamEventsRequest{PingEvent: &event})
+	return c.sendStreamEvent(ctx, &proto.StreamEventsRequest{PingEvent: &event})
 }
 
-// longPollRequest opens a long-polling request and receives arrays
 func (c *Channel) longPollRequest(ctx context.Context) error {
 	params := url.Values{
 		"VER": {strconv.Itoa(protocolVersion)},
@@ -353,7 +344,7 @@ func (c *Channel) longPollRequest(ctx context.Context) error {
 		params.Set("SID", c.sidParam)
 	}
 
-	resp, err := c.session.FetchRaw(ctx, "GET", channelURLBase+"events", params, http.Header{
+	resp, err := c.session.FetchRaw(ctx, http.MethodGet, channelURLBase+"events", params, http.Header{
 		"referer": {"https://chat.google.com/"},
 	}, true, nil)
 	if err != nil {
@@ -389,14 +380,14 @@ func (c *Channel) longPollRequest(ctx context.Context) error {
 				"VER":  []string{"8"},
 				"RID":  []string{"rpc"},
 				"SID":  []string{c.sidParam},
-				"AID":  []string{string(c.aid)},
+				"AID":  []string{strconv.Itoa(c.aid)},
 				"CI":   []string{"0"},
 				"TYPE": []string{"xmlhttp"},
 				"zx":   []string{uniqueID()},
 				"t":    []string{"1"},
 			}
 
-			if _, err := c.session.FetchRaw(ctx, "GET", channelURLBase+"events", params, nil, true, nil); err != nil {
+			if _, err := c.session.FetchRaw(ctx, http.MethodGet, channelURLBase+"events", params, nil, true, nil); err != nil {
 				return fmt.Errorf("failed to acknowledge sid")
 			}
 
@@ -432,13 +423,9 @@ func (c *Channel) longPollRequest(ctx context.Context) error {
 	}
 }
 
-// OnPushData handles incoming push data and triggers appropriate events
 func (c *Channel) onPushData(dataBytes []byte) error {
 	// Log received chunk
 	log.Printf("Received chunk:\n%s", string(dataBytes))
-
-	// Update metrics
-	// c.receivedChunks.Add(float64(len(dataBytes)))
 
 	// Process chunks
 	chunks := c.chunkParser.GetChunks(dataBytes)
@@ -478,7 +465,7 @@ func (c *Channel) onPushData(dataBytes []byte) error {
 
 			dataArray := innerArray[1]
 
-			log.Printf("Chunk contains data array with id %d:\n%v", arrayID, dataArray)
+			log.Printf("Chunk contains data array with id %f:\n%v", arrayID, dataArray)
 
 			// Fire receive array event
 			c.OnReceiveArray.Fire(dataArray)
@@ -491,7 +478,6 @@ func (c *Channel) onPushData(dataBytes []byte) error {
 	return nil
 }
 
-// Helper functions (implementations not shown for brevity)
 func uniqueID() string {
 	// Implementation of _unique_id from Python code
 	return base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf("%d", rand.Int63())))

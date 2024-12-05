@@ -5,7 +5,7 @@ import (
 )
 
 type Cookies struct {
-	Compass string
+	COMPASS string
 	SSID    string
 	SID     string
 	OSID    string
@@ -13,7 +13,7 @@ type Cookies struct {
 }
 
 var (
-	cookies = []string{"Compass", "SSID", "SID", "OSID", "HSID"}
+	cookies = []string{"COMPASS", "SSID", "SID", "OSID", "HSID"}
 )
 
 func (c *Cookies) UpdateValues(values map[string]string) {

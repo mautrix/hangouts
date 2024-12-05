@@ -27,14 +27,12 @@ var (
 	firefoxVersionRegex = regexp.MustCompile(`Firefox/\d+.\d+`)
 )
 
-// FetchResponse represents an HTTP response
 type FetchResponse struct {
 	Code    int
 	Headers http.Header
 	Body    []byte
 }
 
-// Session represents an HTTP session for making requests to Google
 type Session struct {
 	client    *http.Client
 	proxy     *url.URL
@@ -42,7 +40,6 @@ type Session struct {
 	cookies   *cookiejar.Jar
 }
 
-// NetworkError represents a network-related error
 type NetworkError struct {
 	message string
 }
@@ -51,7 +48,6 @@ func (e *NetworkError) Error() string {
 	return e.message
 }
 
-// NewSession creates a new Session with the given cookies and optional proxy
 func NewSession(cookies *Cookies, proxyURL string, userAgent string) (*Session, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
@@ -76,7 +72,7 @@ func NewSession(cookies *Cookies, proxyURL string, userAgent string) (*Session, 
 	googleURL, _ := url.Parse("https://chat.google.com")
 	var googleCookies []*http.Cookie
 	for name, value := range map[string]string{
-		"COMPASS": cookies.Compass,
+		"COMPASS": cookies.COMPASS,
 		"SSID":    cookies.SSID,
 		"SID":     cookies.SID,
 		"OSID":    cookies.OSID,
@@ -109,7 +105,6 @@ func NewSession(cookies *Cookies, proxyURL string, userAgent string) (*Session, 
 	}, nil
 }
 
-// Fetch makes an HTTP request with retries
 func (s *Session) Fetch(ctx context.Context, method, urlStr string, params url.Values, headers http.Header, allowRedirects bool, data []byte) (*FetchResponse, error) {
 	var lastErr error
 
