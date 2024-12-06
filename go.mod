@@ -5,11 +5,7 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
-	github.com/google/go-querystring v1.1.0
-	github.com/mattn/go-colorable v0.1.13
-	github.com/rs/zerolog v1.33.0
 	go.mau.fi/util v0.8.2
-	golang.org/x/net v0.31.0
 	google.golang.org/protobuf v1.35.2
 	maunium.net/go/mautrix v0.22.1-0.20241126202918-4b970e0ea7e6
 )
@@ -20,10 +16,12 @@ require (
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/petermattis/goid v0.0.0-20241025130422-66cb2e6d7274 // indirect
 	github.com/rs/xid v1.6.0 // indirect
+	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
@@ -33,6 +31,7 @@ require (
 	go.mau.fi/zeroconfig v0.1.3 // indirect
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
+	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
