@@ -34,7 +34,7 @@ func (c *GChatClient) Disconnect() {
 }
 
 func (c *GChatClient) GetCapabilities(ctx context.Context, portal *bridgev2.Portal) *bridgev2.NetworkRoomCapabilities {
-	return nil
+	return &bridgev2.NetworkRoomCapabilities{}
 }
 
 func (c *GChatClient) GetChatInfo(ctx context.Context, portal *bridgev2.Portal) (*bridgev2.ChatInfo, error) {
@@ -46,7 +46,7 @@ func (c *GChatClient) GetUserInfo(ctx context.Context, ghost *bridgev2.Ghost) (*
 }
 
 func (c *GChatClient) IsLoggedIn() bool {
-	return false
+	return true
 }
 
 func (c *GChatClient) IsThisUser(ctx context.Context, userID networkid.UserID) bool {

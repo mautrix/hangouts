@@ -126,3 +126,10 @@ func (c *Client) paginatedWorld(ctx context.Context) (*proto.PaginatedWorldRespo
 	err := c.gcRequest(ctx, "paginated_world", request, response)
 	return response, err
 }
+
+func (c *Client) CreateTopic(ctx context.Context, request *proto.CreateTopicRequest) (*proto.CreateTopicResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.CreateTopicResponse{}
+	err := c.gcRequest(ctx, "create_topic", request, response)
+	return response, err
+}
