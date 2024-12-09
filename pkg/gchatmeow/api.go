@@ -100,14 +100,19 @@ func (c *Client) getSelfUserStatus(ctx context.Context) (*proto.GetSelfUserStatu
 	return response, err
 }
 
-func (c *Client) getMembers(ctx context.Context, gcid *string) (*proto.GetMembersResponse, error) {
+func (c *Client) GetMembers(ctx context.Context, ids []*string) (*proto.GetMembersResponse, error) {
+	memberIds := make([]*proto.MemberId, len(ids))
+	for i, id := range ids {
+		memberIds[i] = &proto.MemberId{
+			Id: &proto.MemberId_UserId{
+				UserId: &proto.UserId{Id: id},
+			},
+		}
+	}
+
 	request := &proto.GetMembersRequest{
 		RequestHeader: c.gcRequestHeader,
-		MemberIds: []*proto.MemberId{
-			&proto.MemberId{Id: &proto.MemberId_UserId{
-				UserId: &proto.UserId{Id: gcid},
-			}},
-		},
+		MemberIds:     memberIds,
 	}
 	response := &proto.GetMembersResponse{}
 	err := c.gcRequest(ctx, "get_members", request, response)

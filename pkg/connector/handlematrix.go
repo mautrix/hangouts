@@ -27,7 +27,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		return nil, err
 	}
 
-	res, err := c.Client.CreateTopic(ctx, &proto.CreateTopicRequest{
+	res, err := c.client.CreateTopic(ctx, &proto.CreateTopicRequest{
 		GroupId:  groupId,
 		TextBody: &msg.Content.Body,
 	})

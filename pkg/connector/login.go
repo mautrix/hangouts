@@ -36,11 +36,7 @@ func (gc *GChatConnector) LoadUserLogin(ctx context.Context, login *bridgev2.Use
 	if loginMetadata.Cookies != nil {
 		client = gchatmeow.NewClient(loginMetadata.Cookies, "", 0, 0)
 	}
-	c := &GChatClient{
-		UserLogin: login,
-		Client:    client,
-	}
-	login.Client = c
+	login.Client = NewClient(login, client)
 	return nil
 }
 
@@ -103,8 +99,8 @@ func (gl *GChatCookieLogin) SubmitCookies(ctx context.Context, strCookies map[st
 
 	ul.Client.Connect(ctx)
 	c := ul.Client.(*GChatClient)
-	c.UserLogin = ul
-	c.Client = client
+	c.userLogin = ul
+	c.client = client
 
 	return &bridgev2.LoginStep{
 		Type:         bridgev2.LoginStepTypeComplete,

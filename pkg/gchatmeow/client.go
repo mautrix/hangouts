@@ -242,7 +242,7 @@ func (c *Client) GetSelf(ctx context.Context) (*proto.User, error) {
 		return nil, err
 	}
 	gcid := status.UserStatus.UserId.Id
-	members, err := c.getMembers(ctx, gcid)
+	members, err := c.GetMembers(ctx, []*string{gcid})
 	if err != nil {
 		return nil, err
 	}

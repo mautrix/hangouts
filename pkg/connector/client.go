@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"go.mau.fi/util/ptr"
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/bridgev2/simplevent"
@@ -16,18 +15,27 @@ import (
 )
 
 type GChatClient struct {
-	UserLogin *bridgev2.UserLogin
-	Client    *gchatmeow.Client
+	userLogin *bridgev2.UserLogin
+	client    *gchatmeow.Client
+	users     map[string]*proto.User
 }
 
 var (
 	_ bridgev2.NetworkAPI = (*GChatClient)(nil)
 )
 
+func NewClient(userLogin *bridgev2.UserLogin, client *gchatmeow.Client) *GChatClient {
+	return &GChatClient{
+		userLogin: userLogin,
+		client:    client,
+		users:     make(map[string]*proto.User),
+	}
+}
+
 func (c *GChatClient) Connect(ctx context.Context) error {
-	c.Client.OnConnect.AddObserver(func(interface{}) { c.onConnect(ctx) })
-	c.Client.OnStreamEvent.AddObserver(func(evt interface{}) { c.onStreamEvent(ctx, evt) })
-	return c.Client.Connect(ctx, time.Duration(90)*time.Minute)
+	c.client.OnConnect.AddObserver(func(interface{}) { c.onConnect(ctx) })
+	c.client.OnStreamEvent.AddObserver(func(evt interface{}) { c.onStreamEvent(ctx, evt) })
+	return c.client.Connect(ctx, time.Duration(90)*time.Minute)
 }
 
 func (c *GChatClient) Disconnect() {
@@ -50,37 +58,76 @@ func (c *GChatClient) IsLoggedIn() bool {
 }
 
 func (c *GChatClient) IsThisUser(ctx context.Context, userID networkid.UserID) bool {
-	return networkid.UserID(c.UserLogin.ID) == userID
+	return networkid.UserID(c.userLogin.ID) == userID
 }
 
 func (c *GChatClient) LogoutRemote(ctx context.Context) {
 }
 
-func (c *GChatClient) onConnect(ctx context.Context) {
-	res, err := c.Client.Sync(ctx)
+func (c *GChatClient) getUsers(ctx context.Context, userIds []*string) error {
+	res, err := c.client.GetMembers(ctx, userIds)
 	if err != nil {
-		fmt.Println((err))
+		return err
+	}
+	for _, member := range res.Members {
+		user := member.GetUser()
+		c.users[*user.UserId.Id] = user
+	}
+	return nil
+}
+
+func (c *GChatClient) onConnect(ctx context.Context) {
+	res, err := c.client.Sync(ctx)
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
+	userIdMap := make(map[*string]struct{})
+	for _, item := range res.WorldItems {
+		if item.DmMembers != nil {
+			for _, member := range item.DmMembers.Members {
+				userIdMap[member.Id] = struct{}{}
+			}
+		}
+	}
+	userIds := make([]*string, len(userIdMap))
+	i := 0
+	for userId := range userIdMap {
+		userIds[i] = userId
+		i++
+	}
+
+	err = c.getUsers(ctx, userIds)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	for _, item := range res.WorldItems {
 		// TODO room name for DM, and full members list
 		name := item.RoomName
-		if name == nil {
-			name = ptr.Ptr("dm")
+		if name == nil && item.DmMembers != nil {
+			for _, member := range item.DmMembers.Members {
+				if *member.Id != string(c.userLogin.ID) {
+					name = c.users[*member.Id].Name
+					break
+				}
+			}
+
 		}
 		memberMap := map[networkid.UserID]bridgev2.ChatMember{}
-		memberMap[networkid.UserID(c.UserLogin.ID)] = bridgev2.ChatMember{
+		memberMap[networkid.UserID(c.userLogin.ID)] = bridgev2.ChatMember{
 			EventSender: bridgev2.EventSender{
 				IsFromMe: true,
-				Sender:   networkid.UserID(c.UserLogin.ID),
+				Sender:   networkid.UserID(c.userLogin.ID),
 			},
 		}
-		c.UserLogin.Bridge.QueueRemoteEvent(c.UserLogin, &simplevent.ChatResync{
+		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.ChatResync{
 			EventMeta: simplevent.EventMeta{
 				Type: bridgev2.RemoteEventChatResync,
 				PortalKey: networkid.PortalKey{
 					ID:       networkid.PortalID(item.GroupId.String()),
-					Receiver: c.UserLogin.ID,
+					Receiver: c.userLogin.ID,
 				},
 				CreatePortal: true,
 			},
@@ -105,12 +152,12 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 	case proto.Event_MESSAGE_POSTED:
 		msg := evt.Body.GetMessagePosted().Message
 		senderId := *msg.Creator.UserId.Id
-		c.UserLogin.Bridge.QueueRemoteEvent(c.UserLogin, &simplevent.Message[*proto.Message]{
+		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Message[*proto.Message]{
 			EventMeta: simplevent.EventMeta{
 				Type: bridgev2.RemoteEventMessage,
 				PortalKey: networkid.PortalKey{
 					ID:       networkid.PortalID(evt.GroupId.String()),
-					Receiver: c.UserLogin.ID,
+					Receiver: c.userLogin.ID,
 				},
 				// CreatePortal: true,
 				Sender: bridgev2.EventSender{
