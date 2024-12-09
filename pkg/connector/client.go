@@ -28,7 +28,7 @@ func NewClient(userLogin *bridgev2.UserLogin, client *gchatmeow.Client) *GChatCl
 	return &GChatClient{
 		userLogin: userLogin,
 		client:    client,
-		users:     make(map[string]*proto.User),
+		users:     map[string]*proto.User{},
 	}
 }
 
@@ -104,24 +104,34 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 	}
 
 	for _, item := range res.WorldItems {
-		// TODO room name for DM, and full members list
 		name := item.RoomName
-		if name == nil && item.DmMembers != nil {
+		var gcMembers []*proto.UserId
+		if item.DmMembers != nil {
+			gcMembers = item.DmMembers.Members
 			for _, member := range item.DmMembers.Members {
 				if *member.Id != string(c.userLogin.ID) {
 					name = c.users[*member.Id].Name
 					break
 				}
 			}
+		} else {
+			group, err := c.client.GetGroup(ctx, &proto.GetGroupRequest{
+				GroupId: item.GroupId,
+				FetchOptions: []proto.GetGroupRequest_FetchOptions{
+					proto.GetGroupRequest_MEMBERS,
+				},
+			})
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			gcMembers = make([]*proto.UserId, len(group.Memberships))
+			for i, membership := range group.Memberships {
+				gcMembers[i] = membership.Id.MemberId.GetUserId()
+			}
 
 		}
-		memberMap := map[networkid.UserID]bridgev2.ChatMember{}
-		memberMap[networkid.UserID(c.userLogin.ID)] = bridgev2.ChatMember{
-			EventSender: bridgev2.EventSender{
-				IsFromMe: true,
-				Sender:   networkid.UserID(c.userLogin.ID),
-			},
-		}
+
 		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.ChatResync{
 			EventMeta: simplevent.EventMeta{
 				Type: bridgev2.RemoteEventChatResync,
@@ -132,10 +142,8 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 				CreatePortal: true,
 			},
 			ChatInfo: &bridgev2.ChatInfo{
-				Name: name,
-				Members: &bridgev2.ChatMemberList{
-					MemberMap: memberMap,
-				},
+				Name:    name,
+				Members: c.gcMembersToMxMembers(gcMembers),
 			},
 		})
 

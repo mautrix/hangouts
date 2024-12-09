@@ -138,3 +138,10 @@ func (c *Client) CreateTopic(ctx context.Context, request *proto.CreateTopicRequ
 	err := c.gcRequest(ctx, "create_topic", request, response)
 	return response, err
 }
+
+func (c *Client) GetGroup(ctx context.Context, request *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.GetGroupResponse{}
+	err := c.gcRequest(ctx, "get_group", request, response)
+	return response, err
+}
