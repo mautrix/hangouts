@@ -425,7 +425,7 @@ func (c *Channel) longPollRequest(ctx context.Context) error {
 
 func (c *Channel) onPushData(dataBytes []byte) error {
 	// Log received chunk
-	log.Printf("Received chunk:\n%s", string(dataBytes))
+	// log.Printf("Received chunk:\n%s", string(dataBytes))
 
 	// Process chunks
 	chunks := c.chunkParser.GetChunks(dataBytes)

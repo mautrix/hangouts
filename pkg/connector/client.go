@@ -143,7 +143,7 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 			},
 			ChatInfo: &bridgev2.ChatInfo{
 				Name:    name,
-				Members: c.gcMembersToMxMembers(gcMembers),
+				Members: c.gcMembersToMatrix(gcMembers),
 			},
 		})
 
@@ -200,9 +200,19 @@ func (c *GChatClient) convertToMatrix(ctx context.Context, portal *bridgev2.Port
 		parts = append(parts, textPart)
 	}
 
+	for _, annotation := range msg.Annotations {
+		attachmentPart, err := c.gcAnnotationToMatrix(ctx, portal, intent, annotation)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		parts = append(parts, attachmentPart)
+	}
+
 	cm := &bridgev2.ConvertedMessage{
 		Parts: parts,
 	}
+	cm.MergeCaption()
 
 	return cm
 }

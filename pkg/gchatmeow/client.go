@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -200,7 +202,7 @@ func (c *Client) onReceiveArray(arg interface{}) {
 
 	// Process each event body
 	for _, evt := range c.splitEventBodies(resp.GetEvent()) {
-		log.Printf("Dispatching stream event: %v", evt)
+		log.Printf("Dispatching stream event: %v", evt.String())
 		c.OnStreamEvent.Fire(evt)
 	}
 
@@ -251,4 +253,24 @@ func (c *Client) GetSelf(ctx context.Context) (*proto.User, error) {
 
 func (c *Client) Sync(ctx context.Context) (*proto.PaginatedWorldResponse, error) {
 	return c.paginatedWorld(ctx)
+}
+
+func (c *Client) DownloadAttachment(ctx context.Context, attUrl *url.URL) (*http.Response, error) {
+	urlStr := attUrl.String()
+	if strings.HasSuffix(attUrl.Host, ".google.com") {
+		resp, err := c.session.FetchRaw(ctx, http.MethodGet, urlStr, nil, nil, false, nil)
+		if err != nil {
+			return nil, err
+		}
+		if slices.Contains([]int{301, 302, 307, 308}, resp.StatusCode) {
+			redirected, err := url.Parse(resp.Header.Get("Location"))
+			if err != nil {
+				return nil, err
+			}
+			return c.DownloadAttachment(ctx, redirected)
+		}
+	}
+
+	// External attachment
+	return http.Get(urlStr)
 }
