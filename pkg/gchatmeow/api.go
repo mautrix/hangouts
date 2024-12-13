@@ -2,6 +2,8 @@ package gchatmeow
 
 import (
 	"context"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -46,7 +48,7 @@ func (c *Client) gcRequest(ctx context.Context, endpoint string, requestPB proto
 		return err
 	}
 
-	if err := pb.Unmarshal(res, responsePB); err != nil {
+	if err := pb.Unmarshal(res.Body, responsePB); err != nil {
 		return fmt.Errorf("failed to decode Protocol Buffer response: %v", err)
 	}
 
@@ -63,7 +65,7 @@ func (c *Client) baseRequest(
 	headers http.Header,
 	params url.Values,
 	method string,
-) ([]byte, error) {
+) (*FetchResponse, error) {
 	if headers == nil {
 		headers = http.Header{}
 	}
@@ -88,7 +90,7 @@ func (c *Client) baseRequest(
 		return nil, err
 	}
 
-	return res.Body, nil
+	return res, nil
 }
 
 func (c *Client) getSelfUserStatus(ctx context.Context) (*proto.GetSelfUserStatusResponse, error) {
@@ -144,4 +146,50 @@ func (c *Client) GetGroup(ctx context.Context, request *proto.GetGroupRequest) (
 	response := &proto.GetGroupResponse{}
 	err := c.gcRequest(ctx, "get_group", request, response)
 	return response, err
+}
+
+func (c *Client) UploadFile(ctx context.Context, data []byte, groupId string, fileName string, mimeType string) (*proto.UploadMetadata, error) {
+	headers := http.Header{
+		"x-goog-upload-protocol":       {"resumable"},
+		"x-goog-upload-command":        {"start"},
+		"x-goog-upload-content-length": {string(len(data))},
+		"x-goog-upload-content-type":   {mimeType},
+		"x-goog-upload-file-name":      {fileName},
+	}
+	res, err := c.baseRequest(
+		ctx, uploadURL, "", "", nil,
+		headers, url.Values{"group_id": []string{groupId}},
+		http.MethodPost,
+	)
+	if err != nil {
+		return nil, err
+	}
+	newUploadURL := res.Headers.Get("x-goog-upload-url")
+	if newUploadURL == "" {
+		return nil, errors.New("image upload failed: can not acquire an upload url")
+	}
+
+	headers = http.Header{
+		"x-goog-upload-command":  {"upload, finalize"},
+		"x-goog-upload-protocol": {"resumable"},
+		"x-goog-upload-offset":   {"0"},
+	}
+	res, err = c.baseRequest(
+		ctx, newUploadURL, "", "",
+		data, headers, nil,
+		http.MethodPut,
+	)
+	if err != nil {
+		return nil, err
+	}
+	body, err := base64.StdEncoding.DecodeString(string(res.Body))
+	if err != nil {
+		return nil, err
+	}
+	uploadMetadata := &proto.UploadMetadata{}
+	err = pb.Unmarshal(body, uploadMetadata)
+	if err != nil {
+		return nil, err
+	}
+	return uploadMetadata, nil
 }

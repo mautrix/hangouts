@@ -148,7 +148,11 @@ func (s *Session) FetchRaw(ctx context.Context, method, urlStr string, params ur
 	}
 
 	if params != nil {
-		parsedURL.RawQuery = params.Encode()
+		query := parsedURL.Query()
+		for key, value := range params {
+			query.Set(key, value[0])
+		}
+		parsedURL.RawQuery = query.Encode()
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, parsedURL.String(), bytes.NewReader(data))

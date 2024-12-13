@@ -8,6 +8,8 @@ import (
 	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 
+	"go.mau.fi/util/ptr"
+
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
 
@@ -27,10 +29,37 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		return nil, err
 	}
 
-	res, err := c.client.CreateTopic(ctx, &proto.CreateTopicRequest{
+	plainGroupId := groupId.GetDmId().DmId
+	if plainGroupId == nil {
+		plainGroupId = groupId.GetSpaceId().SpaceId
+	}
+
+	req := &proto.CreateTopicRequest{
 		GroupId:  groupId,
 		TextBody: &msg.Content.Body,
-	})
+	}
+
+	if msg.Content.MsgType.IsMedia() {
+		data, err := c.userLogin.Bridge.Bot.DownloadMedia(ctx, msg.Content.URL, msg.Content.File)
+		if err != nil {
+			return nil, err
+		}
+		metadata, err := c.client.UploadFile(ctx, data, *plainGroupId, msg.Content.FileName, msg.Content.Info.MimeType)
+		if err != nil {
+			return nil, err
+		}
+		req.Annotations = []*proto.Annotation{
+			{
+				Type:           ptr.Ptr(proto.AnnotationType_UPLOAD_METADATA),
+				ChipRenderType: ptr.Ptr(proto.Annotation_RENDER),
+				Metadata: &proto.Annotation_UploadMetadata{
+					UploadMetadata: metadata,
+				},
+			},
+		}
+	}
+
+	res, err := c.client.CreateTopic(ctx, req)
 	if err != nil {
 		return nil, err
 	}
