@@ -152,7 +152,7 @@ func (c *Client) UploadFile(ctx context.Context, data []byte, groupId string, fi
 	headers := http.Header{
 		"x-goog-upload-protocol":       {"resumable"},
 		"x-goog-upload-command":        {"start"},
-		"x-goog-upload-content-length": {string(len(data))},
+		"x-goog-upload-content-length": {strconv.Itoa(len(data))},
 		"x-goog-upload-content-type":   {mimeType},
 		"x-goog-upload-file-name":      {fileName},
 	}

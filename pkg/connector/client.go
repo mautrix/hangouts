@@ -3,11 +3,14 @@ package connector
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/bridgev2/simplevent"
+
+	"go.mau.fi/util/ptr"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow"
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
@@ -40,8 +43,22 @@ func (c *GChatClient) Connect(ctx context.Context) error {
 func (c *GChatClient) Disconnect() {
 }
 
+var dmCaps = &bridgev2.NetworkRoomCapabilities{
+	Replies: true,
+}
+
+var spaceCaps *bridgev2.NetworkRoomCapabilities
+
+func init() {
+	spaceCaps = ptr.Clone(dmCaps)
+	spaceCaps.Threads = true
+}
+
 func (c *GChatClient) GetCapabilities(ctx context.Context, portal *bridgev2.Portal) *bridgev2.NetworkRoomCapabilities {
-	return &bridgev2.NetworkRoomCapabilities{}
+	if strings.Contains(string(portal.ID), "space") {
+		return spaceCaps
+	}
+	return dmCaps
 }
 
 func (c *GChatClient) GetChatInfo(ctx context.Context, portal *bridgev2.Portal) (*bridgev2.ChatInfo, error) {

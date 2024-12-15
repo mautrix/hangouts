@@ -3,14 +3,16 @@ package connector
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/bridgev2/simplevent"
 	bridgeEvt "maunium.net/go/mautrix/event"
 
-	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 	"go.mau.fi/util/ptr"
+
+	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
 
 func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
@@ -36,7 +38,7 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 					SenderLogin: networkid.UserLoginID(senderId),
 					Sender:      networkid.UserID(senderId),
 				},
-				// Timestamp: evtData.CreatedAt,
+				Timestamp: time.UnixMicro(*msg.CreateTime),
 			},
 			ID:   networkid.MessageID(*msg.LocalId),
 			Data: msg,

@@ -29,8 +29,10 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		return nil, err
 	}
 
-	plainGroupId := groupId.GetDmId().DmId
-	if plainGroupId == nil {
+	var plainGroupId *string
+	if groupId.GetDmId() != nil {
+		plainGroupId = groupId.GetDmId().DmId
+	} else {
 		plainGroupId = groupId.GetSpaceId().SpaceId
 	}
 
@@ -55,6 +57,27 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 				Metadata: &proto.Annotation_UploadMetadata{
 					UploadMetadata: metadata,
 				},
+			},
+		}
+	}
+
+	if msg.ReplyTo != nil {
+		replyToId := ptr.Ptr(string(msg.ReplyTo.ID))
+		req.MessageInfo = &proto.MessageInfo{
+			AcceptFormatAnnotations: ptr.Ptr(true),
+			ReplyTo: &proto.SendReplyTarget{
+				Id: &proto.MessageId{
+					ParentId: &proto.MessageParentId{
+						Parent: &proto.MessageParentId_TopicId{
+							TopicId: &proto.TopicId{
+								GroupId: groupId,
+								TopicId: replyToId,
+							},
+						},
+					},
+					MessageId: replyToId,
+				},
+				CreateTime: ptr.Ptr(msg.ReplyTo.Timestamp.UnixMicro()),
 			},
 		}
 	}
