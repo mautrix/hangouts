@@ -2,6 +2,8 @@ package connector
 
 import (
 	"context"
+	"strconv"
+	"time"
 
 	"google.golang.org/protobuf/encoding/prototext"
 	"maunium.net/go/mautrix/bridgev2"
@@ -36,10 +38,8 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		plainGroupId = groupId.GetSpaceId().SpaceId
 	}
 
-	req := &proto.CreateTopicRequest{
-		GroupId:  groupId,
-		TextBody: &msg.Content.Body,
-	}
+	var annotations []*proto.Annotation
+	var messageInfo *proto.MessageInfo
 
 	if msg.Content.MsgType.IsMedia() {
 		data, err := c.userLogin.Bridge.Bot.DownloadMedia(ctx, msg.Content.URL, msg.Content.File)
@@ -50,7 +50,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		if err != nil {
 			return nil, err
 		}
-		req.Annotations = []*proto.Annotation{
+		annotations = []*proto.Annotation{
 			{
 				Type:           ptr.Ptr(proto.AnnotationType_UPLOAD_METADATA),
 				ChipRenderType: ptr.Ptr(proto.Annotation_RENDER),
@@ -63,7 +63,11 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 
 	if msg.ReplyTo != nil {
 		replyToId := ptr.Ptr(string(msg.ReplyTo.ID))
-		req.MessageInfo = &proto.MessageInfo{
+		topicId := replyToId
+		if msg.ThreadRoot != nil {
+			topicId = ptr.Ptr(string(msg.ThreadRoot.ID))
+		}
+		messageInfo = &proto.MessageInfo{
 			AcceptFormatAnnotations: ptr.Ptr(true),
 			ReplyTo: &proto.SendReplyTarget{
 				Id: &proto.MessageId{
@@ -71,7 +75,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 						Parent: &proto.MessageParentId_TopicId{
 							TopicId: &proto.TopicId{
 								GroupId: groupId,
-								TopicId: replyToId,
+								TopicId: topicId,
 							},
 						},
 					},
@@ -82,11 +86,48 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		}
 	}
 
-	res, err := c.client.CreateTopic(ctx, req)
-	if err != nil {
-		return nil, err
+	var msgID string
+
+	if msg.ThreadRoot != nil {
+		threadId := ptr.Ptr(string(msg.ThreadRoot.ID))
+		if messageInfo == nil {
+			messageInfo = &proto.MessageInfo{
+				AcceptFormatAnnotations: ptr.Ptr(true),
+			}
+		}
+		req := &proto.CreateMessageRequest{
+			ParentId: &proto.MessageParentId{
+				Parent: &proto.MessageParentId_TopicId{
+					TopicId: &proto.TopicId{
+						GroupId: groupId,
+						TopicId: threadId,
+					},
+				},
+			},
+			LocalId:     ptr.Ptr(strconv.FormatInt(time.Now().Unix(), 10)),
+			TextBody:    &msg.Content.Body,
+			Annotations: annotations,
+			MessageInfo: messageInfo,
+		}
+		res, err := c.client.CreateMessage(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		msgID = *res.Message.LocalId
+	} else {
+		req := &proto.CreateTopicRequest{
+			GroupId:     groupId,
+			TextBody:    &msg.Content.Body,
+			Annotations: annotations,
+			MessageInfo: messageInfo,
+		}
+		res, err := c.client.CreateTopic(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		msgID = *res.Topic.Id.TopicId
 	}
-	msgID := *res.Topic.Id.TopicId
+
 	msg.AddPendingToIgnore(networkid.TransactionID(msgID))
 	return &bridgev2.MatrixMessageResponse{
 		DB: &database.Message{
