@@ -151,8 +151,13 @@ func (c *Client) CreateMessage(ctx context.Context, request *proto.CreateMessage
 func (c *Client) GetGroup(ctx context.Context, request *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
 	request.RequestHeader = c.gcRequestHeader
 	response := &proto.GetGroupResponse{}
-	err := c.gcRequest(ctx, "get_group", request, response)
-	return response, err
+	return response, c.gcRequest(ctx, "get_group", request, response)
+}
+
+func (c *Client) CatchUpGroup(ctx context.Context, request *proto.CatchUpGroupRequest) (*proto.CatchUpResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.CatchUpResponse{}
+	return response, c.gcRequest(ctx, "catch_up_group", request, response)
 }
 
 func (c *Client) UploadFile(ctx context.Context, data []byte, groupId string, fileName string, mimeType string) (*proto.UploadMetadata, error) {

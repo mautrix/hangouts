@@ -21,6 +21,7 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 		fmt.Println("Invalid event", raw)
 		return
 	}
+
 	switch *evt.Type {
 	case proto.Event_MESSAGE_POSTED:
 		msg := evt.Body.GetMessagePosted().Message
@@ -47,6 +48,8 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 			},
 		})
 	}
+
+	c.setPortalRevision(ctx, evt)
 }
 
 func (c *GChatClient) convertToMatrix(ctx context.Context, portal *bridgev2.Portal, intent bridgev2.MatrixAPI, msg *proto.Message) *bridgev2.ConvertedMessage {

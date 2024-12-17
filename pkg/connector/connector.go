@@ -45,7 +45,9 @@ func (gc *GChatConnector) GetConfig() (example string, data any, upgrader config
 
 func (gc *GChatConnector) GetDBMetaTypes() database.MetaTypes {
 	return database.MetaTypes{
-		Portal:   nil,
+		Portal: func() any {
+			return &PortalMetadata{}
+		},
 		Ghost:    nil,
 		Message:  nil,
 		Reaction: nil,

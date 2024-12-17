@@ -201,14 +201,14 @@ func (c *Client) onReceiveArray(arg interface{}) {
 	fmt.Println(resp)
 
 	// Process each event body
-	for _, evt := range c.splitEventBodies(resp.GetEvent()) {
+	for _, evt := range c.SplitEventBodies(resp.GetEvent()) {
 		log.Printf("Dispatching stream event: %v", evt.String())
 		c.OnStreamEvent.Fire(evt)
 	}
 
 }
 
-func (c *Client) splitEventBodies(evt *proto.Event) []*proto.Event {
+func (c *Client) SplitEventBodies(evt *proto.Event) []*proto.Event {
 	if evt == nil {
 		return nil
 	}

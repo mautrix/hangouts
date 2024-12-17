@@ -163,5 +163,6 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 			},
 		})
 
+		c.backfillPortal(ctx, item)
 	}
 }

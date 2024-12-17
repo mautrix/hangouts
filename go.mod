@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.23.3
 
 require (
+	github.com/rs/zerolog v1.33.0
 	go.mau.fi/util v0.8.2
 	google.golang.org/protobuf v1.35.2
 	maunium.net/go/mautrix v0.22.1-0.20241126202918-4b970e0ea7e6
@@ -21,7 +22,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
 	github.com/petermattis/goid v0.0.0-20241025130422-66cb2e6d7274 // indirect
 	github.com/rs/xid v1.6.0 // indirect
-	github.com/rs/zerolog v1.33.0 // indirect
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
