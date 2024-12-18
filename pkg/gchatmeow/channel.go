@@ -3,7 +3,6 @@ package gchatmeow
 import (
 	"context"
 	"encoding/base64"
-	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,11 +12,10 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
+	"unicode/utf16"
 
 	"go.mau.fi/util/pblite"
 
@@ -28,7 +26,6 @@ const (
 	channelURLBase    = "https://chat.google.com/u/0/webchannel/"
 	pushTimeout       = 60 * time.Second
 	maxReadBytes      = 1024 * 1024
-	lenRegexPattern   = `([0-9]+)\n`
 	protocolVersion   = 8
 	initialRequestRID = 10000
 )
@@ -39,8 +36,6 @@ var (
 	ErrSIDInvalid       = errors.New("SID invalid")
 	ErrSIDExpiring      = errors.New("SID expiring")
 	ErrChannelLifetime  = errors.New("channel lifetime expired")
-
-	lenRegex = regexp.MustCompile(lenRegexPattern)
 )
 
 type Channel struct {
@@ -62,6 +57,16 @@ type Channel struct {
 	OnReceiveArray *Event
 }
 
+type UTF16String []uint16
+
+func NewUTF16String(s string) UTF16String {
+	return utf16.Encode([]rune(s))
+}
+
+func (u UTF16String) String() string {
+	return string(utf16.Decode(u))
+}
+
 type ChunkParser struct {
 	buf []byte
 }
@@ -72,91 +77,24 @@ func NewChunkParser() *ChunkParser {
 	}
 }
 
-// bestEffortDecode attempts to decode as much UTF-8 data as possible from the buffer
-func bestEffortDecode(data []byte) string {
-	valid := make([]byte, 0, len(data))
-	for len(data) > 0 {
-		r, size := utf8.DecodeRune(data)
-		if r == utf8.RuneError {
-			break
-		}
-		valid = append(valid, data[:size]...)
-		data = data[size:]
-	}
-	return string(valid)
-}
-
-// GetChunks yields chunks generated from received data.
-// The buffer may not be decodable as UTF-8 if there's a split multi-byte
-// character at the end. To handle this, we do a "best effort" decode of the
-// buffer to decode as much of it as possible.
 func (p *ChunkParser) GetChunks(newDataBytes []byte) []string {
 	var chunks []string
 	p.buf = append(p.buf, newDataBytes...)
 
 	for {
-		// Decode buffer with best effort
-		bufDecoded := bestEffortDecode(p.buf)
-
-		// Convert to UTF-16 (removing BOM)
-		var bufUtf16 []byte
-		for _, r := range bufDecoded {
-			// Convert each rune to UTF-16
-			buf := make([]byte, 2)
-			binary.BigEndian.PutUint16(buf, uint16(r))
-			bufUtf16 = append(bufUtf16, buf...)
-		}
-
-		// Find length string match
-		matches := lenRegex.FindStringSubmatch(bufDecoded)
-		if matches == nil {
-			break
-		}
-
-		lengthStr := matches[1]
-		// Both lengths are in number of bytes in UTF-16 encoding
+		bufStr := string(p.buf)
+		lengthStr, after, _ := strings.Cut(bufStr, "\n")
 		length, err := strconv.Atoi(lengthStr)
 		if err != nil {
 			break
 		}
-		length *= 2 // Convert to UTF-16 byte count
-
-		// Calculate length of the submission length and newline in UTF-16
-		lenStrAndNewline := lengthStr + "\n"
-		var lenLength int
-		for _, r := range lenStrAndNewline {
-			lenLength += 2 // Each UTF-16 character is 2 bytes
-			_ = r
-		}
-
-		if len(bufUtf16)-lenLength < length {
+		utf16Str := NewUTF16String(after)
+		if len(utf16Str) < length {
 			break
 		}
 
-		// Extract submission
-		submission := bufUtf16[lenLength : lenLength+length]
-
-		// Convert UTF-16 bytes back to string
-		var result string
-		for i := 0; i < len(submission); i += 2 {
-			if i+1 >= len(submission) {
-				break
-			}
-			char := binary.BigEndian.Uint16(submission[i : i+2])
-			result += string(rune(char))
-		}
-
-		chunks = append(chunks, result)
-
-		// Calculate how many bytes to drop from the buffer
-		dropLength := len(matches[0]) // length of the length string and newline
-		dropLength += len(result)     // length of the actual content in UTF-8
-
-		if dropLength <= len(p.buf) {
-			p.buf = p.buf[dropLength:]
-		} else {
-			p.buf = p.buf[:0]
-		}
+		chunks = append(chunks, utf16Str[0:length].String())
+		p.buf = []byte(utf16Str[length:].String())
 	}
 
 	return chunks

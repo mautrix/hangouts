@@ -2,8 +2,6 @@ package connector
 
 import (
 	"context"
-	"strconv"
-	"time"
 
 	"google.golang.org/protobuf/encoding/prototext"
 	"maunium.net/go/mautrix/bridgev2"
@@ -104,7 +102,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 					},
 				},
 			},
-			LocalId:     ptr.Ptr(strconv.FormatInt(time.Now().Unix(), 10)),
+			LocalId:     (*string)(&msg.Event.ID),
 			TextBody:    &msg.Content.Body,
 			Annotations: annotations,
 			MessageInfo: messageInfo,
@@ -113,7 +111,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		if err != nil {
 			return nil, err
 		}
-		msgID = *res.Message.LocalId
+		msgID = *res.Message.Id.MessageId
 	} else {
 		req := &proto.CreateTopicRequest{
 			GroupId:     groupId,

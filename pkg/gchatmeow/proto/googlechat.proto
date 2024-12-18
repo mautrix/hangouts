@@ -1,4 +1,4 @@
-syntax = "proto3";
+syntax = "proto2";
 
 option go_package = "../proto";
 
@@ -1175,8 +1175,8 @@ message UpdateReactionRequest {
 	optional MessageId message_id = 1;
 	optional Emoji emoji = 2;
 	enum ReactionUpdateType {
-		ADD = 0;
-		REMOVE = 1;
+		ADD = 1;
+		REMOVE = 2;
 	}
 	optional ReactionUpdateType type = 3;
 }
@@ -1316,9 +1316,9 @@ message ListTopicsRequest {
 	//optional DYNProtoListTopicsRequest_Filter filter = 4;
 
 	enum FetchOptions {
-		USER = 0;
-		TOTAL_MESSAGE_COUNTS = 1;
-		READ_RECEIPTS = 2;
+		USER = 1;
+		TOTAL_MESSAGE_COUNTS = 2;
+		READ_RECEIPTS = 3;
 	}
 	repeated FetchOptions fetch_options = 5;
 	optional ReferenceRevision user_not_older_than = 9;
@@ -1432,8 +1432,8 @@ message MessageReactionEvent {
 	optional UserId user_id = 3;
 	optional int64 timestamp = 4;
 	enum ReactionEventType {
-		ADD = 0;
-		REMOVE = 1;
+		ADD = 1;
+		REMOVE = 2;
 	}
 	optional ReactionEventType type = 5;
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rs/zerolog"
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/bridgev2/simplevent"
@@ -41,7 +42,7 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 				},
 				Timestamp: time.UnixMicro(*msg.CreateTime),
 			},
-			ID:   networkid.MessageID(*msg.LocalId),
+			ID:   networkid.MessageID(*msg.Id.MessageId),
 			Data: msg,
 			ConvertMessageFunc: func(ctx context.Context, portal *bridgev2.Portal, intent bridgev2.MatrixAPI, data *proto.Message) (*bridgev2.ConvertedMessage, error) {
 				return c.convertToMatrix(ctx, portal, intent, data), nil
@@ -50,6 +51,8 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 	}
 
 	c.setPortalRevision(ctx, evt)
+
+	c.handleReaction(ctx, evt)
 }
 
 func (c *GChatClient) convertToMatrix(ctx context.Context, portal *bridgev2.Portal, intent bridgev2.MatrixAPI, msg *proto.Message) *bridgev2.ConvertedMessage {
@@ -95,4 +98,42 @@ func (c *GChatClient) convertToMatrix(ctx context.Context, portal *bridgev2.Port
 	// cm.MergeCaption()
 
 	return cm
+}
+
+func (c *GChatClient) handleReaction(ctx context.Context, evt *proto.Event) {
+	reaction := evt.Body.GetMessageReaction()
+	if reaction == nil {
+		return
+	}
+
+	var eventType bridgev2.RemoteEventType
+	if reaction.GetType() == proto.MessageReactionEvent_ADD {
+		eventType = bridgev2.RemoteEventReaction
+	} else {
+		eventType = bridgev2.RemoteEventReactionRemove
+
+	}
+
+	sender := reaction.UserId.GetId()
+	messageId := reaction.MessageId.GetMessageId()
+	c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Reaction{
+		EventMeta: simplevent.EventMeta{
+			Type: eventType,
+			LogContext: func(c zerolog.Context) zerolog.Context {
+				return c.
+					Str("message_id", messageId).
+					Str("sender", sender).
+					Str("emoji", reaction.Emoji.GetUnicode()).
+					Str("type", reaction.GetType().String())
+			},
+			PortalKey: c.makePortalKey(evt),
+			Timestamp: time.UnixMicro(*reaction.Timestamp),
+			Sender: bridgev2.EventSender{
+				IsFromMe: sender == string(c.userLogin.ID),
+				Sender:   networkid.UserID(sender),
+			},
+		},
+		Emoji:         reaction.Emoji.GetUnicode(),
+		TargetMessage: networkid.MessageID(messageId),
+	})
 }
