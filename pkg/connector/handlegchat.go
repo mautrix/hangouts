@@ -133,6 +133,7 @@ func (c *GChatClient) handleReaction(ctx context.Context, evt *proto.Event) {
 				Sender:   networkid.UserID(sender),
 			},
 		},
+		EmojiID:       networkid.EmojiID(reaction.Emoji.GetUnicode()),
 		Emoji:         reaction.Emoji.GetUnicode(),
 		TargetMessage: networkid.MessageID(messageId),
 	})

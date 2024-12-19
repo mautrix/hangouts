@@ -2,6 +2,7 @@ package connector
 
 import (
 	"context"
+	"time"
 
 	"google.golang.org/protobuf/encoding/prototext"
 	"maunium.net/go/mautrix/bridgev2"
@@ -11,6 +12,10 @@ import (
 	"go.mau.fi/util/ptr"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
+)
+
+var (
+	_ bridgev2.ReactionHandlingNetworkAPI = (*GChatClient)(nil)
 )
 
 func portalToGroupId(portal *bridgev2.Portal) (*proto.GroupId, error) {
@@ -85,6 +90,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 	}
 
 	var msgID string
+	var timestamp int64
 
 	if msg.ThreadRoot != nil {
 		threadId := ptr.Ptr(string(msg.ThreadRoot.ID))
@@ -112,6 +118,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 			return nil, err
 		}
 		msgID = *res.Message.Id.MessageId
+		timestamp = *res.Message.CreateTime
 	} else {
 		req := &proto.CreateTopicRequest{
 			GroupId:     groupId,
@@ -124,13 +131,75 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 			return nil, err
 		}
 		msgID = *res.Topic.Id.TopicId
+		timestamp = *res.Topic.CreateTimeUsec
 	}
 
 	msg.AddPendingToIgnore(networkid.TransactionID(msgID))
 	return &bridgev2.MatrixMessageResponse{
 		DB: &database.Message{
-			ID: networkid.MessageID(msgID),
+			ID:        networkid.MessageID(msgID),
+			Timestamp: time.UnixMicro(timestamp),
 		},
 		RemovePending: networkid.TransactionID(msgID),
 	}, nil
+}
+
+func (c *GChatClient) PreHandleMatrixReaction(_ context.Context, msg *bridgev2.MatrixReaction) (bridgev2.MatrixReactionPreResponse, error) {
+	emoji := msg.Content.RelatesTo.Key
+	return bridgev2.MatrixReactionPreResponse{
+		SenderID: networkid.UserID(c.userLogin.ID),
+		EmojiID:  networkid.EmojiID(emoji),
+		Emoji:    emoji,
+	}, nil
+}
+
+func (c *GChatClient) HandleMatrixReaction(ctx context.Context, msg *bridgev2.MatrixReaction) (*database.Reaction, error) {
+	return nil, c.doHandleMatrixReaction(ctx, msg.Portal,
+		string(msg.TargetMessage.ThreadRoot),
+		string(msg.TargetMessage.ID), msg.PreHandleResp.Emoji, proto.UpdateReactionRequest_ADD)
+}
+
+func (c *GChatClient) HandleMatrixReactionRemove(ctx context.Context, msg *bridgev2.MatrixReactionRemove) error {
+	dbMsg, err := c.userLogin.Bridge.DB.Message.GetLastPartByID(ctx, c.userLogin.ID, msg.TargetReaction.MessageID)
+	if err != nil {
+		return err
+	}
+	var topicId string
+	if dbMsg != nil {
+		topicId = string(dbMsg.ThreadRoot)
+	}
+	return c.doHandleMatrixReaction(ctx, msg.Portal,
+		topicId,
+		string(msg.TargetReaction.MessageID), string(msg.TargetReaction.EmojiID), proto.UpdateReactionRequest_REMOVE)
+}
+
+func (c *GChatClient) doHandleMatrixReaction(ctx context.Context, portal *bridgev2.Portal, topicId, messageId, emoji string, typ proto.UpdateReactionRequest_ReactionUpdateType) error {
+	groupId, err := portalToGroupId(portal)
+	if err != nil {
+		return err
+	}
+
+	if topicId == "" {
+		topicId = messageId
+	}
+	_, err = c.client.UpdateReaction(ctx, &proto.UpdateReactionRequest{
+		MessageId: &proto.MessageId{
+			ParentId: &proto.MessageParentId{
+				Parent: &proto.MessageParentId_TopicId{
+					TopicId: &proto.TopicId{
+						GroupId: groupId,
+						TopicId: &topicId,
+					},
+				},
+			},
+			MessageId: &messageId,
+		},
+		Emoji: &proto.Emoji{
+			Content: &proto.Emoji_Unicode{
+				Unicode: emoji,
+			},
+		},
+		Type: typ.Enum(),
+	})
+	return err
 }

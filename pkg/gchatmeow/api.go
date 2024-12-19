@@ -160,6 +160,12 @@ func (c *Client) CatchUpGroup(ctx context.Context, request *proto.CatchUpGroupRe
 	return response, c.gcRequest(ctx, "catch_up_group", request, response)
 }
 
+func (c *Client) UpdateReaction(ctx context.Context, request *proto.UpdateReactionRequest) (*proto.UpdateReactionResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.UpdateReactionResponse{}
+	return response, c.gcRequest(ctx, "update_reaction", request, response)
+}
+
 func (c *Client) UploadFile(ctx context.Context, data []byte, groupId string, fileName string, mimeType string) (*proto.UploadMetadata, error) {
 	headers := http.Header{
 		"x-goog-upload-protocol":       {"resumable"},
