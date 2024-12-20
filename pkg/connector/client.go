@@ -14,12 +14,14 @@ import (
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow"
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
+	"go.mau.fi/mautrix-googlechat/pkg/msgconv"
 )
 
 type GChatClient struct {
 	userLogin *bridgev2.UserLogin
 	client    *gchatmeow.Client
 	users     map[string]*proto.User
+	msgConv   *msgconv.MessageConverter
 }
 
 var (
@@ -31,6 +33,7 @@ func NewClient(userLogin *bridgev2.UserLogin, client *gchatmeow.Client) *GChatCl
 		userLogin: userLogin,
 		client:    client,
 		users:     map[string]*proto.User{},
+		msgConv:   msgconv.NewMessageConverter(client),
 	}
 }
 
