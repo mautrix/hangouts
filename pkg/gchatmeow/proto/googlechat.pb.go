@@ -9877,7 +9877,7 @@ type FormatMetadata struct {
 	unknownFields protoimpl.UnknownFields
 
 	FormatType *FormatMetadata_FormatType `protobuf:"varint,1,opt,name=format_type,json=formatType,enum=FormatMetadata_FormatType" json:"format_type,omitempty"`
-	FontColor  *int32                     `protobuf:"varint,2,opt,name=font_color,json=fontColor" json:"font_color,omitempty"`
+	FontColor  *uint32                    `protobuf:"varint,2,opt,name=font_color,json=fontColor" json:"font_color,omitempty"`
 }
 
 func (x *FormatMetadata) Reset() {
@@ -9917,7 +9917,7 @@ func (x *FormatMetadata) GetFormatType() FormatMetadata_FormatType {
 	return FormatMetadata_TYPE_UNSPECIFIED
 }
 
-func (x *FormatMetadata) GetFontColor() int32 {
+func (x *FormatMetadata) GetFontColor() uint32 {
 	if x != nil && x.FontColor != nil {
 		return *x.FontColor
 	}

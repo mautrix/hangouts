@@ -15,21 +15,19 @@ import (
 	"go.mau.fi/util/ptr"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
+	"go.mau.fi/mautrix-googlechat/pkg/msgconv/gchatfmt"
 )
 
 func (mc *MessageConverter) ToMatrix(ctx context.Context, portal *bridgev2.Portal, intent bridgev2.MatrixAPI, msg *proto.Message) (*bridgev2.ConvertedMessage, error) {
 	parts := make([]*bridgev2.ConvertedMessagePart, 0)
 
-	textPart := &bridgev2.ConvertedMessagePart{
-		ID:   "",
-		Type: bridgeEvt.EventMessage,
-		Content: &bridgeEvt.MessageEventContent{
-			MsgType: bridgeEvt.MsgText,
-			Body:    *msg.TextBody,
-		},
-	}
-
-	if len(textPart.Content.Body) > 0 {
+	textContent := gchatfmt.Parse(ctx, portal, msg)
+	if textContent != nil {
+		textPart := &bridgev2.ConvertedMessagePart{
+			ID:      "",
+			Type:    bridgeEvt.EventMessage,
+			Content: textContent,
+		}
 		parts = append(parts, textPart)
 	}
 

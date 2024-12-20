@@ -894,7 +894,7 @@ message FormatMetadata {
 		CLIENT_HIDDEN = 12;
 	}
 	optional FormatType format_type = 1;
-	optional int32 font_color = 2;
+	optional uint32 font_color = 2;
 }
 
 message Annotation {
