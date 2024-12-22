@@ -7,10 +7,15 @@ import (
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
 
-func (c *GChatClient) gcMembersToMatrix(gcMembers []*proto.UserId) *bridgev2.ChatMemberList {
+func (c *GChatClient) gcMembersToMatrix(isDm bool, gcMembers []*proto.UserId) *bridgev2.ChatMemberList {
+	var otherUserId string
 	memberMap := map[networkid.UserID]bridgev2.ChatMember{}
 	for _, gcMember := range gcMembers {
 		userId := networkid.UserID(gcMember.Id)
+		if isDm && gcMember.Id != string(c.userLogin.ID) {
+			otherUserId = gcMember.Id
+
+		}
 		memberMap[userId] = bridgev2.ChatMember{
 			EventSender: bridgev2.EventSender{
 				IsFromMe: gcMember.Id == string(c.userLogin.ID),
@@ -20,6 +25,7 @@ func (c *GChatClient) gcMembersToMatrix(gcMembers []*proto.UserId) *bridgev2.Cha
 	}
 
 	return &bridgev2.ChatMemberList{
-		MemberMap: memberMap,
+		MemberMap:   memberMap,
+		OtherUserID: networkid.UserID(otherUserId),
 	}
 }

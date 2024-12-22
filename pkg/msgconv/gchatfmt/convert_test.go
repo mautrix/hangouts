@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"go.mau.fi/util/ptr"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 	"go.mau.fi/mautrix-googlechat/pkg/msgconv/gchatfmt"
@@ -13,13 +12,13 @@ import (
 
 func makeAnnotation(start, length int32, format proto.FormatMetadata_FormatType) *proto.Annotation {
 	return &proto.Annotation{
-		Type:           proto.AnnotationType_FORMAT_DATA.Enum(),
-		StartIndex:     ptr.Ptr(start),
-		Length:         ptr.Ptr(length),
-		ChipRenderType: ptr.Ptr(proto.Annotation_DO_NOT_RENDER),
+		Type:           proto.AnnotationType_FORMAT_DATA,
+		StartIndex:     start,
+		Length:         length,
+		ChipRenderType: proto.Annotation_DO_NOT_RENDER,
 		Metadata: &proto.Annotation_FormatMetadata{
 			FormatMetadata: &proto.FormatMetadata{
-				FormatType: format.Enum(),
+				FormatType: format,
 			},
 		},
 	}
@@ -66,7 +65,7 @@ func TestParse(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			msg := &proto.Message{
-				TextBody:    ptr.Ptr(test.ins),
+				TextBody:    test.ins,
 				Annotations: test.ine,
 			}
 			parsed := gchatfmt.Parse(context.TODO(), nil, msg)

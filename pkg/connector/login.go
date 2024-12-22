@@ -105,7 +105,7 @@ func (gl *GChatCookieLogin) SubmitCookies(ctx context.Context, strCookies map[st
 	return &bridgev2.LoginStep{
 		Type:         bridgev2.LoginStepTypeComplete,
 		StepID:       LoginStepIDComplete,
-		Instructions: fmt.Sprintf("Logged in as %s (%d)", user.GetName(), userId),
+		Instructions: fmt.Sprintf("Logged in as %s (%s)", user.GetName(), userId),
 		CompleteParams: &bridgev2.LoginCompleteParams{
 			UserLoginID: ul.ID,
 			UserLogin:   ul,

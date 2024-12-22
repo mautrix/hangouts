@@ -9,6 +9,7 @@ import (
 
 	pb "google.golang.org/protobuf/proto"
 	"maunium.net/go/mautrix/bridgev2"
+	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/event"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow"
@@ -179,6 +180,38 @@ func annotationsToMatrix(
 				fmt.Fprintf(&bodyHtml, "<ul>%s</ul>", entityText)
 			default:
 				skipEntity = true
+			}
+		} else if annotation.GetUrlMetadata() != nil {
+			fmt.Fprintf(&bodyHtml, "<a href='%s'>%s</a>", annotation.GetUrlMetadata().Url.Url, entityText)
+		} else if annotation.GetUserMentionMetadata() != nil {
+			if annotation.GetUserMentionMetadata().Type == proto.UserMentionMetadata_MENTION_ALL {
+				bodyHtml.WriteString("@room")
+			} else {
+				gcid := annotation.GetUserMentionMetadata().Id.Id
+				dmPortals, err := portal.Bridge.GetDMPortalsWith(ctx, networkid.UserID(gcid))
+				if err != nil {
+					return "", err
+				}
+
+				if len(dmPortals) != 0 {
+					fmt.Fprintf(&bodyHtml,
+						`<a href="%s">%s</a>`,
+						dmPortals[0].MXID.URI().MatrixToURL(),
+						dmPortals[0].Name,
+					)
+				} else {
+					userLogin := portal.Bridge.GetCachedUserLoginByID(networkid.UserLoginID(gcid))
+					if userLogin != nil {
+						fmt.Fprintf(&bodyHtml,
+							`<a href="%s">%s</a>`,
+							userLogin.UserMXID.URI().MatrixToURL(),
+							entityText,
+						)
+
+					} else {
+						bodyHtml.WriteString(entityText)
+					}
+				}
 			}
 		} else {
 			skipEntity = true

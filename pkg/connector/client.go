@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"maunium.net/go/mautrix/bridgev2"
+	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/bridgev2/simplevent"
 
@@ -125,8 +126,12 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 	for _, item := range res.WorldItems {
 		name := item.RoomName
 		var gcMembers []*proto.UserId
+		roomType := database.RoomTypeGroupDM
+		isDm := false
 		if item.DmMembers != nil {
+			roomType = database.RoomTypeDM
 			gcMembers = item.DmMembers.Members
+			isDm = true
 			for _, member := range item.DmMembers.Members {
 				if member.Id != string(c.userLogin.ID) {
 					name = c.users[member.Id].Name
@@ -162,7 +167,8 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 			},
 			ChatInfo: &bridgev2.ChatInfo{
 				Name:    &name,
-				Members: c.gcMembersToMatrix(gcMembers),
+				Members: c.gcMembersToMatrix(isDm, gcMembers),
+				Type:    &roomType,
 			},
 		})
 
