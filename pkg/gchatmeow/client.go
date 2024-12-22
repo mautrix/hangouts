@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"go.mau.fi/util/pblite"
-	"go.mau.fi/util/ptr"
 	pb "google.golang.org/protobuf/proto"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
@@ -81,10 +80,10 @@ func NewClient(cookies *Cookies, userAgent string, maxRetries, retryBackoffBase 
 		session: session,
 
 		gcRequestHeader: &proto.RequestHeader{
-			ClientType:    ptr.Ptr(proto.RequestHeader_WEB),
-			ClientVersion: ptr.Ptr(int64(2440378181258)),
+			ClientType:    proto.RequestHeader_WEB,
+			ClientVersion: int64(2440378181258),
 			ClientFeatureCapabilities: &proto.ClientFeatureCapabilities{
-				SpamRoomInvitesLevel: ptr.Ptr(proto.ClientFeatureCapabilities_FULLY_SUPPORTED),
+				SpamRoomInvitesLevel: proto.ClientFeatureCapabilities_FULLY_SUPPORTED,
 			},
 		},
 	}
@@ -231,7 +230,7 @@ func (c *Client) SplitEventBodies(evt *proto.Event) []*proto.Event {
 	for _, body := range embeddedBodies {
 		evtCopy := pb.Clone(evt).(*proto.Event)
 		evtCopy.Body = pb.Clone(body).(*proto.Event_EventBody)
-		evtCopy.Type = ptr.Ptr(body.GetEventType())
+		evtCopy.Type = body.GetEventType()
 		events = append(events, evtCopy)
 	}
 
@@ -244,7 +243,7 @@ func (c *Client) GetSelf(ctx context.Context) (*proto.User, error) {
 		return nil, err
 	}
 	gcid := status.UserStatus.UserId.Id
-	members, err := c.GetMembers(ctx, []*string{gcid})
+	members, err := c.GetMembers(ctx, []string{gcid})
 	if err != nil {
 		return nil, err
 	}

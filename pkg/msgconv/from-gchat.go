@@ -47,13 +47,13 @@ func (mc *MessageConverter) ToMatrix(ctx context.Context, portal *bridgev2.Porta
 	}
 
 	parentId := msg.Id.ParentId.GetTopicId().TopicId
-	if parentId != nil {
-		cm.ThreadRoot = ptr.Ptr(networkid.MessageID(*parentId))
+	if parentId != "" {
+		cm.ThreadRoot = ptr.Ptr(networkid.MessageID(parentId))
 	}
 	if msg.ReplyTo != nil {
 		replyTo := msg.ReplyTo.Id.MessageId
-		if replyTo != nil {
-			cm.ReplyTo = &networkid.MessageOptionalPartID{MessageID: networkid.MessageID(*replyTo)}
+		if replyTo != "" {
+			cm.ReplyTo = &networkid.MessageOptionalPartID{MessageID: networkid.MessageID(replyTo)}
 		}
 	}
 
@@ -69,16 +69,16 @@ func (mc *MessageConverter) gcAnnotationToMatrix(ctx context.Context, portal *br
 	uploadMeta := annotation.GetUploadMetadata()
 	urlMeta := annotation.GetUrlMetadata()
 	if uploadMeta != nil {
-		mimeType = *uploadMeta.ContentType
-		fileName = *uploadMeta.ContentName
+		mimeType = uploadMeta.ContentType
+		fileName = uploadMeta.ContentName
 		params := url.Values{
 			"url_type":         []string{"DOWNLOAD_URL"},
 			"attachment_token": []string{uploadMeta.GetAttachmentToken()},
 		}
-		if strings.HasPrefix(*uploadMeta.ContentType, "image/") {
+		if strings.HasPrefix(uploadMeta.ContentType, "image/") {
 			params.Set("url_type", "FIFE_URL")
 			params.Set("sz", "w10000-h10000")
-			params.Set("content_type", *uploadMeta.ContentType)
+			params.Set("content_type", uploadMeta.ContentType)
 		}
 		parsedUrl, err := url.Parse("https://chat.google.com/api/get_attachment_url")
 		if err != nil {
@@ -88,10 +88,10 @@ func (mc *MessageConverter) gcAnnotationToMatrix(ctx context.Context, portal *br
 		attUrl.RawQuery = params.Encode()
 
 	} else if urlMeta != nil {
-		if urlMeta.MimeType != nil {
-			mimeType = *urlMeta.MimeType
+		if urlMeta.MimeType != "" {
+			mimeType = urlMeta.MimeType
 		}
-		parsedUrl, err := url.Parse(*urlMeta.Url.Url)
+		parsedUrl, err := url.Parse(urlMeta.Url.Url)
 		if err != nil {
 			return nil, err
 		}

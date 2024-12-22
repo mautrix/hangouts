@@ -12,8 +12,6 @@ import (
 	pb "google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"go.mau.fi/util/ptr"
-
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
 
@@ -102,7 +100,7 @@ func (c *Client) getSelfUserStatus(ctx context.Context) (*proto.GetSelfUserStatu
 	return response, err
 }
 
-func (c *Client) GetMembers(ctx context.Context, ids []*string) (*proto.GetMembersResponse, error) {
+func (c *Client) GetMembers(ctx context.Context, ids []string) (*proto.GetMembersResponse, error) {
 	memberIds := make([]*proto.MemberId, len(ids))
 	for i, id := range ids {
 		memberIds[i] = &proto.MemberId{
@@ -124,7 +122,7 @@ func (c *Client) GetMembers(ctx context.Context, ids []*string) (*proto.GetMembe
 func (c *Client) paginatedWorld(ctx context.Context) (*proto.PaginatedWorldResponse, error) {
 	request := &proto.PaginatedWorldRequest{
 		RequestHeader:       c.gcRequestHeader,
-		FetchFromUserSpaces: ptr.Ptr(true),
+		FetchFromUserSpaces: true,
 		FetchOptions: []proto.PaginatedWorldRequest_FetchOptions{
 			proto.PaginatedWorldRequest_EXCLUDE_GROUP_LITE,
 		},

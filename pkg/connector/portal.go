@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/rs/zerolog"
-	"go.mau.fi/util/ptr"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
@@ -27,7 +26,7 @@ func (c *GChatClient) setPortalRevision(ctx context.Context, evt *proto.Event) {
 	metadata := portal.Metadata.(*PortalMetadata)
 	revision := evt.GetGroupRevision()
 	if revision != nil {
-		metadata.Revision = *revision.Timestamp
+		metadata.Revision = revision.Timestamp
 		err = portal.Save(ctx)
 		zerolog.Ctx(ctx).Err(err).Msg("Failed to update portal revision in database")
 	}
@@ -45,15 +44,15 @@ func (c *GChatClient) backfillPortal(ctx context.Context, item *proto.WorldItemL
 	}
 	metadata := portal.Metadata.(*PortalMetadata)
 
-	if metadata.Revision < *item.GroupRevision.Timestamp {
+	if metadata.Revision < item.GroupRevision.Timestamp {
 		res, err := c.client.CatchUpGroup(ctx, &proto.CatchUpGroupRequest{
 			GroupId: item.GroupId,
 			Range: &proto.CatchUpRange{
-				FromRevisionTimestamp: &metadata.Revision,
+				FromRevisionTimestamp: metadata.Revision,
 				ToRevisionTimestamp:   item.GroupRevision.Timestamp,
 			},
-			PageSize:   ptr.Ptr(int32(c.userLogin.Bridge.Config.Backfill.Queue.BatchSize)),
-			CutoffSize: ptr.Ptr(int32(c.userLogin.Bridge.Config.Backfill.MaxCatchupMessages)),
+			PageSize:   int32(c.userLogin.Bridge.Config.Backfill.Queue.BatchSize),
+			CutoffSize: int32(c.userLogin.Bridge.Config.Backfill.MaxCatchupMessages),
 		})
 		if err != nil {
 			zerolog.Ctx(ctx).Err(err).Msg("Failed to catch up portal " + item.GroupId.String())

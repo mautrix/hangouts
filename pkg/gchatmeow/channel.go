@@ -253,11 +253,12 @@ func (c *Channel) sendStreamEvent(ctx context.Context, request *proto.StreamEven
 }
 
 func (c *Channel) sendInitialPing(ctx context.Context) error {
-	state := proto.PingEvent_ACTIVE
-	focusState := proto.PingEvent_FOCUS_STATE_FOREGROUND
-	interactiveState := proto.PingEvent_INTERACTIVE
-	notificationsEnabled := true
-	event := proto.PingEvent{State: &state, ApplicationFocusState: &focusState, ClientInteractiveState: &interactiveState, ClientNotificationsEnabled: &notificationsEnabled}
+	event := proto.PingEvent{
+		State:                      proto.PingEvent_ACTIVE,
+		ApplicationFocusState:      proto.PingEvent_FOCUS_STATE_FOREGROUND,
+		ClientInteractiveState:     proto.PingEvent_INTERACTIVE,
+		ClientNotificationsEnabled: true,
+	}
 	return c.sendStreamEvent(ctx, &proto.StreamEventsRequest{PingEvent: &event})
 }
 

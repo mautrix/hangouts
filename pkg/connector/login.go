@@ -81,11 +81,11 @@ func (gl *GChatCookieLogin) SubmitCookies(ctx context.Context, strCookies map[st
 
 	userId := user.UserId.Id
 	ul, err := gl.User.NewLogin(ctx, &database.UserLogin{
-		ID:         networkid.UserLoginID(*userId),
+		ID:         networkid.UserLoginID(userId),
 		RemoteName: user.GetName(),
 		RemoteProfile: status.RemoteProfile{
 			Name:   user.GetName(),
-			Email:  *user.Email,
+			Email:  user.Email,
 			Avatar: id.ContentURIString(user.GetAvatarUrl()),
 		},
 		Metadata: &UserLoginMetadata{

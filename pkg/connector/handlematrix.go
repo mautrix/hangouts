@@ -9,8 +9,6 @@ import (
 	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 
-	"go.mau.fi/util/ptr"
-
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
 
@@ -34,7 +32,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		return nil, err
 	}
 
-	var plainGroupId *string
+	var plainGroupId string
 	if groupId.GetDmId() != nil {
 		plainGroupId = groupId.GetDmId().DmId
 	} else {
@@ -49,14 +47,14 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		if err != nil {
 			return nil, err
 		}
-		metadata, err := c.client.UploadFile(ctx, data, *plainGroupId, msg.Content.FileName, msg.Content.Info.MimeType)
+		metadata, err := c.client.UploadFile(ctx, data, plainGroupId, msg.Content.FileName, msg.Content.Info.MimeType)
 		if err != nil {
 			return nil, err
 		}
 		annotations = []*proto.Annotation{
 			{
-				Type:           ptr.Ptr(proto.AnnotationType_UPLOAD_METADATA),
-				ChipRenderType: ptr.Ptr(proto.Annotation_RENDER),
+				Type:           proto.AnnotationType_UPLOAD_METADATA,
+				ChipRenderType: proto.Annotation_RENDER,
 				Metadata: &proto.Annotation_UploadMetadata{
 					UploadMetadata: metadata,
 				},
@@ -65,13 +63,13 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 	}
 
 	if msg.ReplyTo != nil {
-		replyToId := ptr.Ptr(string(msg.ReplyTo.ID))
+		replyToId := string(msg.ReplyTo.ID)
 		topicId := replyToId
 		if msg.ThreadRoot != nil {
-			topicId = ptr.Ptr(string(msg.ThreadRoot.ID))
+			topicId = string(msg.ThreadRoot.ID)
 		}
 		messageInfo = &proto.MessageInfo{
-			AcceptFormatAnnotations: ptr.Ptr(true),
+			AcceptFormatAnnotations: true,
 			ReplyTo: &proto.SendReplyTarget{
 				Id: &proto.MessageId{
 					ParentId: &proto.MessageParentId{
@@ -84,7 +82,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 					},
 					MessageId: replyToId,
 				},
-				CreateTime: ptr.Ptr(msg.ReplyTo.Timestamp.UnixMicro()),
+				CreateTime: msg.ReplyTo.Timestamp.UnixMicro(),
 			},
 		}
 	}
@@ -93,10 +91,10 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 	var timestamp int64
 
 	if msg.ThreadRoot != nil {
-		threadId := ptr.Ptr(string(msg.ThreadRoot.ID))
+		threadId := string(msg.ThreadRoot.ID)
 		if messageInfo == nil {
 			messageInfo = &proto.MessageInfo{
-				AcceptFormatAnnotations: ptr.Ptr(true),
+				AcceptFormatAnnotations: true,
 			}
 		}
 		req := &proto.CreateMessageRequest{
@@ -108,8 +106,8 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 					},
 				},
 			},
-			LocalId:     (*string)(&msg.Event.ID),
-			TextBody:    &msg.Content.Body,
+			LocalId:     string(msg.Event.ID),
+			TextBody:    msg.Content.Body,
 			Annotations: annotations,
 			MessageInfo: messageInfo,
 		}
@@ -117,12 +115,12 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		if err != nil {
 			return nil, err
 		}
-		msgID = *res.Message.Id.MessageId
-		timestamp = *res.Message.CreateTime
+		msgID = res.Message.Id.MessageId
+		timestamp = res.Message.CreateTime
 	} else {
 		req := &proto.CreateTopicRequest{
 			GroupId:     groupId,
-			TextBody:    &msg.Content.Body,
+			TextBody:    msg.Content.Body,
 			Annotations: annotations,
 			MessageInfo: messageInfo,
 		}
@@ -130,8 +128,8 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		if err != nil {
 			return nil, err
 		}
-		msgID = *res.Topic.Id.TopicId
-		timestamp = *res.Topic.CreateTimeUsec
+		msgID = res.Topic.Id.TopicId
+		timestamp = res.Topic.CreateTimeUsec
 	}
 
 	msg.AddPendingToIgnore(networkid.TransactionID(msgID))
@@ -188,18 +186,18 @@ func (c *GChatClient) doHandleMatrixReaction(ctx context.Context, portal *bridge
 				Parent: &proto.MessageParentId_TopicId{
 					TopicId: &proto.TopicId{
 						GroupId: groupId,
-						TopicId: &topicId,
+						TopicId: topicId,
 					},
 				},
 			},
-			MessageId: &messageId,
+			MessageId: messageId,
 		},
 		Emoji: &proto.Emoji{
 			Content: &proto.Emoji_Unicode{
 				Unicode: emoji,
 			},
 		},
-		Type: typ.Enum(),
+		Type: typ,
 	})
 	return err
 }

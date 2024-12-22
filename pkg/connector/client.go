@@ -83,14 +83,14 @@ func (c *GChatClient) IsThisUser(ctx context.Context, userID networkid.UserID) b
 func (c *GChatClient) LogoutRemote(ctx context.Context) {
 }
 
-func (c *GChatClient) getUsers(ctx context.Context, userIds []*string) error {
+func (c *GChatClient) getUsers(ctx context.Context, userIds []string) error {
 	res, err := c.client.GetMembers(ctx, userIds)
 	if err != nil {
 		return err
 	}
 	for _, member := range res.Members {
 		user := member.GetUser()
-		c.users[*user.UserId.Id] = user
+		c.users[user.UserId.Id] = user
 	}
 	return nil
 }
@@ -101,7 +101,7 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 		fmt.Println(err)
 		return
 	}
-	userIdMap := make(map[*string]struct{})
+	userIdMap := make(map[string]struct{})
 	for _, item := range res.WorldItems {
 		if item.DmMembers != nil {
 			for _, member := range item.DmMembers.Members {
@@ -109,7 +109,7 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 			}
 		}
 	}
-	userIds := make([]*string, len(userIdMap))
+	userIds := make([]string, len(userIdMap))
 	i := 0
 	for userId := range userIdMap {
 		userIds[i] = userId
@@ -128,8 +128,8 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 		if item.DmMembers != nil {
 			gcMembers = item.DmMembers.Members
 			for _, member := range item.DmMembers.Members {
-				if *member.Id != string(c.userLogin.ID) {
-					name = c.users[*member.Id].Name
+				if member.Id != string(c.userLogin.ID) {
+					name = c.users[member.Id].Name
 					break
 				}
 			}
@@ -161,7 +161,7 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 				CreatePortal: true,
 			},
 			ChatInfo: &bridgev2.ChatInfo{
-				Name:    name,
+				Name:    &name,
 				Members: c.gcMembersToMatrix(gcMembers),
 			},
 		})

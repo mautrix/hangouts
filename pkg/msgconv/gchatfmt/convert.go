@@ -7,7 +7,6 @@ import (
 	"sort"
 	"strings"
 
-	"go.mau.fi/util/ptr"
 	pb "google.golang.org/protobuf/proto"
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/event"
@@ -18,17 +17,17 @@ import (
 
 func Parse(ctx context.Context, portal *bridgev2.Portal,
 	msg *proto.Message) *event.MessageEventContent {
-	if *msg.TextBody == "" {
+	if msg.TextBody == "" {
 		return nil
 	}
 
 	content := &event.MessageEventContent{
 		MsgType: event.MsgText,
-		Body:    *msg.TextBody,
+		Body:    msg.TextBody,
 	}
 
 	if len(msg.Annotations) > 0 {
-		utf16Str := gchatmeow.NewUTF16String(*msg.TextBody)
+		utf16Str := gchatmeow.NewUTF16String(msg.TextBody)
 		bodyHtml, err := annotationsToMatrix(ctx, portal, utf16Str, msg.Annotations, 0, 0)
 		if err != nil {
 			fmt.Println("Parse error", err)
@@ -50,9 +49,9 @@ func normalizeAnnotations(annotations []*proto.Annotation) []*proto.Annotation {
 
 	sort.Slice(annotations, func(i, j int) bool {
 		if annotations[i].StartIndex == annotations[j].StartIndex {
-			return *annotations[i].Length > *annotations[j].Length
+			return annotations[i].Length > annotations[j].Length
 		}
-		return *annotations[i].StartIndex < *annotations[j].StartIndex
+		return annotations[i].StartIndex < annotations[j].StartIndex
 	})
 
 	i := 0
@@ -60,11 +59,11 @@ func normalizeAnnotations(annotations []*proto.Annotation) []*proto.Annotation {
 
 	for i < len(annotations) {
 		cur := annotations[i]
-		end := *cur.StartIndex + *cur.Length
+		end := cur.StartIndex + cur.Length
 
 		foundBreak := false
 		for i2, annotation := range annotations[i+1:] {
-			if *annotation.StartIndex >= end {
+			if annotation.StartIndex >= end {
 				newAnnotations := make([]*proto.Annotation, 0, len(annotations)+len(insertAnnotations))
 				newAnnotations = append(newAnnotations, annotations[:i+1+i2]...)
 				newAnnotations = append(newAnnotations, insertAnnotations...)
@@ -74,11 +73,11 @@ func normalizeAnnotations(annotations []*proto.Annotation) []*proto.Annotation {
 				i += 1 + i2
 				foundBreak = true
 				break
-			} else if *annotation.StartIndex+*annotation.Length > end {
+			} else if annotation.StartIndex+annotation.Length > end {
 				annotationCopy := pb.Clone(annotation).(*proto.Annotation)
-				annotation.Length = ptr.Ptr(end - *annotation.StartIndex)
-				annotationCopy.StartIndex = ptr.Ptr(*annotationCopy.StartIndex + *annotation.Length)
-				annotationCopy.Length = ptr.Ptr(*annotationCopy.Length - *annotation.Length)
+				annotation.Length = end - annotation.StartIndex
+				annotationCopy.StartIndex = annotationCopy.StartIndex + annotation.Length
+				annotationCopy.Length = annotationCopy.Length - annotation.Length
 				insertAnnotations = append(insertAnnotations, annotationCopy)
 			}
 		}
@@ -122,19 +121,19 @@ func annotationsToMatrix(
 	annotations = normalizeAnnotations(annotations)
 
 	for i, annotation := range annotations {
-		if *annotation.StartIndex >= offset+length {
+		if annotation.StartIndex >= offset+length {
 			break
-		} else if *annotation.ChipRenderType != proto.Annotation_DO_NOT_RENDER {
+		} else if annotation.ChipRenderType != proto.Annotation_DO_NOT_RENDER {
 			// Annotations with "RENDER" type are rendered separately
 			continue
 		}
 
 		// Overlapping annotations should be removed by NormalizeAnnotations
-		if *annotation.StartIndex+*annotation.Length > offset+length {
+		if annotation.StartIndex+annotation.Length > offset+length {
 			return "", fmt.Errorf("annotation extends beyond text bounds")
 		}
 
-		relativeOffset := *annotation.StartIndex - offset
+		relativeOffset := annotation.StartIndex - offset
 		if relativeOffset > lastOffset {
 			bodyHtml.WriteString(escape(text[lastOffset:relativeOffset]))
 		} else if relativeOffset < lastOffset {
@@ -145,17 +144,17 @@ func annotationsToMatrix(
 		entityText, err := annotationsToMatrix(
 			ctx,
 			portal,
-			text[relativeOffset:relativeOffset+*annotation.Length],
+			text[relativeOffset:relativeOffset+annotation.Length],
 			annotations[i+1:],
-			*annotation.StartIndex,
-			*annotation.Length,
+			annotation.StartIndex,
+			annotation.Length,
 		)
 		if err != nil {
 			return "", err
 		}
 
 		if annotation.GetFormatMetadata() != nil {
-			switch *annotation.GetFormatMetadata().FormatType {
+			switch annotation.GetFormatMetadata().FormatType {
 			case proto.FormatMetadata_HIDDEN:
 				// Don't append the text
 			case proto.FormatMetadata_BOLD:
@@ -188,7 +187,7 @@ func annotationsToMatrix(
 		if skipEntity {
 			lastOffset = relativeOffset
 		} else {
-			lastOffset = relativeOffset + *annotation.Length
+			lastOffset = relativeOffset + annotation.Length
 		}
 	}
 

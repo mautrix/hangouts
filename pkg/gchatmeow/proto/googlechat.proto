@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 option go_package = "../proto";
 
@@ -17,32 +17,32 @@ enum UserType {
 }
 
 message UserId {
-	optional string id = 1;
-	optional UserType type = 2;
-	//optional DYNProtoAppId origin_app_id = 3;
+	string id = 1;
+	UserType type = 2;
+	//DYNProtoAppId origin_app_id = 3;
 }
 
 message User {
-	optional UserId user_id = 1;
-	optional string name = 2;
-	optional string avatar_url = 3;
-	optional string email = 4;
-	optional string first_name = 5;
-	optional string last_name = 6;
-	optional bool deleted = 7;
-	optional bool is_anonymous = 8;
-	//optional DYNProtoBotInfo bot_info = 9;
-	optional string gender = 10;
-	//optional DYNProtoUserAccountState user_account_state = 11;
-	//optional DYNProtoUserProfileVisibility user_profile_visibility = 15;
-	//optional DYNProtoOrganizationInfo organization_info = 12;
-	optional UserBlockRelationship block_relationship = 13;
+	UserId user_id = 1;
+	string name = 2;
+	string avatar_url = 3;
+	string email = 4;
+	string first_name = 5;
+	string last_name = 6;
+	bool deleted = 7;
+	bool is_anonymous = 8;
+	//DYNProtoBotInfo bot_info = 9;
+	string gender = 10;
+	//DYNProtoUserAccountState user_account_state = 11;
+	//DYNProtoUserProfileVisibility user_profile_visibility = 15;
+	//DYNProtoOrganizationInfo organization_info = 12;
+	UserBlockRelationship block_relationship = 13;
 	//repeated DYNProtoPhoneNumber phone_number = 14;
 }
 
 message UserBlockRelationship {
-	optional bool is_blocked_by_requester = 1;
-	optional bool has_blocked_requester = 2;
+	bool is_blocked_by_requester = 1;
+	bool has_blocked_requester = 2;
 }
 
 message DndSettings {
@@ -51,9 +51,9 @@ message DndSettings {
 		AVAILABLE = 1;
 		DND = 2;
 	}
-	optional DndState_State dnd_state = 1;
-	optional int64 dnd_expiry_time_usec = 2;
-	optional int64 state_remaining_duration_usec = 3;
+	DndState_State dnd_state = 1;
+	int64 dnd_expiry_time_usec = 2;
+	int64 state_remaining_duration_usec = 3;
 }
 
 message Emoji {
@@ -63,30 +63,30 @@ message Emoji {
 }
 
 message CustomStatus {
-	optional string status_text = 1;
-	optional string status_emoji = 2;
-	optional int64 state_expiry_timestamp_usec = 3;
-	optional Emoji emoji = 4;
+	string status_text = 1;
+	string status_emoji = 2;
+	int64 state_expiry_timestamp_usec = 3;
+	Emoji emoji = 4;
 }
 
 message UserStatus {
-	optional UserId user_id = 1;
-	optional DndSettings dnd_settings = 2;
-	optional int64 update_timestamp_usec = 3;
-	optional int64 dnd_settings_update_timestamp_usec = 7;
-	optional int64 status_timestamp_usec = 4;
-	optional bool presence_shared = 5;
-	optional CustomStatus custom_status = 6;
-	optional int64 custom_status_update_timestamp_usec = 8;
+	UserId user_id = 1;
+	DndSettings dnd_settings = 2;
+	int64 update_timestamp_usec = 3;
+	int64 dnd_settings_update_timestamp_usec = 7;
+	int64 status_timestamp_usec = 4;
+	bool presence_shared = 5;
+	CustomStatus custom_status = 6;
+	int64 custom_status_update_timestamp_usec = 8;
 }
 
 message UserStatusUpdatedEvent {
-	optional UserStatus user_status = 1;
+	UserStatus user_status = 1;
 }
 
 message GetUserStatusRequest {
 	repeated UserId user_ids = 1;
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 }
 
 message GetUserStatusResponse {
@@ -94,12 +94,12 @@ message GetUserStatusResponse {
 }
 
 message GetSelfUserStatusRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 }
 
 message GetSelfUserStatusResponse {
-	optional UserStatus user_status = 1;
-	optional ReadRevision user_revision = 2;
+	UserStatus user_status = 1;
+	ReadRevision user_revision = 2;
 }
 
 message ClientFeatureCapabilities {
@@ -109,17 +109,17 @@ message ClientFeatureCapabilities {
 		FULLY_SUPPORTED = 2;
 	}
 
-	optional bool enable_all_features = 1;
-	optional CapabilityLevel spaces_level_for_testing = 2;
-	optional CapabilityLevel dms_level_for_testing = 3;
-	optional CapabilityLevel post_rooms_level = 4;
-	optional CapabilityLevel spam_room_invites_level = 5;
-	optional CapabilityLevel tombstone_level = 6;
-	optional CapabilityLevel rich_text_viewing_level = 7;
+	bool enable_all_features = 1;
+	CapabilityLevel spaces_level_for_testing = 2;
+	CapabilityLevel dms_level_for_testing = 3;
+	CapabilityLevel post_rooms_level = 4;
+	CapabilityLevel spam_room_invites_level = 5;
+	CapabilityLevel tombstone_level = 6;
+	CapabilityLevel rich_text_viewing_level = 7;
 }
 
 message RequestHeader {
-	optional int64 trace_id = 1;
+	int64 trace_id = 1;
 
 	enum ClientType {
 		UNKNOWN = 0;
@@ -131,10 +131,10 @@ message RequestHeader {
 		WEB_DESKTOP = 6;
 		WEB_GMAIL = 7;
 	}
-	optional ClientType client_type = 2;
-	optional int64 client_version = 3;
-	optional string locale = 4;
-	optional ClientFeatureCapabilities client_feature_capabilities = 5;
+	ClientType client_type = 2;
+	int64 client_version = 3;
+	string locale = 4;
+	ClientFeatureCapabilities client_feature_capabilities = 5;
 }
 
 enum InviteCategory {
@@ -158,26 +158,26 @@ message MemberId {
 }
 
 message MembershipId {
-	optional MemberId member_id = 1;
-	optional SpaceId space_id = 2;
-	optional GroupId group_id = 3;
+	MemberId member_id = 1;
+	SpaceId space_id = 2;
+	GroupId group_id = 3;
 }
 
 message Membership {
-	optional MembershipId id = 1;
-	optional int64 create_time = 2;
-	optional MembershipState membership_state = 3;
-	optional InviteCategory invite_category = 4;
-	optional MembershipRole membership_role = 5;
+	MembershipId id = 1;
+	int64 create_time = 2;
+	MembershipState membership_state = 3;
+	InviteCategory invite_category = 4;
+	MembershipRole membership_role = 5;
 }
 
 message MemberProfile {
-	optional MembershipId id = 1;
-	optional Member member = 2;
+	MembershipId id = 1;
+	Member member = 2;
 }
 
 message GetMembersRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	repeated MemberId member_ids = 1;
 	repeated MembershipId membership_ids = 2;
 }
@@ -202,18 +202,18 @@ enum DndState_State {
 }
 
 message UserPresence {
-	optional UserId user_id = 1;
-	optional Presence presence = 2;
-	optional int64 active_until = 4;
-	optional DndState_State dnd_state = 3;
-	optional UserStatus user_status = 5;
+	UserId user_id = 1;
+	Presence presence = 2;
+	int64 active_until = 4;
+	DndState_State dnd_state = 3;
+	UserStatus user_status = 5;
 }
 
 message GetUserPresenceRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	repeated UserId user_ids = 1;
-	optional bool include_active_until = 2;
-	optional bool include_user_status = 3;
+	bool include_active_until = 2;
+	bool include_user_status = 3;
 }
 
 message GetUserPresenceResponse {
@@ -221,7 +221,7 @@ message GetUserPresenceResponse {
 }
 
 message JAddOnsIdentifier {
-	optional string id = 1;
+	string id = 1;
 }
 
 message JAddOnsFormattedText {
@@ -232,10 +232,10 @@ message JAddOnsFormattedText {
 	}
 	message FormattedTextElement {
 		message DateTime {
-			optional int64 time_millis = 1;
-			optional int32 time_zone_offset_minutes = 2;
-			optional bool date_only = 3;
-			optional bool floating_time = 4;
+			int64 time_millis = 1;
+			int32 time_zone_offset_minutes = 2;
+			bool date_only = 3;
+			bool floating_time = 4;
 		}
 
 		message StyledText {
@@ -255,18 +255,18 @@ message JAddOnsFormattedText {
 				BOLD = 3;
 			}
 
-			optional string text = 1;
-			optional DateTime datetime = 4;
+			string text = 1;
+			DateTime datetime = 4;
 			repeated Style styles = 2;
-			optional FontWeight font_weight = 5;
-			optional int32 color = 3;
-			optional JAddOnsThemeColors theme_colors = 7;
+			FontWeight font_weight = 5;
+			int32 color = 3;
+			JAddOnsThemeColors theme_colors = 7;
 		}
 
 		message HyperLink {
-			optional string link = 1;
-			optional string original_link = 3;
-			optional string text = 2;
+			string link = 1;
+			string original_link = 3;
+			string text = 2;
 		}
 		oneof Element {
 			StyledText styled_text = 1;
@@ -275,10 +275,10 @@ message JAddOnsFormattedText {
 
 	}
 
-	optional JAddOnsIdentifier id = 4;
-	optional string original_text = 1;
+	JAddOnsIdentifier id = 4;
+	string original_text = 1;
 	repeated FormattedTextElement formatted_text_elements = 2;
-	optional TextAlign text_align = 3;
+	TextAlign text_align = 3;
 }
 
 message JAddOnsImageCropStyle {
@@ -290,13 +290,13 @@ message JAddOnsImageCropStyle {
 		RECTANGLE_4_3 = 4;
 	}
 
-	optional ImageCropType type = 1;
-	optional double aspect_ratio = 2;
+	ImageCropType type = 1;
+	double aspect_ratio = 2;
 }
 
 message JAddOnsThemeColors {
-	optional int32 light_theme_color = 1;
-	optional int32 dark_theme_color = 2;
+	int32 light_theme_color = 1;
+	int32 dark_theme_color = 2;
 }
 
 message JAddOnsOpenLink {
@@ -313,40 +313,40 @@ message JAddOnsOpenLink {
 		SPINNER = 1;
 	}
 
-	optional string url = 1;
-	optional string original_link = 5;
-	optional OpenAs open_as = 2;
-	optional OnClose on_close = 3;
-	optional LoadIndicator load_indicator = 4;
+	string url = 1;
+	string original_link = 5;
+	OpenAs open_as = 2;
+	OnClose on_close = 3;
+	LoadIndicator load_indicator = 4;
 }
 
 message JAddOnsCardItem {
 	message CardItemHeader {
-		optional JAddOnsFormattedText title = 1;
-		optional JAddOnsFormattedText subtitle = 2;
-		optional JAddOnsImageCropStyle.ImageCropType image_style = 3;
-		optional string image_url = 4;
-		optional string image_alt_text = 5;
+		JAddOnsFormattedText title = 1;
+		JAddOnsFormattedText subtitle = 2;
+		JAddOnsImageCropStyle.ImageCropType image_style = 3;
+		string image_url = 4;
+		string image_alt_text = 5;
 	}
 	message CardItemSection {
-		optional JAddOnsIdentifier id = 6;
-		optional string description = 1;
-		optional JAddOnsFormattedText header = 5;
+		JAddOnsIdentifier id = 6;
+		string description = 1;
+		JAddOnsFormattedText header = 5;
 		repeated JAddOnsWidget widgets = 2;
-		optional bool collapsable = 3;
-		optional int32 num_uncollapsable_widgets = 4;
+		bool collapsable = 3;
+		int32 num_uncollapsable_widgets = 4;
 	}
 	message CardItemAction {
-		optional string action_label = 1;
-		optional JAddOnsOnClick on_click = 2;
+		string action_label = 1;
+		JAddOnsOnClick on_click = 2;
 	}
 	message CardItemFixedFooter {
 		repeated JAddOnsWidget.Button buttons = 1;
-		optional JAddOnsWidget.TextButton primary_button = 2;
-		optional JAddOnsWidget.TextButton secondary_button = 3;
+		JAddOnsWidget.TextButton primary_button = 2;
+		JAddOnsWidget.TextButton secondary_button = 3;
 	}
 	message CardItemRefreshAction {
-		optional JAddOnsFormAction method = 1;
+		JAddOnsFormAction method = 1;
 	}
 	enum DisplayStyle {
 		DISPLAY_STYLE_UNSPECIFIED = 0;
@@ -354,19 +354,19 @@ message JAddOnsCardItem {
 		REPLACE = 2;
 	}
 
-	optional CardItemHeader header = 1;
+	CardItemHeader header = 1;
 	repeated CardItemSection sections = 2;
 	repeated CardItemAction card_actions = 3;
-	optional string name = 4;
-	optional CardItemFixedFooter fixed_footer = 5;
-	optional CardItemRefreshAction refresh_action = 6;
-	optional DisplayStyle display_style = 7;
-	optional CardItemHeader peek_card_header = 8;
-	optional JAddOnsThemeColors background_theme_colors = 9;
+	string name = 4;
+	CardItemFixedFooter fixed_footer = 5;
+	CardItemRefreshAction refresh_action = 6;
+	DisplayStyle display_style = 7;
+	CardItemHeader peek_card_header = 8;
+	JAddOnsThemeColors background_theme_colors = 9;
 }
 
 message JAddOnsPushCard {
-	optional JAddOnsCardItem card = 1;
+	JAddOnsCardItem card = 1;
 }
 
 message JAddOnsOnClick {
@@ -385,10 +385,10 @@ message JAddOnsTextWidget {
 }
 
 message JAddOnsImageComponent {
-	optional string image_url = 1;
-	optional string alt_text = 2;
-	optional JAddOnsImageCropStyle crop_style = 3;
-	optional JAddOnsBorderStyle border_style = 4;
+	string image_url = 1;
+	string alt_text = 2;
+	JAddOnsImageCropStyle crop_style = 3;
+	JAddOnsBorderStyle border_style = 4;
 }
 
 message JAddOnsGrid {
@@ -399,21 +399,21 @@ message JAddOnsGrid {
 			TEXT_ABOVE = 2;
 		}
 
-		optional string identifier = 1;
-		optional JAddOnsImageComponent image = 2;
-		optional string title = 3;
-		optional string subtitle = 4;
-		optional JAddOnsWidget.HorizontalAlign text_alignment = 5;
-		optional GridItemLayout layout = 9;
-		optional JAddOnsOnClick on_click = 10;
+		string identifier = 1;
+		JAddOnsImageComponent image = 2;
+		string title = 3;
+		string subtitle = 4;
+		JAddOnsWidget.HorizontalAlign text_alignment = 5;
+		GridItemLayout layout = 9;
+		JAddOnsOnClick on_click = 10;
 	}
 
-	optional JAddOnsIdentifier id = 1;
-	optional string title = 2;
+	JAddOnsIdentifier id = 1;
+	string title = 2;
 	repeated GridItem items = 3;
-	optional JAddOnsBorderStyle border_style = 4;
-	optional int32 num_columns = 5;
-	optional JAddOnsOnClick on_click = 6;
+	JAddOnsBorderStyle border_style = 4;
+	int32 num_columns = 5;
+	JAddOnsOnClick on_click = 6;
 }
 
 message JAddOnsBorderStyle {
@@ -423,14 +423,14 @@ message JAddOnsBorderStyle {
 		STROKE = 2;
 	}
 
-	optional BorderType type = 1;
-	optional JAddOnsThemeColors stroke_color = 2;
-	optional int32 corner_radius = 3;
+	BorderType type = 1;
+	JAddOnsThemeColors stroke_color = 2;
+	int32 corner_radius = 3;
 }
 
 message JAddOnsLabelContentPair {
-	optional string label = 1;
-	optional string content = 2;
+	string label = 1;
+	string content = 2;
 }
 
 message JAddOnsLabelContentPairWidget {
@@ -439,29 +439,29 @@ message JAddOnsLabelContentPairWidget {
 
 message JAddOnsWidget {
 	message TextParagraph {
-		optional JAddOnsFormattedText text = 1;
+		JAddOnsFormattedText text = 1;
 	}
 	message TextKeyValue {
-		optional JAddOnsFormattedText key = 1;
-		optional JAddOnsFormattedText text = 2;
-		optional JAddOnsOnClick on_click = 3;
+		JAddOnsFormattedText key = 1;
+		JAddOnsFormattedText text = 2;
+		JAddOnsOnClick on_click = 3;
 	}
 	message ImageKeyValue {
-		optional string icon_url = 1;
-		optional JAddOnsFormattedText text = 2;
-		optional JAddOnsOnClick on_click = 3;
+		string icon_url = 1;
+		JAddOnsFormattedText text = 2;
+		JAddOnsOnClick on_click = 3;
 	}
 	message Image {
-		optional JAddOnsIdentifier id = 5;
-		optional string fife_image_url = 1;
-		optional JAddOnsOnClick on_click = 2;
-		optional double aspect_ratio = 3;
-		optional string alt_text = 4;
+		JAddOnsIdentifier id = 5;
+		string fife_image_url = 1;
+		JAddOnsOnClick on_click = 2;
+		double aspect_ratio = 3;
+		string alt_text = 4;
 	}
 	message Icon {
-		optional string icon_url = 1;
-		optional string alt_text = 2;
-		optional JAddOnsImageCropStyle.ImageCropType image_style = 3;
+		string icon_url = 1;
+		string alt_text = 2;
+		JAddOnsImageCropStyle.ImageCropType image_style = 3;
 	}
 	message KeyValue {
 		message SwitchWidget {
@@ -470,22 +470,22 @@ message JAddOnsWidget {
 				SWITCH = 1;
 				CHECKBOX = 2;
 			}
-			optional JAddOnsIdentifier id = 5;
-			optional string name = 1;
-			optional string value = 2;
-			optional bool selected = 3;
-			optional JAddOnsFormAction on_change = 4;
-			optional ControlType control_type = 6;
+			JAddOnsIdentifier id = 5;
+			string name = 1;
+			string value = 2;
+			bool selected = 3;
+			JAddOnsFormAction on_change = 4;
+			ControlType control_type = 6;
 		}
-		optional string icon_url = 1;
-		optional string icon_alt_text = 9;
-		optional JAddOnsImageCropStyle.ImageCropType image_style = 10;
-		optional Icon start_icon = 11;
-		optional JAddOnsFormattedText top_label = 2;
-		optional JAddOnsFormattedText content = 3;
-		optional bool content_multiline = 8;
-		optional JAddOnsFormattedText bottom_label = 4;
-		optional JAddOnsOnClick on_click = 5;
+		string icon_url = 1;
+		string icon_alt_text = 9;
+		JAddOnsImageCropStyle.ImageCropType image_style = 10;
+		Icon start_icon = 11;
+		JAddOnsFormattedText top_label = 2;
+		JAddOnsFormattedText content = 3;
+		bool content_multiline = 8;
+		JAddOnsFormattedText bottom_label = 4;
+		JAddOnsOnClick on_click = 5;
 		oneof Control {
 			Button button = 6;
 			SwitchWidget switch_widget = 7;
@@ -497,18 +497,18 @@ message JAddOnsWidget {
 	}
 	message Menu {
 		message MenuItem {
-			optional string text = 1;
-			optional string value = 4;
-			optional bool selected = 3;
+			string text = 1;
+			string value = 4;
+			bool selected = 3;
 		}
-		optional string name = 1;
+		string name = 1;
 		repeated MenuItem items = 2;
-		optional JAddOnsFormAction on_change = 4;
-		optional string label = 5;
+		JAddOnsFormAction on_change = 4;
+		string label = 5;
 	}
 	message AutoComplete {
 		message AutoCompleteItem {
-			optional string text = 1;
+			string text = 1;
 		}
 		repeated AutoCompleteItem items = 1;
 	}
@@ -521,18 +521,18 @@ message JAddOnsWidget {
 			SINGLE = 0;
 			MULTIPLE = 1;
 		}
-		optional JAddOnsIdentifier id = 11;
-		optional string name = 1;
-		optional int32 max_lines = 2;
-		optional TextFieldType type = 5;
-		optional string label = 3;
-		optional string hint_text = 4;
-		optional string value = 6;
-		optional LineType line_type = 7;
-		optional JAddOnsFormAction on_change = 8;
-		optional AutoComplete auto_complete = 9;
-		optional JAddOnsFormAction auto_complete_callback = 10;
-		optional bool auto_complete_multiple_selections = 12;
+		JAddOnsIdentifier id = 11;
+		string name = 1;
+		int32 max_lines = 2;
+		TextFieldType type = 5;
+		string label = 3;
+		string hint_text = 4;
+		string value = 6;
+		LineType line_type = 7;
+		JAddOnsFormAction on_change = 8;
+		AutoComplete auto_complete = 9;
+		JAddOnsFormAction auto_complete_callback = 10;
+		bool auto_complete_multiple_selections = 12;
 	}
 	message SelectionControl {
 		enum SelectionType {
@@ -542,18 +542,18 @@ message JAddOnsWidget {
 			DROPDOWN = 3;
 		}
 		message SelectionItem {
-			optional JAddOnsIdentifier id = 4;
-			optional string text = 1;
-			optional bool selected = 2;
-			optional string value = 3;
+			JAddOnsIdentifier id = 4;
+			string text = 1;
+			bool selected = 2;
+			string value = 3;
 		}
 
-		optional JAddOnsIdentifier id = 6;
-		optional string name = 1;
-		optional SelectionType type = 2;
+		JAddOnsIdentifier id = 6;
+		string name = 1;
+		SelectionType type = 2;
 		repeated SelectionItem items = 3;
-		optional JAddOnsFormAction on_change = 4;
-		optional string label = 5;
+		JAddOnsFormAction on_change = 4;
+		string label = 5;
 	}
 	message DateTimePicker {
 		enum DateTimePickerType {
@@ -563,14 +563,14 @@ message JAddOnsWidget {
 			TIME_ONLY = 3;
 		}
 
-		optional string name = 1;
-		optional string label = 2;
-		optional DateTimePickerType type = 3;
-		optional int64 value_ms_epoch = 4;
-		optional int32 timezone_offset_date = 5;
-		optional JAddOnsFormAction on_change = 6;
-		optional int32 color = 7;
-		optional JAddOnsThemeColors theme_colors = 8;
+		string name = 1;
+		string label = 2;
+		DateTimePickerType type = 3;
+		int64 value_ms_epoch = 4;
+		int32 timezone_offset_date = 5;
+		JAddOnsFormAction on_change = 6;
+		int32 color = 7;
+		JAddOnsThemeColors theme_colors = 8;
 	}
 	message TextButton {
 		enum Style {
@@ -578,21 +578,21 @@ message JAddOnsWidget {
 			TEXT = 1;
 			FILLED = 2;
 		}
-		optional JAddOnsIdentifier id = 3;
-		optional JAddOnsFormattedText text = 1;
-		optional JAddOnsOnClick on_click = 2;
-		optional bool disabled = 4;
-		optional Style style = 5;
-		optional int32 background_color = 6;
-		optional JAddOnsThemeColors background_theme_colors = 7;
-		optional string alt_text = 8;
+		JAddOnsIdentifier id = 3;
+		JAddOnsFormattedText text = 1;
+		JAddOnsOnClick on_click = 2;
+		bool disabled = 4;
+		Style style = 5;
+		int32 background_color = 6;
+		JAddOnsThemeColors background_theme_colors = 7;
+		string alt_text = 8;
 	}
 
 	message ImageButton {
-		optional JAddOnsIdentifier id = 4;
-		optional string icon_url = 1;
-		optional JAddOnsOnClick on_click = 2;
-		optional string name = 3;
+		JAddOnsIdentifier id = 4;
+		string icon_url = 1;
+		JAddOnsOnClick on_click = 2;
+		string name = 3;
 	}
 
 	message Button {
@@ -626,80 +626,80 @@ message JAddOnsWidget {
 		DateTimePicker date_time_picker = 14;
 	}
 	repeated Button buttons = 8;
-	optional HorizontalAlign horizontal_align = 15;
+	HorizontalAlign horizontal_align = 15;
 
 }
 
 
 message JAddOnsFormAction {
 	message ActionParameter {
-		optional string key = 1;
-		optional string value = 2;
+		string key = 1;
+		string value = 2;
 	}
 	enum LoadIndicator {
 		SPINNER = 0;
 		NONE = 1;
 	}
 
-	optional string action_method_name = 1;
+	string action_method_name = 1;
 	repeated ActionParameter parameters = 4;
 	repeated string parameters_deprecated = 3;
-	optional string encrypted_action = 7;
-	optional LoadIndicator load_indicator = 5;
-	optional bool persist_values = 6;
+	string encrypted_action = 7;
+	LoadIndicator load_indicator = 5;
+	bool persist_values = 6;
 }
 
 message JAddOnsContextualAddOn {
 	message Toolbar {
-		optional JAddOnsFormattedText name = 1;
-		optional string icon_url = 2;
-		optional int32 color = 3;
-		optional JAddOnsThemeColors theme_colors = 4;
+		JAddOnsFormattedText name = 1;
+		string icon_url = 2;
+		int32 color = 3;
+		JAddOnsThemeColors theme_colors = 4;
 	}
 
-	optional Toolbar toolbar = 1;
+	Toolbar toolbar = 1;
 
 	message Card {
 		message CardHeader {
-			optional JAddOnsFormattedText title = 1;
-			optional JAddOnsFormattedText subtitle = 2;
-			optional JAddOnsImageCropStyle.ImageCropType image_style = 3;
-			optional string image_url = 4;
-			optional string image_alt_text = 5;
+			JAddOnsFormattedText title = 1;
+			JAddOnsFormattedText subtitle = 2;
+			JAddOnsImageCropStyle.ImageCropType image_style = 3;
+			string image_url = 4;
+			string image_alt_text = 5;
 		}
-		optional CardHeader header = 1;
+		CardHeader header = 1;
 
 		message Section {
-			optional JAddOnsIdentifier id = 6;
-			optional string description = 1;
-			optional JAddOnsFormattedText header = 5;
+			JAddOnsIdentifier id = 6;
+			string description = 1;
+			JAddOnsFormattedText header = 5;
 			repeated JAddOnsWidget widgets = 2;
-			optional bool collapsable = 3;
-			optional int32 num_uncollapsable_widgets = 4;
+			bool collapsable = 3;
+			int32 num_uncollapsable_widgets = 4;
 		}
 		repeated Section sections = 2;
 
 		message CardAction {
-			optional string action_label = 1;
-			optional JAddOnsOnClick on_click = 2;
+			string action_label = 1;
+			JAddOnsOnClick on_click = 2;
 		}
 		repeated CardAction card_actions = 3;
 
-		optional string name = 4;
+		string name = 4;
 
 		message FixedFooter {
 			repeated JAddOnsWidget.Button buttons = 1;
-			optional JAddOnsWidget.TextButton primary_button = 2;
-			optional JAddOnsWidget.TextButton secondary_button = 3;
+			JAddOnsWidget.TextButton primary_button = 2;
+			JAddOnsWidget.TextButton secondary_button = 3;
 		}
-		optional FixedFooter fixed_footer = 5;
+		FixedFooter fixed_footer = 5;
 
 		message RefreshAction {
-			optional JAddOnsFormAction method = 1;
+			JAddOnsFormAction method = 1;
 		}
-		optional RefreshAction refresh_action = 6;
+		RefreshAction refresh_action = 6;
 
-		optional JAddOnsThemeColors background_theme_colors = 7;
+		JAddOnsThemeColors background_theme_colors = 7;
 	}
 
 	repeated Card cards = 2;
@@ -707,11 +707,11 @@ message JAddOnsContextualAddOn {
 
 message Html { //ComGoogleCommonHtmlTypesSafeHtmlProto
 	//private_do_not_access_or_else_safe_html_wrapped_value
-	optional string html = 2;
+	string html = 2;
 }
 
 message HtmlAttachment {
-	optional Html html = 2;
+	Html html = 2;
 }
 
 message Attachment {
@@ -719,15 +719,15 @@ message Attachment {
 		HtmlAttachment html = 1;
 		JAddOnsContextualAddOn add_on_data = 2;
 	}
-	optional UserId app_id = 5;
-	optional User app_user = 6;
+	UserId app_id = 5;
+	User app_user = 6;
 }
 
 message Reaction {
-	optional Emoji emoji = 1;
-	optional int32 count = 2;
-	optional bool current_user_participated = 3;
-	optional int64 create_timestamp = 4;
+	Emoji emoji = 1;
+	int32 count = 2;
+	bool current_user_participated = 3;
+	int64 create_timestamp = 4;
 }
 
 message MessageParentId {
@@ -737,144 +737,144 @@ message MessageParentId {
 }
 
 message MessageId {
-	optional MessageParentId parent_id = 1;
-	optional string message_id = 2;
+	MessageParentId parent_id = 1;
+	string message_id = 2;
 }
 
 message Message {
-	optional MessageId id = 1;
+	MessageId id = 1;
 
 	enum MessageState {
 		UNKNOWN = 0;
 		GROUP_VISIBLE = 1;
 		ON_HOLD = 2;
 	}
-	optional MessageState message_state = 20;
-	optional User creator = 2;
-	optional int64 create_time = 3;
-	optional int64 last_update_time = 4;
-	optional int64 delete_time = 8;
-	optional int64 last_edit_time = 17;
-	optional string text_body = 10;
+	MessageState message_state = 20;
+	User creator = 2;
+	int64 create_time = 3;
+	int64 last_update_time = 4;
+	int64 delete_time = 8;
+	int64 last_edit_time = 17;
+	string text_body = 10;
 	repeated Annotation annotations = 11;
 	//repeated DYNProtoBotResponse bot_responses = 19;
-	optional string local_id = 14;
+	string local_id = 14;
 	repeated Attachment attachments = 15;
-	optional AppProfile app_profile = 16;
-	optional RetentionSettings retention_settings = 18;
+	AppProfile app_profile = 16;
+	RetentionSettings retention_settings = 18;
 	repeated Reaction reactions = 21;
 	//repeated DYNProtoCommunalLabelTag communal_labels = 27;
 	//repeated DYNProtoPersonalLabelTag personal_labels = 26;
-	//optional ?? message_integration_payload = 23;
-	//optional DYNProtoMessage_MessagePermission editable_by = 24;
-	//optional DYNProtoMessage_MessagePermission deletable_by = 25;
-	optional int64 last_reply_time = 5;
-	optional int64 last_view_time = 6;
-	optional int64 last_mention_time = 7;
-	optional int64 num_unread_replies = 9;
-	optional Message last_reply = 12;
-	optional int64 sort_time = 13;
+	//?? message_integration_payload = 23;
+	//DYNProtoMessage_MessagePermission editable_by = 24;
+	//DYNProtoMessage_MessagePermission deletable_by = 25;
+	int64 last_reply_time = 5;
+	int64 last_view_time = 6;
+	int64 last_mention_time = 7;
+	int64 num_unread_replies = 9;
+	Message last_reply = 12;
+	int64 sort_time = 13;
 
 	enum MessageType {
 		MESSAGE_TYPE_UNSPECIFIED = 0;
 		USER_MESSAGE = 1;
 		SYSTEM_MESSAGE = 2;
 	}
-	optional MessageType message_type = 28;
-	//optional DYNProtoAppId origin_app_id = 29;
-	optional Membership creator_membership = 30;
-	//optional DYNProtoMessageAttributes attributes = 31;
-	//optional ?? tombstone_metadata = 32;
-	optional ReplyToMessage reply_to = 37;
+	MessageType message_type = 28;
+	//DYNProtoAppId origin_app_id = 29;
+	Membership creator_membership = 30;
+	//DYNProtoMessageAttributes attributes = 31;
+	//?? tombstone_metadata = 32;
+	ReplyToMessage reply_to = 37;
 }
 
 message ReplyToMessage {
-	optional MessageId id = 1;
-	optional int64 create_time = 2;
-	optional UserId sender_id = 4;
-	optional User sender = 5;
-	optional string text_body = 6;
-	optional int32 unknown_int = 10;
-	optional User sender_again = 12;
-	optional int64 last_edit_time = 13;
-	optional int64 create_time_again_if_edited = 14;
+	MessageId id = 1;
+	int64 create_time = 2;
+	UserId sender_id = 4;
+	User sender = 5;
+	string text_body = 6;
+	int32 unknown_int = 10;
+	User sender_again = 12;
+	int64 last_edit_time = 13;
+	int64 create_time_again_if_edited = 14;
 }
 
 message AppProfile {
-	optional string displayname = 1;
-	optional string avatar_url = 2;
+	string displayname = 1;
+	string avatar_url = 2;
 }
 
 message DriveMetadata {
-	optional string id = 1;
-	optional string title = 2;
-	optional string thumbnail_url = 3;
-	optional int32 thumbnail_width = 7;
-	optional int32 thumbnail_height = 8;
-	optional string mimetype = 4;
-	optional string external_mimetype = 14;
-	optional string organization_display_name = 13;
-	optional bool encrypted_doc_id = 10;
-	optional string url_fragment = 16;
-	optional TrustedResourceUrl embed_url = 18;
-	optional bool is_owner = 19;
-	optional bool can_share = 5;
-	optional bool can_edit = 15;
-	optional bool can_view = 6;
-	//optional DriveState drive_state = ;
-	optional bool should_not_render = 9;
-	optional bool is_download_restricted = 17;
+	string id = 1;
+	string title = 2;
+	string thumbnail_url = 3;
+	int32 thumbnail_width = 7;
+	int32 thumbnail_height = 8;
+	string mimetype = 4;
+	string external_mimetype = 14;
+	string organization_display_name = 13;
+	bool encrypted_doc_id = 10;
+	string url_fragment = 16;
+	TrustedResourceUrl embed_url = 18;
+	bool is_owner = 19;
+	bool can_share = 5;
+	bool can_edit = 15;
+	bool can_view = 6;
+	//DriveState drive_state = ;
+	bool should_not_render = 9;
+	bool is_download_restricted = 17;
 }
 
 //ComGoogleCommonHtmlTypesSafeUrlProto
 message Url {
 	//private_do_not_access_or_else_safe_url_wrapped_value
-	optional string url = 3;
+	string url = 3;
 }
 
 //ComGoogleCommonHtmlTypesTrustedResourceUrlProto
 message TrustedResourceUrl {
 	//private_do_not_access_or_else_trusted_resource_url_wrapped_value
-	optional string resource_url = 4;
+	string resource_url = 4;
 }
 
 message YoutubeMetadata {
-	optional string id = 1;
-	//optional int/bool ??? = 2;
-	//optional bool should_not_render = 3?
+	string id = 1;
+	//int/bool ??? = 2;
+	//bool should_not_render = 3?
 }
 
 message UrlMetadata {
-	optional string title = 1;
-	optional string snippet = 2;
-	optional string image_url = 3;
-	optional string image_height = 4;
-	optional string image_width = 5;
-	optional Url url = 7;
-	optional Url gws_url = 13;
-	optional Url redirect_url = 14;
-	optional int64 gws_url_expiration_timestamp = 15;
-	optional string domain = 8;
-	optional bool should_not_render = 9;
-	optional int32 int_image_height = 10;
-	optional int32 int_image_width = 11;
-	optional string mime_type = 12;
+	string title = 1;
+	string snippet = 2;
+	string image_url = 3;
+	string image_height = 4;
+	string image_width = 5;
+	Url url = 7;
+	Url gws_url = 13;
+	Url redirect_url = 14;
+	int64 gws_url_expiration_timestamp = 15;
+	string domain = 8;
+	bool should_not_render = 9;
+	int32 int_image_height = 10;
+	int32 int_image_width = 11;
+	string mime_type = 12;
 }
 
 message UploadMetadata {
 	oneof Payload {
 		string attachment_token = 1;
-		//optional BackendUploadMetadata backend_upload_metadata = 2;
+		//BackendUploadMetadata backend_upload_metadata = 2;
 	}
-	optional string content_name = 3;
-	optional string content_type = 4;
-	//optional Dimension original_dimension = 5;
-	optional string local_id = 6;
-	// optional VideoReference video_reference = 7;
-	// optional VirusScanResult virus_scan_result = 8;
-	optional string cloned_drive_id = 9;
-	// optional DriveAction cloned_drive_action = 10;
-	// optional ComGoogleAppsDriveStorageApiAuthorizedItemId cloned_authorized_item_id = 11;
+	string content_name = 3;
+	string content_type = 4;
+	//Dimension original_dimension = 5;
+	string local_id = 6;
+	// VideoReference video_reference = 7;
+	// VirusScanResult virus_scan_result = 8;
+	string cloned_drive_id = 9;
+	// DriveAction cloned_drive_action = 10;
+	// ComGoogleAppsDriveStorageApiAuthorizedItemId cloned_authorized_item_id = 11;
 }
 
 message FormatMetadata {
@@ -893,16 +893,16 @@ message FormatMetadata {
 		BULLETED_LIST_ITEM = 11;
 		CLIENT_HIDDEN = 12;
 	}
-	optional FormatType format_type = 1;
-	optional uint32 font_color = 2;
+	FormatType format_type = 1;
+	uint32 font_color = 2;
 }
 
 message Annotation {
-	optional AnnotationType type = 1;
-	optional int32 start_index = 2;
-	optional int32 length = 3;
-	optional string local_id = 9;
-	optional string unique_id = 19;
+	AnnotationType type = 1;
+	int32 start_index = 2;
+	int32 length = 3;
+	string local_id = 9;
+	string unique_id = 19;
 
 	enum ChipRenderType {
 		UNKNOWN = 0;
@@ -910,8 +910,8 @@ message Annotation {
 		RENDER_IF_POSSIBLE = 2;
 		DO_NOT_RENDER = 3;
 	}
-	optional ChipRenderType chip_render_type = 20;
-	optional bool server_invalidated = 13;
+	ChipRenderType chip_render_type = 20;
+	bool server_invalidated = 13;
 
 	oneof Metadata {
 		UserMentionMetadata user_mention_metadata = 5;
@@ -949,21 +949,21 @@ message TypingContext {
 }
 
 message SetTypingStateRequest {
-	optional RequestHeader request_header = 100;
-	optional TypingState state = 1;
-	optional TypingContext context = 2;
+	RequestHeader request_header = 100;
+	TypingState state = 1;
+	TypingContext context = 2;
 }
 
 message SetTypingStateResponse {
-	optional int64 start_timestamp_usec = 1;
+	int64 start_timestamp_usec = 1;
 }
 
 message DmId {
-	optional string dm_id = 1;
+	string dm_id = 1;
 }
 
 message SpaceId {
-	optional string space_id = 1;
+	string space_id = 1;
 }
 
 message GroupId {
@@ -974,23 +974,23 @@ message GroupId {
 }
 
 message Group {
-	optional GroupId group_id = 1;
-	optional string name = 2;
-	optional User creator = 4;
-	optional int64 create_time = 5;
-	optional int64 last_modified_time = 6;
-	optional int64 sort_time = 7;
-	optional int64 revision_time = 13;
-	optional GroupReadState group_read_state = 12;
-	optional int64 retention_horizon_time = 14;
-	//optional DYNProtoDasherDomainPolicies dasher_domain_policies = 15;
-	//optional ?? group_policies = 40;
-	optional RetentionSettings retention_settings = 16;
-	optional bool is_flat = 17;
-	optional bool interop_enabled = 18;
-	optional int64 retention_duration_seconds = 19;
-	//optional DYNProtoGroupGuestAccessSettings group_guest_access_settings = 20;
-	//optional DYNProtoOrganizationInfo organization_info = 21;
+	GroupId group_id = 1;
+	string name = 2;
+	User creator = 4;
+	int64 create_time = 5;
+	int64 last_modified_time = 6;
+	int64 sort_time = 7;
+	int64 revision_time = 13;
+	GroupReadState group_read_state = 12;
+	int64 retention_horizon_time = 14;
+	//DYNProtoDasherDomainPolicies dasher_domain_policies = 15;
+	//?? group_policies = 40;
+	RetentionSettings retention_settings = 16;
+	bool is_flat = 17;
+	bool interop_enabled = 18;
+	int64 retention_duration_seconds = 19;
+	//DYNProtoGroupGuestAccessSettings group_guest_access_settings = 20;
+	//DYNProtoOrganizationInfo organization_info = 21;
 
 	enum GroupType {
 		GROUP_TYPE_UNSPECIFIED = 0;
@@ -998,11 +998,11 @@ message Group {
 		HUMAN_DM = 2;
 		BOT_DM = 3;
 	}
-	optional GroupType group_type = 22;
+	GroupType group_type = 22;
 
-	optional GroupVisibility visibility = 23;
+	GroupVisibility visibility = 23;
 	//repeated DYNProtoGsuiteIntegration gsuite_integration = 24;
-	optional string roster_email = 25;
+	string roster_email = 25;
 
 	message FlatGroup {}
 	message ThreadedGroup {}
@@ -1011,19 +1011,19 @@ message Group {
 		ThreadedGroup threaded_group = 27;
 	}
 
-	optional string avatar_url = 28;
-	//optional DYNProtoGroupIntegrationSettings group_integration_settings = 36;
+	string avatar_url = 28;
+	//DYNProtoGroupIntegrationSettings group_integration_settings = 36;
 	//repeated ?? space_integration_payloads = 29;
-	//optional DYNProtoAvatarInfo avatar_info = 30;
-	optional SharedAttributeCheckerGroupType attribute_checker_group_type = 33;
-	optional NameUsers name_users = 34;
-	optional GroupDetails group_details = 37;
-	optional GroupSupportLevel group_support_level = 38;
-	optional GroupUnsupportedReason group_unsupported_reason = 39;
-	//optional DYNProtoHubGroupProperties hub_group_properties = 41;
-	//optional ?? ufr_upgrade_info = 42;
-	optional bool typing_indicators_enabled = 43;
-	optional bool flat_threads_enabled = 44;
+	//DYNProtoAvatarInfo avatar_info = 30;
+	SharedAttributeCheckerGroupType attribute_checker_group_type = 33;
+	NameUsers name_users = 34;
+	GroupDetails group_details = 37;
+	GroupSupportLevel group_support_level = 38;
+	GroupUnsupportedReason group_unsupported_reason = 39;
+	//DYNProtoHubGroupProperties hub_group_properties = 41;
+	//?? ufr_upgrade_info = 42;
+	bool typing_indicators_enabled = 43;
+	bool flat_threads_enabled = 44;
 }
 
 enum GroupUnsupportedReason {
@@ -1039,39 +1039,39 @@ enum GroupSupportLevel {
 }
 
 message GroupReadStateId {
-	optional UserId user_id = 1;
-	optional GroupId group_id = 2;
+	UserId user_id = 1;
+	GroupId group_id = 2;
 }
 
 message InviteState {
-	optional UserId inviter_user_id = 1;
-	optional MessageId invitation_message_id = 2;
-	optional bool show_welcome_mat = 3;
-	optional InviteType invite_type = 5;
+	UserId inviter_user_id = 1;
+	MessageId invitation_message_id = 2;
+	bool show_welcome_mat = 3;
+	InviteType invite_type = 5;
 }
 
 message GroupReadState {
-	optional GroupReadStateId id = 1;
-	optional int64 last_read_time = 2;
-	optional int64 unread_message_count = 4;
-	optional bool starred = 5;
-	optional int64 update_timestamp = 6;
-	optional int64 unread_subscribed_topic_count = 7;
-	optional int64 unread_subscribed_topic_count_consistency_timestamp = 11;
+	GroupReadStateId id = 1;
+	int64 last_read_time = 2;
+	int64 unread_message_count = 4;
+	bool starred = 5;
+	int64 update_timestamp = 6;
+	int64 unread_subscribed_topic_count = 7;
+	int64 unread_subscribed_topic_count_consistency_timestamp = 11;
 	repeated TopicId unread_subscribed_topics = 8;
-	optional int64 hide_timestamp = 9;
-	optional int64 clear_history_timestamp = 14;
-	optional InviteState invite_state = 10;
-	optional GroupNotificationSettings notification_settings = 12;
-	optional RetentionSettings retention_settings = 13;
-	optional bool blocked = 15;
-	optional MembershipRole membership_role = 22;
-	optional MembershipState membership_state = 16;
-	optional InviteCategory invite_category = 17;
-	optional int64 mark_as_unread_timestamp_usec = 18;
-	optional bool visible_in_world_view = 19;
-	optional bool show_notification_card_in_stream = 20;
-	//optional NotificationsCard notifications_card = 21;
+	int64 hide_timestamp = 9;
+	int64 clear_history_timestamp = 14;
+	InviteState invite_state = 10;
+	GroupNotificationSettings notification_settings = 12;
+	RetentionSettings retention_settings = 13;
+	bool blocked = 15;
+	MembershipRole membership_role = 22;
+	MembershipState membership_state = 16;
+	InviteCategory invite_category = 17;
+	int64 mark_as_unread_timestamp_usec = 18;
+	bool visible_in_world_view = 19;
+	bool show_notification_card_in_stream = 20;
+	//NotificationsCard notifications_card = 21;
 	repeated UserId joined_users = 23;
 }
 
@@ -1081,7 +1081,7 @@ message GroupNotificationSettings {
 		MUTED = 1;
 		UNMUTED = 2;
 	}
-	optional GroupNotificationState state = 1;
+	GroupNotificationState state = 1;
 
 	enum RoomNotificationState {
 		NOTIFY_ALWAYS = 0;
@@ -1089,7 +1089,7 @@ message GroupNotificationSettings {
 		NOTIFY_LESS = 2;
 		NOTIFY_NEVER = 3;
 	}
-	optional RoomNotificationState room_state = 2;
+	RoomNotificationState room_state = 2;
 }
 
 message RetentionSettings {
@@ -1098,121 +1098,122 @@ message RetentionSettings {
 		PERMANENT = 1;
 		EPHEMERAL_ONE_DAY = 2;
 	}
-	optional RetentionState state = 1;
-	optional int64 expiry_timestamp = 2;
+	RetentionState state = 1;
+	int64 expiry_timestamp = 2;
 }
 
 message GroupData {
-	optional RetentionSettings.RetentionState retention_state = 1;
+	RetentionSettings.RetentionState retention_state = 1;
 }
 
 message TopicId {
-	optional GroupId group_id = 3;
-	optional string topic_id = 2;
+	GroupId group_id = 3;
+	string topic_id = 2;
 }
 
 message Topic {
-	optional TopicId id = 1;
-	optional int64 sort_time = 2;
-	optional int64 create_time_usec = 15;
+	TopicId id = 1;
+	int64 sort_time = 2;
+	int64 create_time_usec = 15;
 	repeated Message replies = 7;
-	optional TopicReadState topic_read_state = 11;
-	optional bool is_system_message = 12;
-	optional RetentionSettings retention_settings = 13;
-	optional bool contains_more_unread_replies = 14;
+	TopicReadState topic_read_state = 11;
+	bool is_system_message = 12;
+	RetentionSettings retention_settings = 13;
+	bool contains_more_unread_replies = 14;
 }
 
 message TopicReadState {
-	optional int64 thread_created_usec = 2;
+	int64 thread_created_usec = 2;
 }
 
 message SendReplyTarget {
-	optional MessageId id = 1;
-	optional int64 create_time = 2;
+	MessageId id = 1;
+	int64 create_time = 2;
 }
 
 message MessageInfo {
-	optional bool accept_format_annotations = 1;
-	optional SendReplyTarget reply_to = 3;
+	bool accept_format_annotations = 1;
+	SendReplyTarget reply_to = 3;
 }
 
 message CreateTopicRequest {
-	optional RequestHeader request_header = 100;
-	optional GroupId group_id = 5;
-	optional string text_body = 2;
+	RequestHeader request_header = 100;
+	GroupId group_id = 5;
+	string text_body = 2;
 	repeated Annotation annotations = 3;
-	optional RetentionSettings retention_settings = 6;
-	optional string local_id = 4;
-	optional string topic_and_message_id = 7;
-	optional bool history_v2 = 8;
-	optional MessageInfo message_info = 9;
+	RetentionSettings retention_settings = 6;
+	string local_id = 4;
+	string topic_and_message_id = 7;
+	bool history_v2 = 8;
+	MessageInfo message_info = 9;
 }
 
 message CreateTopicResponse {
-	optional Topic topic = 1;
-	optional WriteRevision group_revision = 2;
-	optional ReadRevision current_group_revision = 3;
+	Topic topic = 1;
+	WriteRevision group_revision = 2;
+	ReadRevision current_group_revision = 3;
 }
 
 message CreateMessageRequest {
-	optional RequestHeader request_header = 100;
-	optional MessageParentId parent_id = 1;
-	optional string text_body = 2;
+	RequestHeader request_header = 100;
+	MessageParentId parent_id = 1;
+	string text_body = 2;
 	repeated Annotation annotations = 3;
-	optional string local_id = 4;
-	optional string message_id = 6;
-	optional MessageInfo message_info = 7;
+	string local_id = 4;
+	string message_id = 6;
+	MessageInfo message_info = 7;
 }
 
 message CreateMessageResponse {
-	optional Message message = 1;
-	optional WriteRevision group_revision = 3;
-	optional ReadRevision current_group_revision = 4;
+	Message message = 1;
+	WriteRevision group_revision = 3;
+	ReadRevision current_group_revision = 4;
 }
 
 message UpdateReactionRequest {
-	optional RequestHeader request_header = 100;
-	optional MessageId message_id = 1;
-	optional Emoji emoji = 2;
+	RequestHeader request_header = 100;
+	MessageId message_id = 1;
+	Emoji emoji = 2;
 	enum ReactionUpdateType {
+		UNSPECIFIED = 0;
 		ADD = 1;
 		REMOVE = 2;
 	}
-	optional ReactionUpdateType type = 3;
+	ReactionUpdateType type = 3;
 }
 
 message UpdateReactionResponse {
-	optional WriteRevision group_revision = 1;
+	WriteRevision group_revision = 1;
 }
 
 message DeleteMessageRequest {
-	optional RequestHeader request_header = 100;
-	optional MessageId message_id = 1;
+	RequestHeader request_header = 100;
+	MessageId message_id = 1;
 }
 
 message DeleteMessageResponse {
-	optional WriteRevision group_revision = 3;
-	optional int64 group_sort_time = 4;
-	optional int64 topic_sort_time = 5;
-	//optional bool delete_inline_replies = 7;
+	WriteRevision group_revision = 3;
+	int64 group_sort_time = 4;
+	int64 topic_sort_time = 5;
+	//bool delete_inline_replies = 7;
 }
 
 message EditMessageRequest {
-	optional RequestHeader request_header = 100;
-	optional MessageId message_id = 1;
-	optional string text_body = 2;
+	RequestHeader request_header = 100;
+	MessageId message_id = 1;
+	string text_body = 2;
 	repeated Annotation annotations = 3;
-	optional MessageInfo message_info = 5;
+	MessageInfo message_info = 5;
 }
 
 message EditMessageResponse {
-	optional Message message = 1;
-	optional WriteRevision group_revision = 3;
+	Message message = 1;
+	WriteRevision group_revision = 3;
 }
 
 message InviteeInfo {
-	optional UserId user_id = 1;
-	optional string email = 2;
+	UserId user_id = 1;
+	string email = 2;
 }
 
 message InviteeMemberInfo {
@@ -1223,60 +1224,60 @@ message InviteeMemberInfo {
 }
 
 message SpaceCreationInfo {
-	optional string name = 1;
-	// optional GroupGuestAccessSettings group_guest_access_settings = 3;
-	optional GroupVisibility visibility = 4;
+	string name = 1;
+	// GroupGuestAccessSettings group_guest_access_settings = 3;
+	GroupVisibility visibility = 4;
 
 	message FlatGroup {
 
 	}
-	optional FlatGroup flat_group = 5;
+	FlatGroup flat_group = 5;
 
 	message ThreadedGroup {
 
 	}
-	optional ThreadedGroup threaded_group = 6;
+	ThreadedGroup threaded_group = 6;
 
-	optional bool has_server_generated_name = 7;
+	bool has_server_generated_name = 7;
 	repeated InviteeMemberInfo invitee_member_infos = 8;
-	// optional RoomInviteNotificationSettings notification_settings = 9;
-	// optional AvatarInfo avatar_info = 10;
+	// RoomInviteNotificationSettings notification_settings = 9;
+	// AvatarInfo avatar_info = 10;
 
 	message SpaceType {
 
 	}
-	optional SpaceType space_type = 11;
+	SpaceType space_type = 11;
 
-	// optional ?? space_details = 12;
-	optional SharedAttributeCheckerGroupType attribute_checker_group_type = 13;
-	optional string shared_drive_name = 14;
+	// ?? space_details = 12;
+	SharedAttributeCheckerGroupType attribute_checker_group_type = 13;
+	string shared_drive_name = 14;
 }
 
 message CreateGroupRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	oneof CreationInfo {
 		SpaceCreationInfo space = 1;
 	}
-	optional string local_id = 3;
-	optional bool should_find_existing_space = 4;
+	string local_id = 3;
+	bool should_find_existing_space = 4;
 }
 
 message CreateMembershipResult {
-	optional Membership membership = 1;
-	// optional FailureReason reason = 2;
+	Membership membership = 1;
+	// FailureReason reason = 2;
 	// repeated SupplementalReason supplemental_reasons = 3;
 }
 
 message CreateGroupResponse {
-	optional Group group = 1;
-	optional WriteRevision group_revision = 2;
-	optional WriteRevision user_revision = 3;
+	Group group = 1;
+	WriteRevision group_revision = 2;
+	WriteRevision user_revision = 3;
 	repeated CreateMembershipResult results = 4;
-	// optional Failure creator_membership_failure = 5;
+	// Failure creator_membership_failure = 5;
 }
 
 message CreateDmRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	enum FetchOptions {
 		UNKNOWN = 0;
 		INCLUDE_BOT_MEMBERSHIPS_IN_RESPONSE = 1;
@@ -1284,91 +1285,92 @@ message CreateDmRequest {
 	repeated FetchOptions fetch_options = 8;
 	repeated UserId members = 1;
 	repeated InviteeInfo invitees = 7;
-	// optional MessageCreationInfo message_creation_info = 2;
-	optional RetentionSettings retention_settings = 3;
-	optional string local_id = 4;
-	optional string topic_and_message_id = 5;
+	// MessageCreationInfo message_creation_info = 2;
+	RetentionSettings retention_settings = 3;
+	string local_id = 4;
+	string topic_and_message_id = 5;
 }
 
 message CreateDmResponse {
-	optional Group dm = 1;
-	optional Topic topic = 2;
-	optional WriteRevision group_revision = 3;
+	Group dm = 1;
+	Topic topic = 2;
+	WriteRevision group_revision = 3;
 	repeated Membership memberships = 4;
 }
 
 message ListTopicsResponse {
 	repeated Topic topics = 1;
-	optional ReadRevision user_revision = 2;
-	optional ReadRevision group_revision = 3;
-	optional bool contains_first_topic = 4;
-	optional bool contains_last_topic = 5;
-	optional ReadReceiptSet read_receipt_set = 6;
+	ReadRevision user_revision = 2;
+	ReadRevision group_revision = 3;
+	bool contains_first_topic = 4;
+	bool contains_last_topic = 5;
+	ReadReceiptSet read_receipt_set = 6;
 }
 
 message ListTopicsRequest {
-	optional RequestHeader request_header = 100;
-	optional GroupId group_id = 8;
-	optional int32 page_size_for_topics = 2;
-	optional int32 page_size_for_unread_replies = 6;
-	optional int32 page_size_for_read_replies = 7;
-	optional int32 page_size_for_replies = 3;
-	//optional DYNProtoListTopicsRequest_Filter filter = 4;
+	RequestHeader request_header = 100;
+	GroupId group_id = 8;
+	int32 page_size_for_topics = 2;
+	int32 page_size_for_unread_replies = 6;
+	int32 page_size_for_read_replies = 7;
+	int32 page_size_for_replies = 3;
+	//DYNProtoListTopicsRequest_Filter filter = 4;
 
 	enum FetchOptions {
+		UNSPECIFIED = 0;
 		USER = 1;
 		TOTAL_MESSAGE_COUNTS = 2;
 		READ_RECEIPTS = 3;
 	}
 	repeated FetchOptions fetch_options = 5;
-	optional ReferenceRevision user_not_older_than = 9;
-	optional ReferenceRevision group_not_older_than = 10;
-	//optional DYNProtoListTopicsRequest_SortOption sort_option = 11;
+	ReferenceRevision user_not_older_than = 9;
+	ReferenceRevision group_not_older_than = 10;
+	//DYNProtoListTopicsRequest_SortOption sort_option = 11;
 }
 
 message ListMessagesRequest {
-	optional RequestHeader request_header = 100;
-	optional MessageParentId parent_id = 1;
-	optional int32 page_size = 2;
-	//optional ReferenceRevision not_older_than = ?;
-	//optional bool is_search = ?;
-	//optional Filter filter = ?;
+	RequestHeader request_header = 100;
+	MessageParentId parent_id = 1;
+	int32 page_size = 2;
+	//ReferenceRevision not_older_than = ?;
+	//bool is_search = ?;
+	//Filter filter = ?;
 }
 
 message ListMessagesResponse {
 	repeated Message messages = 1;
-	optional ReadRevision group_revision = 2;
-	//optional bool contains_first_message = 3;
-	//optional bool contains_last_message = 4;
+	ReadRevision group_revision = 2;
+	//bool contains_first_message = 3;
+	//bool contains_last_message = 4;
 }
 
 message ListMembersRequest {
-	optional RequestHeader request_header = 100;
-	optional SpaceId space_id = 1;
-	optional GroupId group_id = 5;
+	RequestHeader request_header = 100;
+	SpaceId space_id = 1;
+	GroupId group_id = 5;
 	// repeated FetchOptions fetch_options = 2;
-	// optional Filter filter = 7;
-	optional int32 page_size = 3;
-	optional string page_token = 4;
-	optional ReferenceRevision not_older_than = 6;
+	// Filter filter = 7;
+	int32 page_size = 3;
+	string page_token = 4;
+	ReferenceRevision not_older_than = 6;
 }
 
 message ListMembersResponse {
 	repeated Membership memberships = 1;
 	repeated Member members = 2;
 	repeated MemberId member_ids = 5;
-	optional string next_page_token = 3;
-	optional ReadRevision group_revision = 4;
+	string next_page_token = 3;
+	ReadRevision group_revision = 4;
 	repeated MemberId invited_member_ids = 6;
 }
 
 message ReadReceipt {
-	optional int64 read_time_micros = 2;
-	optional User user = 3;
+	int64 read_time_micros = 2;
+	User user = 3;
 }
 
 message ReadReceiptSet {
-	optional bool enabled = 1;
+	bool enabled = 1;
 	repeated ReadReceipt read_receipts = 2;
 }
 
@@ -1382,96 +1384,97 @@ enum NotificationCause {
 }
 
 message WebPushNotification {
-	optional Message message = 1;
-	optional string sender_name = 2;
-	optional string sender_avatar_url = 3;
-	optional string group_name = 4;
-	optional NotificationCause cause = 5;
+	Message message = 1;
+	string sender_name = 2;
+	string sender_avatar_url = 3;
+	string group_name = 4;
+	NotificationCause cause = 5;
 }
 
 message AndroidLocalNotification {
-	optional string thread_id = 1;
-	optional string type_id = 2;
-	optional string group_name = 3;
-	optional string text_body = 6;
-	optional string icon_url = 4;
-	// optional ComGoogleProtobufAny chime_notification_payload = 5;
-	optional string title = 7;
-	optional string group_id = 8;
-	optional string sub_text = 9;
+	string thread_id = 1;
+	string type_id = 2;
+	string group_name = 3;
+	string text_body = 6;
+	string icon_url = 4;
+	// ComGoogleProtobufAny chime_notification_payload = 5;
+	string title = 7;
+	string group_id = 8;
+	string sub_text = 9;
 }
 
 message IosLocalNotification {
-	optional string apns_collapse_id = 1;
-	optional string thread_id = 2;
-	optional string title = 3;
-	optional string body = 4;
-	optional string category = 5;
-	optional bool group_is_flat = 6;
-	optional bool message_is_off_the_record = 7;
-	optional SharedAttributeCheckerGroupType attribute_checker_group_type = 9;
-	optional string navigation = 8;
+	string apns_collapse_id = 1;
+	string thread_id = 2;
+	string title = 3;
+	string body = 4;
+	string category = 5;
+	bool group_is_flat = 6;
+	bool message_is_off_the_record = 7;
+	SharedAttributeCheckerGroupType attribute_checker_group_type = 9;
+	string navigation = 8;
 }
 
 message MobileLocalNotification {
-	optional AndroidLocalNotification android_local_notification = 1;
-	optional IosLocalNotification ios_local_notification = 2;
+	AndroidLocalNotification android_local_notification = 1;
+	IosLocalNotification ios_local_notification = 2;
 }
 
 
 message MessageEvent {
-	optional Message message = 1;
-	optional int64 last_message_in_topic_time = 4;
-	optional int64 prev_revision_time = 5;
-	optional bool is_head_message = 6;
+	Message message = 1;
+	int64 last_message_in_topic_time = 4;
+	int64 prev_revision_time = 5;
+	bool is_head_message = 6;
 }
 
 message MessageReactionEvent {
-	optional MessageId message_id = 1;
-	optional Emoji emoji = 2;
-	optional UserId user_id = 3;
-	optional int64 timestamp = 4;
+	MessageId message_id = 1;
+	Emoji emoji = 2;
+	UserId user_id = 3;
+	int64 timestamp = 4;
 	enum ReactionEventType {
+		UNSPECIFIED = 0;
 		ADD = 1;
 		REMOVE = 2;
 	}
-	optional ReactionEventType type = 5;
+	ReactionEventType type = 5;
 }
 
 message MessageDeletedEvent {
-	optional MessageId message_id = 1;
-	optional int64 timestamp = 2;
-	//optional int64 ??? = 3;
-	//optional string another_message_id = 4;
-	//optional int64 ??? = 6;
+	MessageId message_id = 1;
+	int64 timestamp = 2;
+	//int64 ??? = 3;
+	//string another_message_id = 4;
+	//int64 ??? = 6;
 }
 
 message TypingStateChangedEvent {
-	optional TypingState state = 1;
-	optional UserId user_id = 2;
-	optional TypingContext context = 3;
-	optional int64 start_timestamp_usec = 4;
+	TypingState state = 1;
+	UserId user_id = 2;
+	TypingContext context = 3;
+	int64 start_timestamp_usec = 4;
 }
 
 message MembershipChangedEvent {
-	optional Membership new_membership = 1;
-	optional MembershipState prior_membership_state = 2;
-	optional MembershipRole prior_membership_role = 3;
+	Membership new_membership = 1;
+	MembershipState prior_membership_state = 2;
+	MembershipRole prior_membership_role = 3;
 }
 
 message ReadReceiptChangedEvent {
-	optional GroupId group_id = 1;
-	optional ReadReceiptSet read_receipt_set = 2;
+	GroupId group_id = 1;
+	ReadReceiptSet read_receipt_set = 2;
 }
 
 message GroupViewedEvent {
-	optional GroupId group_id = 1;
-	optional int64 view_time = 2;
+	GroupId group_id = 1;
+	int64 view_time = 2;
 }
 
 message GroupUpdatedEvent {
-	optional Group new = 1;
-	optional Group old = 2;
+	Group new = 1;
+	Group old = 2;
 	enum UpdateType {
 		UPDATE_TYPE_UNKNOWN = 0;
 		CREATED = 1;
@@ -1479,7 +1482,7 @@ message GroupUpdatedEvent {
 		DELETED = 3;
 		UNDELETED = 4;
 	}
-	optional UpdateType update_type = 4;
+	UpdateType update_type = 4;
 }
 
 message WebPushNotificationEvent {
@@ -1495,24 +1498,24 @@ message WebPushNotificationEvent {
 		DESKTOP_WEBCHANNEL = 2;
 	}
 
-	optional WebPushNotification notification = 1;
-	optional DispatchApproachType dispatch_approach_type = 2;
-	optional MobileLocalNotification mobile_local_notification = 3;
+	WebPushNotification notification = 1;
+	DispatchApproachType dispatch_approach_type = 2;
+	MobileLocalNotification mobile_local_notification = 3;
 	repeated EndpointType endpoint_types = 4;
 }
 
 
 // used in the /webchannel/events
 message StreamEventsRequest {
-	optional Platform platform = 4;
-	optional ClientInfo client_info = 5;
-	optional int64 client_session_id = 6;
-	optional string sample_id = 1;
+	Platform platform = 4;
+	ClientInfo client_info = 5;
+	int64 client_session_id = 6;
+	string sample_id = 1;
 	repeated string sample_ids = 7;
-	optional PingEvent ping_event = 2;
-	optional ClockSyncRequest clock_sync_request = 3;
-	optional GroupSubscriptionEvent group_subscription_event = 8;
-	optional int64 test_user_gaia_id = 100;
+	PingEvent ping_event = 2;
+	ClockSyncRequest clock_sync_request = 3;
+	GroupSubscriptionEvent group_subscription_event = 8;
+	int64 test_user_gaia_id = 100;
 }
 
 enum EventOrigin {
@@ -1555,9 +1558,9 @@ enum EventOrigin {
 }
 
 message ClientInfo {
-	optional Platform platform = 1;
-	optional EventOrigin origin = 2;
-	optional string source_machine = 3;
+	Platform platform = 1;
+	EventOrigin origin = 2;
+	string source_machine = 3;
 }
 
 message ClientNotificationsState {
@@ -1566,7 +1569,7 @@ message ClientNotificationsState {
 		DEVICE_NOTIFICATIONS_ENABLED = 1;
 		DEVICE_NOTIFICATIONS_DISABLED = 2;
 	}
-	optional DeviceNotificationSettingState device_setting_state = 1;
+	DeviceNotificationSettingState device_setting_state = 1;
 }
 
 message PingEvent {
@@ -1575,16 +1578,16 @@ message PingEvent {
 		ACTIVE = 1;
 		INACTIVE = 2;
 	}
-	optional State state = 1;
+	State state = 1;
 
 	enum ApplicationFocusState {
 		FOCUS_STATE_UNSPECIFIED = 0;
 		FOCUS_STATE_FOREGROUND = 1;
 		FOCUS_STATE_BACKGROUND = 2;
 	}
-	optional ApplicationFocusState application_focus_state = 3;
+	ApplicationFocusState application_focus_state = 3;
 
-	optional int64 last_interactive_time_ms = 4;
+	int64 last_interactive_time_ms = 4;
 
 	enum ClientInteractiveState {
 		UNKNOWN = 0;
@@ -1593,12 +1596,12 @@ message PingEvent {
 		VISIBLE = 3;
 		HIDDEN = 4;
 	}
-	optional ClientInteractiveState client_interactive_state = 5;
+	ClientInteractiveState client_interactive_state = 5;
 
-	optional bool client_notifications_enabled = 6;
+	bool client_notifications_enabled = 6;
 
-	optional ClientNotificationsState notifications_state = 7;
-	optional bool pwa_dedupe_enabled = 8;
+	ClientNotificationsState notifications_state = 7;
+	bool pwa_dedupe_enabled = 8;
 
 	enum DeviceActiveState {
 		STATE_UNKNOWN = 0;
@@ -1606,19 +1609,19 @@ message PingEvent {
 		STATE_IDLE_UNLOCKED = 2;
 		STATE_ACTIVE = 3;
 	}
-	optional DeviceActiveState device_active_state = 9;
+	DeviceActiveState device_active_state = 9;
 
-	// optional ??ComGoogleProtobufDuration web_inactivity_timeout = 10;
+	// ??ComGoogleProtobufDuration web_inactivity_timeout = 10;
 }
 
 message ClockSyncRequest {
-	optional int64 origin_time_msec = 1;
+	int64 origin_time_msec = 1;
 }
 
 message ClockSyncResponse {
-	optional int64 origin_time_msec = 1;
-	optional int64 receive_time_msec = 2;
-	optional int64 transmit_time_msec = 3;
+	int64 origin_time_msec = 1;
+	int64 receive_time_msec = 2;
+	int64 transmit_time_msec = 3;
 }
 
 message GroupSubscriptionEvent {
@@ -1627,13 +1630,13 @@ message GroupSubscriptionEvent {
 
 // echo "<base64 encoded stream response>" | base64 -d - | protoc --decode StreamEventsResponse googlechat.proto
 message StreamEventsResponse {
-	optional Event event = 1;
-	optional string sample_id = 2;
-	optional ClockSyncResponse clock_sync_response = 3;
+	Event event = 1;
+	string sample_id = 2;
+	ClockSyncResponse clock_sync_response = 3;
 }
 
 message Event {
-	optional GroupId group_id = 1;
+	GroupId group_id = 1;
 
 	enum EventType {
 		UNKNOWN = 0;
@@ -1731,14 +1734,14 @@ message Event {
 			//MessagePersonalLabelUpdatedEvent message_personal_label_updated = 43;
 		}
 
-		optional EventType event_type = 12;
-		optional int64 trace_id = 20;
+		EventType event_type = 12;
+		int64 trace_id = 20;
 	}
 
-	optional EventType type = 3;
-	optional EventBody body = 4; // This is the first event body
+	EventType type = 3;
+	EventBody body = 4; // This is the first event body
 
-	optional UserId user_id = 5;
+	UserId user_id = 5;
 	oneof RevisionType {
 			WriteRevision user_revision = 6;
 			WriteRevision group_revision = 7;
@@ -1799,27 +1802,27 @@ enum AnnotationType {
 }
 
 message GroupDetails {
-	optional string description = 1;
-	optional string guidelines = 2;
+	string description = 1;
+	string guidelines = 2;
 }
 
 message RoomUpdatedMetadata {
-	optional string name = 2;
-	optional GroupVisibility visibility = 3;
-	optional bool group_link_sharing_enabled = 5;
+	string name = 2;
+	GroupVisibility visibility = 3;
+	bool group_link_sharing_enabled = 5;
 
 	message RoomRenameMetadata {
-		optional string new_name = 1;
-		optional string prev_name = 2;
+		string new_name = 1;
+		string prev_name = 2;
 	}
-	optional RoomRenameMetadata rename_metadata = 6;
+	RoomRenameMetadata rename_metadata = 6;
 
 	message GroupDetailsUpdatedMetadata {
-		optional GroupDetails new_group_details = 1;
-		optional GroupDetails prev_group_details = 2;
+		GroupDetails new_group_details = 1;
+		GroupDetails prev_group_details = 2;
 	}
-	optional GroupDetailsUpdatedMetadata group_details_metadata = 7;
-	optional User initiator = 4;
+	GroupDetailsUpdatedMetadata group_details_metadata = 7;
+	User initiator = 4;
 }
 
 //ComGoogleRtcMeetingsV1DialInNumberClass
@@ -1847,28 +1850,28 @@ enum BroadcastAccessPolicy {
 
 //ComGoogleRtcMeetingsV1MeetingSpace
 message MeetingSpace {
-	optional string meeting_space_id = 1;
-	optional string meeting_code = 2;
-	optional string meeting_url = 3;
+	string meeting_space_id = 1;
+	string meeting_code = 2;
+	string meeting_url = 3;
 
 	message PhoneAccess {
-		optional string phone_number = 1;
-		optional string formatted_phone_number = 5;
-		optional string pin = 2;
-		optional string region_code = 3;
-		optional string language_code = 4;
+		string phone_number = 1;
+		string formatted_phone_number = 5;
+		string pin = 2;
+		string region_code = 3;
+		string language_code = 4;
 	}
 	repeated PhoneAccess phone_access = 5;
 
 	message UniversalPhoneAccess {
-		optional string pin = 1;
-		optional string pstn_info_url = 2;
+		string pin = 1;
+		string pstn_info_url = 2;
 	}
-	optional UniversalPhoneAccess universal_phone_access = 8;
+	UniversalPhoneAccess universal_phone_access = 8;
 
 	message Presenter {
-		optional string presenter_device_id = 1;
-		optional string by_device_id = 2;
+		string presenter_device_id = 1;
+		string by_device_id = 2;
 	}
 	message RecordingInfo {
 		enum RecordingStatus {
@@ -1877,22 +1880,22 @@ message MeetingSpace {
 			RECORDING_STARTING = 2;
 			RECORDING_STARTED = 3;
 		}
-		optional RecordingStatus recording_status = 1;
-		optional string recording_id = 2;
-		optional string producer_device_id = 3;
+		RecordingStatus recording_status = 1;
+		string recording_id = 2;
+		string producer_device_id = 3;
 
 		message RecordingEvent {
-			optional string device_id = 1;
+			string device_id = 1;
 
 			enum EventType {
 				RECORDING_EVENT_UNSPECIFIED = 0;
 				USER_ACTION = 1;
 			}
-			optional EventType type = 2;
+			EventType type = 2;
 		}
-		optional RecordingEvent latest_recording_event = 4;
-		optional string owner_display_name = 5;
-		optional RecordingApplicationType recording_application_type = 6;
+		RecordingEvent latest_recording_event = 4;
+		string owner_display_name = 5;
+		RecordingApplicationType recording_application_type = 6;
 	}
 	message StreamingSessionInfo {
 		enum Status {
@@ -1901,98 +1904,98 @@ message MeetingSpace {
 			STARTING = 2;
 			LIVE = 3;
 		}
-		optional Status status = 1;
-		optional string session_id = 2;
-		optional RecordingApplicationType application_type = 3;
+		Status status = 1;
+		string session_id = 2;
+		RecordingApplicationType application_type = 3;
 
 		message SessionEvent {
 			enum EventType {
 				EVENT_UNSPECIFIED = 0;
 			}
-			optional string device_id = 1;
-			optional EventType type = 2;
+			string device_id = 1;
+			EventType type = 2;
 		}
-		optional SessionEvent latest_session_event = 4;
-		optional string owner_display_name = 5;
-		optional BroadcastAccessPolicy viewer_access_policy = 6;
-		optional bool training_enabled = 7;
+		SessionEvent latest_session_event = 4;
+		string owner_display_name = 5;
+		BroadcastAccessPolicy viewer_access_policy = 6;
+		bool training_enabled = 7;
 
 		message StreamViewerStats {
-			optional int64 estimated_viewer_count = 1;
+			int64 estimated_viewer_count = 1;
 		}
-		optional StreamViewerStats viewer_stats = 8;
+		StreamViewerStats viewer_stats = 8;
 	}
 	message CallInfo {
-		optional Presenter presenter = 1;
-		optional RecordingInfo recording_info = 2;
-		optional string calendar_event_id = 3;
-		optional string organization_name = 4;
-		optional int32 max_joined_devices = 6;
-		optional string media_backend_info = 8;
+		Presenter presenter = 1;
+		RecordingInfo recording_info = 2;
+		string calendar_event_id = 3;
+		string organization_name = 4;
+		int32 max_joined_devices = 6;
+		string media_backend_info = 8;
 		repeated StreamingSessionInfo streaming_sessions = 9;
 
 		message CallSettings {
-			optional bool access_lock = 1;
-			optional bool chat_lock = 2;
-			optional bool present_lock = 3;
-			optional bool attendance_report_enabled = 4;
-			optional bool audio_lock = 5;
-			optional bool video_lock = 6;
-			optional bool moderation_enabled = 7;
-			optional bool cse_enabled = 8;
+			bool access_lock = 1;
+			bool chat_lock = 2;
+			bool present_lock = 3;
+			bool attendance_report_enabled = 4;
+			bool audio_lock = 5;
+			bool video_lock = 6;
+			bool moderation_enabled = 7;
+			bool cse_enabled = 8;
 		}
-		optional CallSettings settings = 11;
+		CallSettings settings = 11;
 		//repeated ComGoogleRtcMeetingsV1DocumentInfo attached_documents = 12;
 		message PaygateInfo {
-			optional bool show_upgrade_promos = 1;
-			optional ComGoogleProtobufTimestamp call_ending_soon_warning_time = 2;
-			optional ComGoogleProtobufTimestamp call_ending_time = 3;
+			bool show_upgrade_promos = 1;
+			ComGoogleProtobufTimestamp call_ending_soon_warning_time = 2;
+			ComGoogleProtobufTimestamp call_ending_time = 3;
 		}
-		optional PaygateInfo paygate_info = 13;
+		PaygateInfo paygate_info = 13;
 		repeated string supported_caption_languages = 14;
 
 		message CseInfo {
-			optional bytes wrapped_key = 1;
+			bytes wrapped_key = 1;
 		}
-		optional CseInfo cse_info = 15;
+		CseInfo cse_info = 15;
 	}
-	optional CallInfo call_info = 6;
-	optional string meeting_alias = 7;
+	CallInfo call_info = 6;
+	string meeting_alias = 7;
 
 	message GatewayAccess {
-		optional bool enabled = 1;
+		bool enabled = 1;
 	}
-	optional GatewayAccess gateway_access = 9;
-	optional string more_join_url = 10;
+	GatewayAccess gateway_access = 9;
+	string more_join_url = 10;
 	repeated DialInNumberClass accepted_number_class = 11;
 
 	message GatewaySipAccess {
-		optional string uri = 1;
-		optional string sip_access_code = 2;
+		string uri = 1;
+		string sip_access_code = 2;
 	}
 	repeated GatewaySipAccess gateway_sip_access = 13;
 
 	message BroadcastAccess {
-		optional string view_url = 1;
-		//optional ComGoogleRtcMeetingsV1BroadcastAccessPolicy access_policy = 2;
+		string view_url = 1;
+		//ComGoogleRtcMeetingsV1BroadcastAccessPolicy access_policy = 2;
 	}
-	optional BroadcastAccess broadcast_access = 14;
+	BroadcastAccess broadcast_access = 14;
 
 	message Settings {
-		optional bool access_lock = 1;
-		optional bool attendance_report_enabled = 2;
-		optional bool chat_lock = 3;
-		optional bool present_lock = 4;
-		optional bool moderation_enabled = 5;
-		optional bool cse_enabled = 6;
+		bool access_lock = 1;
+		bool attendance_report_enabled = 2;
+		bool chat_lock = 3;
+		bool present_lock = 4;
+		bool moderation_enabled = 5;
+		bool cse_enabled = 6;
 	}
-	optional Settings settings = 15;
+	Settings settings = 15;
 }
 
 message VideoCallMetadata {
-	optional MeetingSpace meeting_space = 1;
-	optional bool was_created_in_current_group = 2;
-	optional bool should_not_render = 3;
+	MeetingSpace meeting_space = 1;
+	bool was_created_in_current_group = 2;
+	bool should_not_render = 3;
 }
 
 message MembershipChangedMetadata {
@@ -2010,17 +2013,17 @@ message MembershipChangedMetadata {
 	}
 
 	message AffectedMembership {
-		optional MemberId affected_member = 1;
-		optional MembershipState prior_membership_state = 2;
-		optional MembershipRole prior_membership_role = 3;
-		optional MembershipRole target_membership_role = 4;
+		MemberId affected_member = 1;
+		MembershipState prior_membership_state = 2;
+		MembershipRole prior_membership_role = 3;
+		MembershipRole target_membership_role = 4;
 	}
 
-	optional Type type = 1;
+	Type type = 1;
 	repeated AffectedMembership affected_memberships = 6;
-	optional UserId initiator = 2;
+	UserId initiator = 2;
 	repeated MemberId affected_members = 3;
-	optional User initiator_profile = 4;
+	User initiator_profile = 4;
 	repeated Member affected_member_profiles = 5;
 }
 
@@ -2033,11 +2036,11 @@ message UserMentionMetadata {
 		MENTION_ALL = 4;
 		FAILED_TO_ADD = 5;
 	}
-	optional UserId id = 1;
-	optional InviteeInfo invitee_info = 3;
-	optional Type type = 2;
-	optional string display_name = 4;
-	optional string gender = 5;
+	UserId id = 1;
+	InviteeInfo invitee_info = 3;
+	Type type = 2;
+	string display_name = 4;
+	string gender = 5;
 }
 
 message SlashCommandMetadata {
@@ -2047,12 +2050,12 @@ message SlashCommandMetadata {
 		INVOKE = 2;
 		FAILED_TO_ADD = 3;
 	}
-	optional UserId id = 1;
-	optional Type type = 2;
-	optional string command_name = 3;
-	optional int64 command_id = 4;
-	optional string arguments_hint = 5;
-	optional bool triggers_dialog = 6;
+	UserId id = 1;
+	Type type = 2;
+	string command_name = 3;
+	int64 command_id = 4;
+	string arguments_hint = 5;
+	bool triggers_dialog = 6;
 }
 
 message GroupVisibility {
@@ -2113,37 +2116,37 @@ enum MembershipState {
 }
 
 message ComGoogleProtobufTimestamp {
-	optional int64 seconds = 1;
-	optional int32 nanos = 2;
+	int64 seconds = 1;
+	int32 nanos = 2;
 }
 
 message GetServerTimeRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 }
 
 message GetServerTimeResponse {
-	optional ComGoogleProtobufTimestamp timestamp = 1;
+	ComGoogleProtobufTimestamp timestamp = 1;
 }
 
 
 message CatchUpRange {
-	optional int64 from_revision_timestamp = 1;
-	optional int64 to_revision_timestamp = 2;
+	int64 from_revision_timestamp = 1;
+	int64 to_revision_timestamp = 2;
 }
 
 message CatchUpGroupRequest {
-	optional RequestHeader request_header = 100;
-	optional GroupId group_id = 1;
-	optional CatchUpRange range = 2;
-	optional int32 page_size = 3;
-	optional int32 cutoff_size = 4;
+	RequestHeader request_header = 100;
+	GroupId group_id = 1;
+	CatchUpRange range = 2;
+	int32 page_size = 3;
+	int32 cutoff_size = 4;
 }
 
 message CatchUpUserRequest {
-	optional RequestHeader request_header = 100;
-	optional CatchUpRange range = 1;
-	optional int32 page_size = 2;
-	optional int32 cutoff_size = 3;
+	RequestHeader request_header = 100;
+	CatchUpRange range = 1;
+	int32 page_size = 2;
+	int32 cutoff_size = 3;
 }
 
 // Used by both CatchUpGroupRequest and CatchUpUserRequest
@@ -2157,13 +2160,13 @@ message CatchUpResponse {
 		ABORTED_CACHE_INVALIDATION = 4;
 		ABORTED_FROM_REVISION_TOO_OLD = 5;
 	}
-	optional ResponseStatus status = 2;
-	optional GroupData group_data = 3;
+	ResponseStatus status = 2;
+	GroupData group_data = 3;
 }
 
 message GetGroupRequest {
-	optional RequestHeader request_header = 100;
-	optional GroupId group_id = 1;
+	RequestHeader request_header = 100;
+	GroupId group_id = 1;
 	enum FetchOptions {
 		MEMBERS = 0;
 		INVITEES = 1;
@@ -2174,21 +2177,21 @@ message GetGroupRequest {
 		INCLUDE_ACCOUNT_USER_CAPABILITIES = 6;
 	}
 	repeated FetchOptions fetch_options = 4;
-	optional ReferenceRevision user_not_older_than = 2;
-	optional ReferenceRevision group_not_older_than = 3;
-	optional bool include_invite_dms = 5;
+	ReferenceRevision user_not_older_than = 2;
+	ReferenceRevision group_not_older_than = 3;
+	bool include_invite_dms = 5;
 }
 
 message GetGroupResponse {
-	optional Group group = 1;
+	Group group = 1;
 	repeated Membership memberships = 4;
-	optional ReadRevision user_revision = 2;
-	optional ReadRevision group_revision = 3;
-	optional MembershipState membership_state = 6;
+	ReadRevision user_revision = 2;
+	ReadRevision group_revision = 3;
+	MembershipState membership_state = 6;
 	repeated MemberId joined_member_ids = 7;
 	repeated MemberId invited_member_ids = 8;
-	optional ReadReceiptSet read_receipt_set = 9;
-	optional Message snippet = 10;
+	ReadReceiptSet read_receipt_set = 9;
+	Message snippet = 10;
 	// repeated ?? capabilities = 11;
 }
 
@@ -2212,7 +2215,7 @@ message WorldSection {
 		STARRED_DMS_AND_STARRED_UNNAMED_ROOMS = 15;
 		NON_STARRED_DMS_AND_NON_STARRED_UNNAMED_ROOMS = 16;
 	}
-	optional WorldSectionType world_section_type = 1;
+	WorldSectionType world_section_type = 1;
 }
 
 message WorldFilter {
@@ -2221,14 +2224,14 @@ message WorldFilter {
 		STARRED = 1;
 		NON_STARRED = 2;
 	}
-	optional StarredState starred_state = 1;
+	StarredState starred_state = 1;
 
 	enum VisibilityState {
 		VISIBILITY_STATE_UNSPECIFIED = 0;
 		VISIBLE = 1;
 		HIDDEN = 2;
 	}
-	optional VisibilityState visibility_state = 2;
+	VisibilityState visibility_state = 2;
 
 	enum ReadState {
 		READ_STATE_UNSPECIFIED = 0;
@@ -2236,106 +2239,106 @@ message WorldFilter {
 		UNREAD = 2;
 		UNREAD_SUBSCRIBED_TOPIC = 3;
 	}
-	optional ReadState read_state = 7;
+	ReadState read_state = 7;
 
 	enum BlockState {
 		BLOCK_STATE_UNSPECIFIED = 0;
 		BLOCKED = 1;
 		UNBLOCKED = 2;
 	}
-	optional BlockState block_state = 8;
+	BlockState block_state = 8;
 
 	enum NamedState {
 		NAMED_STATE_UNSPECIFIED = 0;
 		NAMED = 1;
 		UNNAMED = 2;
 	}
-	optional NamedState named_state = 9;
+	NamedState named_state = 9;
 
-	optional MembershipState membership_state = 3;
-	optional InviteCategory invite_category = 4;
+	MembershipState membership_state = 3;
+	InviteCategory invite_category = 4;
 
 	enum MemberType {
 		MEMBER_TYPE_UNSPECIFIED = 0;
 		HUMAN = 1;
 		BOT = 2;
 	}
-	optional MemberType member_type = 5;
+	MemberType member_type = 5;
 
 	enum GroupType {
 		GROUP_TYPE_UNSPECIFIED = 0;
 		DM = 1;
 		ROOM = 2;
 	}
-	optional GroupType group_type = 6;
+	GroupType group_type = 6;
 }
 
 message NameUsers {
 	repeated UserId name_user_ids = 1;
-	optional bool has_more_name_users = 2;
-	optional string group_name = 3;
+	bool has_more_name_users = 2;
+	string group_name = 3;
 }
 
 message WorldItemLite {
-	optional GroupId group_id = 1;
-	optional ReadRevision group_revision = 2;
-	optional int64 sort_timestamp = 3;
-	optional GroupReadState read_state = 4;
-	optional string room_name = 5;
+	GroupId group_id = 1;
+	ReadRevision group_revision = 2;
+	int64 sort_timestamp = 3;
+	GroupReadState read_state = 4;
+	string room_name = 5;
 	message MembershipLite {
-		optional UserId user_id = 1;
-		optional MembershipState membership_state = 2;
+		UserId user_id = 1;
+		MembershipState membership_state = 2;
 	}
 	message DmMembers {
 		repeated UserId members = 1;
 		repeated MembershipLite memberships = 2;
-		optional bool has_all_memberships = 3;
+		bool has_all_memberships = 3;
 	}
-	optional DmMembers dm_members = 6;
-	optional NameUsers name_users = 20;
-	optional int64 retention_horizon_time_micros = 8;
-	optional int64 retention_duration_seconds = 9;
+	DmMembers dm_members = 6;
+	NameUsers name_users = 20;
+	int64 retention_horizon_time_micros = 8;
+	int64 retention_duration_seconds = 9;
 	message GroupLite {
-		optional UserId creator_id = 1;
-		optional int64 create_time = 2;
-		optional bool is_flat = 3;
-		optional RetentionSettings retention_settings = 4;
-		optional bool interop_enabled = 5;
-		//optional DasherDomainPolicies dasher_domain_policies = 6;
-		optional string roster_email = 7;
-		optional GroupDetails group_details = 8;
+		UserId creator_id = 1;
+		int64 create_time = 2;
+		bool is_flat = 3;
+		RetentionSettings retention_settings = 4;
+		bool interop_enabled = 5;
+		//DasherDomainPolicies dasher_domain_policies = 6;
+		string roster_email = 7;
+		GroupDetails group_details = 8;
 	}
-	optional GroupLite group_lite = 7;
-	//optional GroupGuestAccessSettings group_guest_access_settings = 10;
-	//optional OrganizationInfo organization_info = 11;
+	GroupLite group_lite = 7;
+	//GroupGuestAccessSettings group_guest_access_settings = 10;
+	//OrganizationInfo organization_info = 11;
 	//repeated GsuiteIntegration gsuite_integration = 12;
-	optional Message message = 13;
-	optional bool is_message_blocked = 25;
+	Message message = 13;
+	bool is_message_blocked = 25;
 	message FlatGroup {
 
 	}
-	optional FlatGroup flat_group = 14;
+	FlatGroup flat_group = 14;
 	message ThreadedGroup {
 
 	}
-	optional ThreadedGroup threaded_group = 15;
-	optional string avatar_url = 16;
+	ThreadedGroup threaded_group = 15;
+	string avatar_url = 16;
 	//repeated ?? space_integration_payloads = 17;
-	//optional GroupIntegrationSettings group_integration_settings = 22;
-	// optional AvatarInfo avatar_info = 18;
-	optional SharedAttributeCheckerGroupType attribute_checker_group_type = 19;
-	optional GroupSupportLevel group_support_level = 23;
-	optional GroupUnsupportedReason group_unsupported_reason = 24;
-	// optional ?? group_policies = 26;
-	optional bool flat_threads_enabled = 27;
+	//GroupIntegrationSettings group_integration_settings = 22;
+	// AvatarInfo avatar_info = 18;
+	SharedAttributeCheckerGroupType attribute_checker_group_type = 19;
+	GroupSupportLevel group_support_level = 23;
+	GroupUnsupportedReason group_unsupported_reason = 24;
+	// ?? group_policies = 26;
+	bool flat_threads_enabled = 27;
 }
 
 message WorldSectionRequest {
-	optional int32 page_size = 1;
-	optional WorldSection world_section = 2;
-	optional WorldFilter world_filter = 4;
-	optional int32 num_world_items_with_snippet = 5;
-	optional int64 anchor_sort_timestamp_micros = 3;
+	int32 page_size = 1;
+	WorldSection world_section = 2;
+	WorldFilter world_filter = 4;
+	int32 num_world_items_with_snippet = 5;
+	int64 anchor_sort_timestamp_micros = 3;
 	oneof Pagination {
 		string pagination_token = 6;
 		// SortingOrder sorting_order = 7;
@@ -2343,18 +2346,18 @@ message WorldSectionRequest {
 }
 
 message WorldSectionResponse {
-	optional WorldSection world_section = 1;
-	optional WorldFilter world_filter = 4;
+	WorldSection world_section = 1;
+	WorldFilter world_filter = 4;
 	repeated WorldItemLite world_items = 2;
-	optional int64 next_page_anchor_sort_timestamp_micros = 3;
-	optional bool has_more_items = 5;
-	optional string pagination_token = 6;
+	int64 next_page_anchor_sort_timestamp_micros = 3;
+	bool has_more_items = 5;
+	string pagination_token = 6;
 }
 
 message PaginatedWorldRequest {
-	optional RequestHeader request_header = 1;
+	RequestHeader request_header = 1;
 	repeated WorldSectionRequest world_section_requests = 2;
-	optional string world_consistency_token = 3;
+	string world_consistency_token = 3;
 	enum FetchOptions {
 		UNKNOWN = 0;
 		EXCLUDE_GROUP_LITE = 1;
@@ -2363,29 +2366,29 @@ message PaginatedWorldRequest {
 		FETCH_GROUPS_D3_POLICIES = 4;
 	}
 	repeated FetchOptions fetch_options = 4;
-	optional bool fetch_from_user_spaces = 5;
-	optional bool receive_world_update_notifications = 6;
-	optional bool fetch_snippets_for_unnamed_rooms = 7;
+	bool fetch_from_user_spaces = 5;
+	bool receive_world_update_notifications = 6;
+	bool fetch_snippets_for_unnamed_rooms = 7;
 }
 
 message PaginatedWorldResponse {
 	repeated WorldSectionResponse world_section_responses = 1;
-	optional string world_consistency_token = 2;
-	optional ReadRevision user_revision = 3;
+	string world_consistency_token = 2;
+	ReadRevision user_revision = 3;
 	repeated WorldItemLite world_items = 4;
 }
 
 message RemoveMembershipsRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	repeated MemberId member_ids = 1;
-	optional GroupId group_id = 2;
-	optional MembershipState membership_state = 3;
+	GroupId group_id = 2;
+	MembershipState membership_state = 3;
 }
 
 message RemoveMembershipResult {
-	optional RequestHeader request_header = 100;
-	optional MemberId member_id = 1;
-	// optional FailureReason reason = 2;
+	RequestHeader request_header = 100;
+	MemberId member_id = 1;
+	// FailureReason reason = 2;
 	// repeated RosterId attached_roster_ids = 3;
 	repeated string attached_roster_names = 4;
 }
@@ -2393,20 +2396,20 @@ message RemoveMembershipResult {
 message RemoveMembershipsResponse {
 	repeated RemoveMembershipResult results = 1;
 	// repeated RosterId roster_ids_without_view_acls = 2;
-	optional RetentionSettings retention_settings = 3;
-	optional WriteRevision retention_settings_group_revision = 4;
+	RetentionSettings retention_settings = 3;
+	WriteRevision retention_settings_group_revision = 4;
 }
 
 
 message HideGroupRequest {
-	optional RequestHeader request_header = 100;
-	optional GroupId id = 1;
-	optional bool hide = 2;
+	RequestHeader request_header = 100;
+	GroupId id = 1;
+	bool hide = 2;
 }
 
 message HideGroupResponse {
-	optional GroupReadState read_state = 1;
-	optional WriteRevision user_revision = 3;
+	GroupReadState read_state = 1;
+	WriteRevision user_revision = 3;
 }
 
 message InviteNotificationSettings {
@@ -2418,50 +2421,50 @@ message InviteNotificationSettings {
 }
 
 message CreateMembershipRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	repeated MemberId member_ids = 2;
 	repeated InviteeMemberInfo invitee_member_infos = 8;
-	optional MembershipState membership_state = 3;
-	optional GroupId group_id = 4;
-	optional InviteNotificationSettings notification_settings = 5;
+	MembershipState membership_state = 3;
+	GroupId group_id = 4;
+	InviteNotificationSettings notification_settings = 5;
 }
 
 message CreateMembershipResponse {
 	repeated CreateMembershipResult results = 2;
 	repeated WriteRevision group_revision = 4;
-	optional RetentionSettings retention_settings = 5;
-	optional WriteRevision retention_settings_group_revision = 6;
+	RetentionSettings retention_settings = 5;
+	WriteRevision retention_settings_group_revision = 6;
 }
 
 message MarkGroupReadstateRequest {
-	optional RequestHeader request_header = 100;
-	optional GroupId id = 1;
-	optional int64 last_read_time = 2;
+	RequestHeader request_header = 100;
+	GroupId id = 1;
+	int64 last_read_time = 2;
 }
 
 message MarkGroupReadstateResponse {
-	optional GroupReadState read_state = 1;
-	optional WriteRevision user_revision = 2;
+	GroupReadState read_state = 1;
+	WriteRevision user_revision = 2;
 }
 
 message SetPresenceSharedRequest {
-	optional RequestHeader request_header = 100;
-	optional bool presence_shared = 1;
+	RequestHeader request_header = 100;
+	bool presence_shared = 1;
 }
 
 message SetPresenceSharedResponse {
-	optional UserStatus user_status = 1;
-	optional WriteRevision user_revision = 2;
+	UserStatus user_status = 1;
+	WriteRevision user_revision = 2;
 }
 
 message SetDndDurationRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	enum State {
 		UNKNOWN = 0;
 		AVAILABLE = 1;
 		DND = 2;
 	}
-	optional State current_dnd_state = 2;
+	State current_dnd_state = 2;
 
 	oneof DndExpiry {
 		int64 new_dnd_duration_usec = 1;
@@ -2470,13 +2473,13 @@ message SetDndDurationRequest {
 }
 
 message SetDndDurationResponse {
-	optional UserStatus user_status = 1;
-	optional WriteRevision user_revision = 2;
+	UserStatus user_status = 1;
+	WriteRevision user_revision = 2;
 }
 
 message UpdateGroupRequest {
-	optional RequestHeader request_header = 100;
-	optional SpaceId space_id = 1;
+	RequestHeader request_header = 100;
+	SpaceId space_id = 1;
 	enum UpdateMask {
 		UPDATE_MASK_UNSPECIFIED = 0;
 		NAME = 1;
@@ -2486,35 +2489,35 @@ message UpdateGroupRequest {
 		SHARED_DRIVE = 5;
 	}
 	repeated UpdateMask update_masks = 4;
-	optional string name = 2;
-	optional GroupVisibility visibility = 5;
-	// optional AvatarInfo avatar_info = 6;
-	// optional ?? space_details = 7;
+	string name = 2;
+	GroupVisibility visibility = 5;
+	// AvatarInfo avatar_info = 6;
+	// ?? space_details = 7;
 }
 
 message UpdateGroupResponse {
-	optional Group group = 1;
-	optional WriteRevision group_revision = 2;
+	Group group = 1;
+	WriteRevision group_revision = 2;
 }
 
 message BlockEntityRequest {
-	optional RequestHeader request_header = 100;
+	RequestHeader request_header = 100;
 	oneof Entity {
 		UserId user_id = 1;
 		GroupId group_id = 2;
 	}
-	optional bool blocked = 3;
-	optional bool reported = 4;
+	bool blocked = 3;
+	bool reported = 4;
 }
 
 message BlockEntityResponse {
-	optional GroupReadState read_state = 1;
-	optional WriteRevision user_revision = 2;
+	GroupReadState read_state = 1;
+	WriteRevision user_revision = 2;
 }
 
 message SetCustomStatusRequest {
-	optional RequestHeader request_header = 100;
-	optional CustomStatus custom_status = 1;
+	RequestHeader request_header = 100;
+	CustomStatus custom_status = 1;
 	oneof CustomStatusTiming {
 		int64 custom_status_expiry_timestamp_usec = 2;
 		int64 custom_status_remaining_duration_usec = 3;
@@ -2522,21 +2525,21 @@ message SetCustomStatusRequest {
 }
 
 message SetCustomStatusResponse {
-	optional UserStatus user_status = 1;
-	optional WriteRevision user_revision = 2;
+	UserStatus user_status = 1;
+	WriteRevision user_revision = 2;
 }
 
 message WriteRevision {
-	optional int64 timestamp = 1;
-	optional int64 prev_timestamp = 2;
+	int64 timestamp = 1;
+	int64 prev_timestamp = 2;
 }
 
 message ReadRevision {
-	optional int64 timestamp = 1;
+	int64 timestamp = 1;
 }
 
 message ReferenceRevision {
-	optional int64 timestamp = 1;
+	int64 timestamp = 1;
 }
 
 enum SharedAttributeCheckerGroupType {

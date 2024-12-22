@@ -10,10 +10,10 @@ import (
 func (c *GChatClient) gcMembersToMatrix(gcMembers []*proto.UserId) *bridgev2.ChatMemberList {
 	memberMap := map[networkid.UserID]bridgev2.ChatMember{}
 	for _, gcMember := range gcMembers {
-		userId := networkid.UserID(*gcMember.Id)
+		userId := networkid.UserID(gcMember.Id)
 		memberMap[userId] = bridgev2.ChatMember{
 			EventSender: bridgev2.EventSender{
-				IsFromMe: *gcMember.Id == string(c.userLogin.ID),
+				IsFromMe: gcMember.Id == string(c.userLogin.ID),
 				Sender:   userId,
 			},
 		}

@@ -20,10 +20,10 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 		return
 	}
 
-	switch *evt.Type {
+	switch evt.Type {
 	case proto.Event_MESSAGE_POSTED:
 		msg := evt.Body.GetMessagePosted().Message
-		senderId := *msg.Creator.UserId.Id
+		senderId := msg.Creator.UserId.Id
 		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Message[*proto.Message]{
 			EventMeta: simplevent.EventMeta{
 				Type: bridgev2.RemoteEventMessage,
@@ -37,9 +37,9 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 					SenderLogin: networkid.UserLoginID(senderId),
 					Sender:      networkid.UserID(senderId),
 				},
-				Timestamp: time.UnixMicro(*msg.CreateTime),
+				Timestamp: time.UnixMicro(msg.CreateTime),
 			},
-			ID:                 networkid.MessageID(*msg.Id.MessageId),
+			ID:                 networkid.MessageID(msg.Id.MessageId),
 			Data:               msg,
 			ConvertMessageFunc: c.msgConv.ToMatrix,
 		})
@@ -77,7 +77,7 @@ func (c *GChatClient) handleReaction(ctx context.Context, evt *proto.Event) {
 					Str("type", reaction.GetType().String())
 			},
 			PortalKey: c.makePortalKey(evt),
-			Timestamp: time.UnixMicro(*reaction.Timestamp),
+			Timestamp: time.UnixMicro(reaction.Timestamp),
 			Sender: bridgev2.EventSender{
 				IsFromMe: sender == string(c.userLogin.ID),
 				Sender:   networkid.UserID(sender),
