@@ -8,6 +8,7 @@ require (
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
 	go.mau.fi/util v0.8.2
+	golang.org/x/net v0.31.0
 	google.golang.org/protobuf v1.35.2
 	maunium.net/go/mautrix v0.22.1-0.20241126202918-4b970e0ea7e6
 )
@@ -34,7 +35,6 @@ require (
 	go.mau.fi/zeroconfig v0.1.3 // indirect
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f // indirect
-	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.20.0 // indirect

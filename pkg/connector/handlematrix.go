@@ -40,7 +40,9 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 	}
 
 	var annotations []*proto.Annotation
-	var messageInfo *proto.MessageInfo
+	messageInfo := &proto.MessageInfo{
+		AcceptFormatAnnotations: true,
+	}
 
 	if msg.Content.MsgType.IsMedia() {
 		data, err := c.userLogin.Bridge.Bot.DownloadMedia(ctx, msg.Content.URL, msg.Content.File)
@@ -68,35 +70,35 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		if msg.ThreadRoot != nil {
 			topicId = string(msg.ThreadRoot.ID)
 		}
-		messageInfo = &proto.MessageInfo{
-			AcceptFormatAnnotations: true,
-			ReplyTo: &proto.SendReplyTarget{
-				Id: &proto.MessageId{
-					ParentId: &proto.MessageParentId{
-						Parent: &proto.MessageParentId_TopicId{
-							TopicId: &proto.TopicId{
-								GroupId: groupId,
-								TopicId: topicId,
-							},
+		messageInfo.ReplyTo = &proto.SendReplyTarget{
+			Id: &proto.MessageId{
+				ParentId: &proto.MessageParentId{
+					Parent: &proto.MessageParentId_TopicId{
+						TopicId: &proto.TopicId{
+							GroupId: groupId,
+							TopicId: topicId,
 						},
 					},
-					MessageId: replyToId,
 				},
-				CreateTime: msg.ReplyTo.Timestamp.UnixMicro(),
+				MessageId: replyToId,
 			},
+			CreateTime: msg.ReplyTo.Timestamp.UnixMicro(),
 		}
 	}
 
 	var msgID string
 	var timestamp int64
 
+	textBody := msg.Content.Body
+	text, entities := c.msgConv.ToGChat(ctx, msg.Content)
+
+	if entities != nil {
+		textBody = text
+		annotations = entities
+	}
+
 	if msg.ThreadRoot != nil {
 		threadId := string(msg.ThreadRoot.ID)
-		if messageInfo == nil {
-			messageInfo = &proto.MessageInfo{
-				AcceptFormatAnnotations: true,
-			}
-		}
 		req := &proto.CreateMessageRequest{
 			ParentId: &proto.MessageParentId{
 				Parent: &proto.MessageParentId_TopicId{
@@ -107,7 +109,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 				},
 			},
 			LocalId:     string(msg.Event.ID),
-			TextBody:    msg.Content.Body,
+			TextBody:    textBody,
 			Annotations: annotations,
 			MessageInfo: messageInfo,
 		}
@@ -120,7 +122,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 	} else {
 		req := &proto.CreateTopicRequest{
 			GroupId:     groupId,
-			TextBody:    msg.Content.Body,
+			TextBody:    textBody,
 			Annotations: annotations,
 			MessageInfo: messageInfo,
 		}

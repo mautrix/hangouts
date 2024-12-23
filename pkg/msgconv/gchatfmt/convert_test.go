@@ -10,23 +10,7 @@ import (
 	"go.mau.fi/mautrix-googlechat/pkg/msgconv/gchatfmt"
 )
 
-func makeAnnotation(start, length int32, format proto.FormatMetadata_FormatType) *proto.Annotation {
-	return &proto.Annotation{
-		Type:           proto.AnnotationType_FORMAT_DATA,
-		StartIndex:     start,
-		Length:         length,
-		ChipRenderType: proto.Annotation_DO_NOT_RENDER,
-		Metadata: &proto.Annotation_FormatMetadata{
-			FormatMetadata: &proto.FormatMetadata{
-				FormatType: format,
-			},
-		},
-	}
-}
-
 func TestParse(t *testing.T) {
-	assert.Equal(t, 1, 1)
-
 	tests := []struct {
 		name string
 		ins  string
@@ -43,10 +27,10 @@ func TestParse(t *testing.T) {
 			name: "bold italic strike underline",
 			ins:  "a b i s u z",
 			ine: []*proto.Annotation{
-				makeAnnotation(2, 1, proto.FormatMetadata_BOLD),
-				makeAnnotation(4, 1, proto.FormatMetadata_ITALIC),
-				makeAnnotation(6, 1, proto.FormatMetadata_STRIKE),
-				makeAnnotation(8, 1, proto.FormatMetadata_UNDERLINE),
+				gchatfmt.MakeAnnotation(2, 1, proto.FormatMetadata_BOLD),
+				gchatfmt.MakeAnnotation(4, 1, proto.FormatMetadata_ITALIC),
+				gchatfmt.MakeAnnotation(6, 1, proto.FormatMetadata_STRIKE),
+				gchatfmt.MakeAnnotation(8, 1, proto.FormatMetadata_UNDERLINE),
 			},
 			body: "a b i s u z",
 			html: "a <strong>b</strong> <em>i</em> <del>s</del> <u>u</u> z",
@@ -55,7 +39,7 @@ func TestParse(t *testing.T) {
 			name: "emoji",
 			ins:  "🎆 a b z",
 			ine: []*proto.Annotation{
-				makeAnnotation(5, 1, proto.FormatMetadata_BOLD),
+				gchatfmt.MakeAnnotation(5, 1, proto.FormatMetadata_BOLD),
 			},
 			body: "🎆 a b z",
 			html: "🎆 a <strong>b</strong> z",
