@@ -13,7 +13,6 @@ func (mc *MessageConverter) ToGChat(
 	ctx context.Context,
 	content *event.MessageEventContent,
 ) (string, []*proto.Annotation) {
-	parser := &matrixfmt.HTMLParser{}
-	body, annotations := matrixfmt.Parse(ctx, parser, content)
+	body, annotations := matrixfmt.Parse(ctx, mc.matrixFmtParams, content)
 	return body, annotations
 }

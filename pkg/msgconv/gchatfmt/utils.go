@@ -14,5 +14,15 @@ func MakeAnnotation(start, length int32, format proto.FormatMetadata_FormatType)
 			},
 		},
 	}
+}
+
+func MakeAnnotationFromMetadata(typ proto.AnnotationType, start, length int32, metadata proto.MetadataAssociatedValue) *proto.Annotation {
+	return &proto.Annotation{
+		Type:           typ,
+		StartIndex:     start,
+		Length:         length,
+		ChipRenderType: proto.Annotation_DO_NOT_RENDER,
+		Metadata:       metadata,
+	}
 
 }

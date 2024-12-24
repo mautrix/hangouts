@@ -34,7 +34,7 @@ func NewClient(userLogin *bridgev2.UserLogin, client *gchatmeow.Client) *GChatCl
 		userLogin: userLogin,
 		client:    client,
 		users:     map[string]*proto.User{},
-		msgConv:   msgconv.NewMessageConverter(client),
+		msgConv:   msgconv.NewMessageConverter(userLogin.Bridge, client),
 	}
 }
 

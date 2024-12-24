@@ -63,7 +63,13 @@ func (b BodyRange) TruncateEnd(maxEnd int) *BodyRange {
 }
 
 func (b BodyRange) Proto() *proto.Annotation {
-	return gchatfmt.MakeAnnotation(int32(b.Start), int32(b.Length), b.Value.Proto())
+	metadata := b.Value.Proto()
+	typ := proto.AnnotationType_FORMAT_DATA
+	_, ok := metadata.(*proto.Annotation_UserMentionMetadata)
+	if ok {
+		typ = proto.AnnotationType_USER_MENTION
+	}
+	return gchatfmt.MakeAnnotationFromMetadata(typ, int32(b.Start), int32(b.Length), b.Value.Proto())
 }
 
 // LinkedRangeTree is a linked tree of formatting entities.

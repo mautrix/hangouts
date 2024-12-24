@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 
 	"golang.org/x/net/html"
 	"maunium.net/go/mautrix/event"
+	"maunium.net/go/mautrix/id"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow"
 )
@@ -228,7 +230,7 @@ func (ctx Context) WithWhitespace() Context {
 
 // HTMLParser is a somewhat customizable Matrix HTML parser.
 type HTMLParser struct {
-	// GetUUIDFromMXID func(context.Context, id.UserID) uuid.UUID
+	GetUIDFromMXID func(context.Context, id.UserID) string
 }
 
 // TaggedString is a string that also contains a HTML tag.
@@ -344,6 +346,21 @@ func (parser *HTMLParser) linkToString(node *html.Node, ctx Context) *EntityStri
 	href := parser.getAttribute(node, "href")
 	if len(href) == 0 {
 		return str
+	}
+	parsedMatrix, err := id.ParseMatrixURIOrMatrixToURL(href)
+	if err == nil && parsedMatrix != nil && parsedMatrix.Sigil1 == '@' {
+		mxid := parsedMatrix.UserID()
+		if ctx.AllowedMentions != nil && !slices.Contains(ctx.AllowedMentions.UserIDs, mxid) {
+			// Mention not allowed, use name as-is
+			return str
+		}
+		u := parser.GetUIDFromMXID(ctx.Ctx, mxid)
+		if u == "" {
+			return str
+		}
+		return NewEntityString("@" + str.String.String()).Format(Mention{
+			ID: u,
+		})
 	}
 	if str.String.String() == href {
 		return str
