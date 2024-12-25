@@ -135,15 +135,19 @@ func (c *Client) paginatedWorld(ctx context.Context) (*proto.PaginatedWorldRespo
 func (c *Client) CreateTopic(ctx context.Context, request *proto.CreateTopicRequest) (*proto.CreateTopicResponse, error) {
 	request.RequestHeader = c.gcRequestHeader
 	response := &proto.CreateTopicResponse{}
-	err := c.gcRequest(ctx, "create_topic", request, response)
-	return response, err
+	return response, c.gcRequest(ctx, "create_topic", request, response)
 }
 
 func (c *Client) CreateMessage(ctx context.Context, request *proto.CreateMessageRequest) (*proto.CreateMessageResponse, error) {
 	request.RequestHeader = c.gcRequestHeader
 	response := &proto.CreateMessageResponse{}
-	err := c.gcRequest(ctx, "create_message", request, response)
-	return response, err
+	return response, c.gcRequest(ctx, "create_message", request, response)
+}
+
+func (c *Client) EditMessage(ctx context.Context, request *proto.EditMessageRequest) (*proto.EditMessageResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.EditMessageResponse{}
+	return response, c.gcRequest(ctx, "edit_message", request, response)
 }
 
 func (c *Client) GetGroup(ctx context.Context, request *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {

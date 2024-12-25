@@ -13,6 +13,7 @@ import (
 )
 
 var (
+	_ bridgev2.EditHandlingNetworkAPI     = (*GChatClient)(nil)
 	_ bridgev2.ReactionHandlingNetworkAPI = (*GChatClient)(nil)
 )
 
@@ -142,6 +143,44 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 		},
 		RemovePending: networkid.TransactionID(msgID),
 	}, nil
+}
+
+func (c *GChatClient) HandleMatrixEdit(ctx context.Context, msg *bridgev2.MatrixEdit) error {
+	groupId, err := portalToGroupId(msg.Portal)
+	if err != nil {
+		return err
+	}
+
+	text, entities := c.msgConv.ToGChat(ctx, msg.Content)
+	msgId := string(msg.EditTarget.ID)
+	threadId := string(msg.EditTarget.ThreadRoot)
+	topicId := msgId
+	if threadId != "" {
+		topicId = threadId
+	}
+	res, err := c.client.EditMessage(ctx, &proto.EditMessageRequest{
+		MessageId: &proto.MessageId{
+			ParentId: &proto.MessageParentId{
+				Parent: &proto.MessageParentId_TopicId{
+					TopicId: &proto.TopicId{
+						GroupId: groupId,
+						TopicId: topicId,
+					},
+				},
+			},
+			MessageId: msgId,
+		},
+		TextBody:    text,
+		Annotations: entities,
+		MessageInfo: &proto.MessageInfo{
+			AcceptFormatAnnotations: true,
+		},
+	})
+	if err != nil {
+		return err
+	}
+	_ = res
+	return nil
 }
 
 func (c *GChatClient) PreHandleMatrixReaction(_ context.Context, msg *bridgev2.MatrixReaction) (bridgev2.MatrixReactionPreResponse, error) {

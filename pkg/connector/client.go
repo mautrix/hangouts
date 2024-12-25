@@ -48,6 +48,7 @@ func (c *GChatClient) Disconnect() {
 }
 
 var dmCaps = &bridgev2.NetworkRoomCapabilities{
+	Edits:   true,
 	Replies: true,
 }
 
