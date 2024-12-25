@@ -150,6 +150,12 @@ func (c *Client) EditMessage(ctx context.Context, request *proto.EditMessageRequ
 	return response, c.gcRequest(ctx, "edit_message", request, response)
 }
 
+func (c *Client) DeleteMessage(ctx context.Context, request *proto.DeleteMessageRequest) (*proto.DeleteMessageResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.DeleteMessageResponse{}
+	return response, c.gcRequest(ctx, "delete_message", request, response)
+}
+
 func (c *Client) GetGroup(ctx context.Context, request *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
 	request.RequestHeader = c.gcRequestHeader
 	response := &proto.GetGroupResponse{}

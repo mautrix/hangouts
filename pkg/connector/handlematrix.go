@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	_ bridgev2.EditHandlingNetworkAPI     = (*GChatClient)(nil)
-	_ bridgev2.ReactionHandlingNetworkAPI = (*GChatClient)(nil)
+	_ bridgev2.EditHandlingNetworkAPI      = (*GChatClient)(nil)
+	_ bridgev2.ReactionHandlingNetworkAPI  = (*GChatClient)(nil)
+	_ bridgev2.RedactionHandlingNetworkAPI = (*GChatClient)(nil)
 )
 
 func portalToGroupId(portal *bridgev2.Portal) (*proto.GroupId, error) {
@@ -72,17 +73,7 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 			topicId = string(msg.ThreadRoot.ID)
 		}
 		messageInfo.ReplyTo = &proto.SendReplyTarget{
-			Id: &proto.MessageId{
-				ParentId: &proto.MessageParentId{
-					Parent: &proto.MessageParentId_TopicId{
-						TopicId: &proto.TopicId{
-							GroupId: groupId,
-							TopicId: topicId,
-						},
-					},
-				},
-				MessageId: replyToId,
-			},
+			Id:         c.makeMessageId(msg.Portal, topicId, replyToId),
 			CreateTime: msg.ReplyTo.Timestamp.UnixMicro(),
 		}
 	}
@@ -146,11 +137,6 @@ func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.Mat
 }
 
 func (c *GChatClient) HandleMatrixEdit(ctx context.Context, msg *bridgev2.MatrixEdit) error {
-	groupId, err := portalToGroupId(msg.Portal)
-	if err != nil {
-		return err
-	}
-
 	text, entities := c.msgConv.ToGChat(ctx, msg.Content)
 	msgId := string(msg.EditTarget.ID)
 	threadId := string(msg.EditTarget.ThreadRoot)
@@ -158,18 +144,8 @@ func (c *GChatClient) HandleMatrixEdit(ctx context.Context, msg *bridgev2.Matrix
 	if threadId != "" {
 		topicId = threadId
 	}
-	res, err := c.client.EditMessage(ctx, &proto.EditMessageRequest{
-		MessageId: &proto.MessageId{
-			ParentId: &proto.MessageParentId{
-				Parent: &proto.MessageParentId_TopicId{
-					TopicId: &proto.TopicId{
-						GroupId: groupId,
-						TopicId: topicId,
-					},
-				},
-			},
-			MessageId: msgId,
-		},
+	_, err := c.client.EditMessage(ctx, &proto.EditMessageRequest{
+		MessageId:   c.makeMessageId(msg.Portal, topicId, msgId),
 		TextBody:    text,
 		Annotations: entities,
 		MessageInfo: &proto.MessageInfo{
@@ -179,7 +155,22 @@ func (c *GChatClient) HandleMatrixEdit(ctx context.Context, msg *bridgev2.Matrix
 	if err != nil {
 		return err
 	}
-	_ = res
+	return nil
+}
+
+func (c *GChatClient) HandleMatrixMessageRemove(ctx context.Context, msg *bridgev2.MatrixMessageRemove) error {
+	msgId := string(msg.TargetMessage.ID)
+	threadId := string(msg.TargetMessage.ThreadRoot)
+	topicId := msgId
+	if threadId != "" {
+		topicId = threadId
+	}
+	_, err := c.client.DeleteMessage(ctx, &proto.DeleteMessageRequest{
+		MessageId: c.makeMessageId(msg.Portal, topicId, msgId),
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -213,26 +204,11 @@ func (c *GChatClient) HandleMatrixReactionRemove(ctx context.Context, msg *bridg
 }
 
 func (c *GChatClient) doHandleMatrixReaction(ctx context.Context, portal *bridgev2.Portal, topicId, messageId, emoji string, typ proto.UpdateReactionRequest_ReactionUpdateType) error {
-	groupId, err := portalToGroupId(portal)
-	if err != nil {
-		return err
-	}
-
 	if topicId == "" {
 		topicId = messageId
 	}
-	_, err = c.client.UpdateReaction(ctx, &proto.UpdateReactionRequest{
-		MessageId: &proto.MessageId{
-			ParentId: &proto.MessageParentId{
-				Parent: &proto.MessageParentId_TopicId{
-					TopicId: &proto.TopicId{
-						GroupId: groupId,
-						TopicId: topicId,
-					},
-				},
-			},
-			MessageId: messageId,
-		},
+	_, err := c.client.UpdateReaction(ctx, &proto.UpdateReactionRequest{
+		MessageId: c.makeMessageId(portal, topicId, messageId),
 		Emoji: &proto.Emoji{
 			Content: &proto.Emoji_Unicode{
 				Unicode: emoji,

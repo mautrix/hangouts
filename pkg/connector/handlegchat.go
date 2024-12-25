@@ -53,6 +53,13 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 			Data:            msg,
 			ConvertEditFunc: c.ConvertEdit,
 		})
+	case proto.Event_MESSAGE_DELETED:
+		msg := evt.Body.GetMessageDeleted()
+		eventMeta := c.makeEventMeta(evt, bridgev2.RemoteEventMessageRemove, "", msg.Timestamp)
+		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Message[*proto.Message]{
+			EventMeta:     eventMeta,
+			TargetMessage: networkid.MessageID(msg.MessageId.MessageId),
+		})
 	}
 
 	c.setPortalRevision(ctx, evt)

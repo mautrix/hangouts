@@ -13,8 +13,7 @@ import (
 )
 
 const (
-	connectTimeout   = 30 * time.Second
-	requestTimeout   = 30 * time.Second
+	timeout          = 90 * time.Second
 	maxRetries       = 3
 	originURL        = "https://chat.google.com"
 	latestChromeVer  = "114"
@@ -94,7 +93,7 @@ func NewSession(cookies *Cookies, proxyURL string, userAgent string) (*Session, 
 			TLSClientConfig:    nil, // equivalent to ssl=False in Python
 			DisableCompression: true,
 		},
-		Timeout: connectTimeout,
+		Timeout: timeout,
 	}
 
 	return &Session{
