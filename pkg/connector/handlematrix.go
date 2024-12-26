@@ -16,23 +16,17 @@ var (
 	_ bridgev2.EditHandlingNetworkAPI      = (*GChatClient)(nil)
 	_ bridgev2.ReactionHandlingNetworkAPI  = (*GChatClient)(nil)
 	_ bridgev2.RedactionHandlingNetworkAPI = (*GChatClient)(nil)
+	_ bridgev2.TypingHandlingNetworkAPI    = (*GChatClient)(nil)
 )
 
-func portalToGroupId(portal *bridgev2.Portal) (*proto.GroupId, error) {
+func portalToGroupId(portal *bridgev2.Portal) *proto.GroupId {
 	groupId := &proto.GroupId{}
-	err := prototext.Unmarshal([]byte(portal.ID), groupId)
-	if err != nil {
-		return nil, err
-	}
-
-	return groupId, nil
+	prototext.Unmarshal([]byte(portal.ID), groupId)
+	return groupId
 }
 
 func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.MatrixMessage) (message *bridgev2.MatrixMessageResponse, err error) {
-	groupId, err := portalToGroupId(msg.Portal)
-	if err != nil {
-		return nil, err
-	}
+	groupId := portalToGroupId(msg.Portal)
 
 	var plainGroupId string
 	if groupId.GetDmId() != nil {
@@ -217,4 +211,23 @@ func (c *GChatClient) doHandleMatrixReaction(ctx context.Context, portal *bridge
 		Type: typ,
 	})
 	return err
+}
+
+func (c *GChatClient) HandleMatrixTyping(ctx context.Context, msg *bridgev2.MatrixTyping) error {
+	if msg.Type == bridgev2.TypingTypeText {
+		state := proto.TypingState_STOPPED
+		if msg.IsTyping {
+			state = proto.TypingState_TYPING
+		}
+		_, err := c.client.SetTypingState(ctx, &proto.SetTypingStateRequest{
+			Context: &proto.TypingContext{
+				Context: &proto.TypingContext_GroupId{
+					GroupId: portalToGroupId(msg.Portal),
+				},
+			},
+			State: state,
+		})
+		return err
+	}
+	return nil
 }

@@ -174,6 +174,12 @@ func (c *Client) UpdateReaction(ctx context.Context, request *proto.UpdateReacti
 	return response, c.gcRequest(ctx, "update_reaction", request, response)
 }
 
+func (c *Client) SetTypingState(ctx context.Context, request *proto.SetTypingStateRequest) (*proto.SetTypingStateResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.SetTypingStateResponse{}
+	return response, c.gcRequest(ctx, "set_typing_state", request, response)
+}
+
 func (c *Client) UploadFile(ctx context.Context, data []byte, groupId string, fileName string, mimeType string) (*proto.UploadMetadata, error) {
 	headers := http.Header{
 		"x-goog-upload-protocol":       {"resumable"},

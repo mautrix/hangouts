@@ -60,6 +60,11 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 			EventMeta:     eventMeta,
 			TargetMessage: networkid.MessageID(msg.MessageId.MessageId),
 		})
+	case proto.Event_TYPING_STATE_CHANGED:
+		state := evt.Body.GetTypingStateChanged()
+		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Message[*proto.Message]{
+			EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventTyping, state.UserId.Id, state.StartTimestampUsec),
+		})
 	}
 
 	c.setPortalRevision(ctx, evt)
