@@ -180,6 +180,12 @@ func (c *Client) SetTypingState(ctx context.Context, request *proto.SetTypingSta
 	return response, c.gcRequest(ctx, "set_typing_state", request, response)
 }
 
+func (c *Client) MarkGroupReadstate(ctx context.Context, request *proto.MarkGroupReadstateRequest) (*proto.MarkGroupReadstateResponse, error) {
+	request.RequestHeader = c.gcRequestHeader
+	response := &proto.MarkGroupReadstateResponse{}
+	return response, c.gcRequest(ctx, "mark_group_readstate", request, response)
+}
+
 func (c *Client) UploadFile(ctx context.Context, data []byte, groupId string, fileName string, mimeType string) (*proto.UploadMetadata, error) {
 	headers := http.Header{
 		"x-goog-upload-protocol":       {"resumable"},

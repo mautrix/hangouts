@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	_ bridgev2.EditHandlingNetworkAPI      = (*GChatClient)(nil)
-	_ bridgev2.ReactionHandlingNetworkAPI  = (*GChatClient)(nil)
-	_ bridgev2.RedactionHandlingNetworkAPI = (*GChatClient)(nil)
-	_ bridgev2.TypingHandlingNetworkAPI    = (*GChatClient)(nil)
+	_ bridgev2.EditHandlingNetworkAPI        = (*GChatClient)(nil)
+	_ bridgev2.ReactionHandlingNetworkAPI    = (*GChatClient)(nil)
+	_ bridgev2.ReadReceiptHandlingNetworkAPI = (*GChatClient)(nil)
+	_ bridgev2.RedactionHandlingNetworkAPI   = (*GChatClient)(nil)
+	_ bridgev2.TypingHandlingNetworkAPI      = (*GChatClient)(nil)
 )
 
 func portalToGroupId(portal *bridgev2.Portal) *proto.GroupId {
@@ -230,4 +231,12 @@ func (c *GChatClient) HandleMatrixTyping(ctx context.Context, msg *bridgev2.Matr
 		return err
 	}
 	return nil
+}
+
+func (c *GChatClient) HandleMatrixReadReceipt(ctx context.Context, msg *bridgev2.MatrixReadReceipt) error {
+	_, err := c.client.MarkGroupReadstate(ctx, &proto.MarkGroupReadstateRequest{
+		Id:           portalToGroupId(msg.Portal),
+		LastReadTime: msg.ReadUpTo.UnixMicro(),
+	})
+	return err
 }

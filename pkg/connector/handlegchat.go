@@ -62,9 +62,18 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 		})
 	case proto.Event_TYPING_STATE_CHANGED:
 		state := evt.Body.GetTypingStateChanged()
-		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Message[*proto.Message]{
+		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Typing{
 			EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventTyping, state.UserId.Id, state.StartTimestampUsec),
 		})
+	case proto.Event_READ_RECEIPT_CHANGED:
+		receipts := evt.Body.GetReadReceiptChanged().ReadReceiptSet.ReadReceipts
+		for _, receipt := range receipts {
+			c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Receipt{
+				EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventReadReceipt, receipt.User.UserId.Id, receipt.ReadTimeMicros),
+				ReadUpTo:  time.UnixMicro(receipt.ReadTimeMicros),
+			},
+			)
+		}
 	}
 
 	c.setPortalRevision(ctx, evt)
