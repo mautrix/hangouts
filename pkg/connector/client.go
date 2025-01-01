@@ -129,13 +129,15 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 		var gcMembers []*proto.UserId
 		roomType := database.RoomTypeGroupDM
 		isDm := false
+		var dmUser *proto.User
 		if item.DmMembers != nil {
 			roomType = database.RoomTypeDM
 			gcMembers = item.DmMembers.Members
 			isDm = true
 			for _, member := range item.DmMembers.Members {
 				if member.Id != string(c.userLogin.ID) {
-					name = c.users[member.Id].Name
+					dmUser = c.users[member.Id]
+					name = dmUser.Name
 					break
 				}
 			}
@@ -157,6 +159,18 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 
 		}
 
+		chatInfo := &bridgev2.ChatInfo{
+			Name:    &name,
+			Members: c.gcMembersToMatrix(isDm, gcMembers),
+			Type:    &roomType,
+		}
+
+		if dmUser != nil {
+			chatInfo.Avatar = c.makeAvatar(dmUser.AvatarUrl)
+		} else if item.AvatarUrl != "" {
+			chatInfo.Avatar = c.makeAvatar(item.AvatarUrl)
+		}
+
 		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.ChatResync{
 			EventMeta: simplevent.EventMeta{
 				Type: bridgev2.RemoteEventChatResync,
@@ -166,11 +180,7 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 				},
 				CreatePortal: true,
 			},
-			ChatInfo: &bridgev2.ChatInfo{
-				Name:    &name,
-				Members: c.gcMembersToMatrix(isDm, gcMembers),
-				Type:    &roomType,
-			},
+			ChatInfo: chatInfo,
 		})
 
 		c.backfillPortal(ctx, item)
