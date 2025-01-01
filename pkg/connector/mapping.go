@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"go.mau.fi/util/ptr"
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 
@@ -34,13 +35,16 @@ func (c *GChatClient) gcMembersToMatrix(isDm bool, gcMembers []*proto.UserId) *b
 		userId := networkid.UserID(gcMember.Id)
 		if isDm && gcMember.Id != string(c.userLogin.ID) {
 			otherUserId = gcMember.Id
-
 		}
+		isMe := gcMember.Id == string(c.userLogin.ID)
 		member := bridgev2.ChatMember{
 			EventSender: bridgev2.EventSender{
-				IsFromMe: gcMember.Id == string(c.userLogin.ID),
+				IsFromMe: isMe,
 				Sender:   userId,
 			},
+		}
+		if isMe {
+			member.PowerLevel = ptr.Ptr(50)
 		}
 		user := c.users[gcMember.Id]
 		if user != nil {
@@ -53,6 +57,7 @@ func (c *GChatClient) gcMembersToMatrix(isDm bool, gcMembers []*proto.UserId) *b
 	}
 
 	return &bridgev2.ChatMemberList{
+		IsFull:      true,
 		MemberMap:   memberMap,
 		OtherUserID: networkid.UserID(otherUserId),
 	}

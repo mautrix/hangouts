@@ -10,6 +10,7 @@ import (
 	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 	"maunium.net/go/mautrix/bridgev2/simplevent"
+	"maunium.net/go/mautrix/event"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
@@ -37,12 +38,14 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 	switch evt.Type {
 	case proto.Event_MESSAGE_POSTED:
 		msg := evt.Body.GetMessagePosted().Message
-		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Message[*proto.Message]{
-			EventMeta:          c.makeEventMeta(evt, bridgev2.RemoteEventMessage, msg.Creator.UserId.Id, msg.CreateTime),
-			ID:                 networkid.MessageID(msg.Id.MessageId),
-			Data:               msg,
-			ConvertMessageFunc: c.msgConv.ToMatrix,
-		})
+		if msg.MessageType != proto.Message_SYSTEM_MESSAGE {
+			c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Message[*proto.Message]{
+				EventMeta:          c.makeEventMeta(evt, bridgev2.RemoteEventMessage, msg.Creator.UserId.Id, msg.CreateTime),
+				ID:                 networkid.MessageID(msg.Id.MessageId),
+				Data:               msg,
+				ConvertMessageFunc: c.msgConv.ToMatrix,
+			})
+		}
 	case proto.Event_MESSAGE_UPDATED:
 		msg := evt.Body.GetMessagePosted().Message
 		eventMeta := c.makeEventMeta(evt, bridgev2.RemoteEventEdit, msg.Creator.UserId.Id, msg.LastEditTime)
@@ -71,9 +74,12 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 			c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Receipt{
 				EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventReadReceipt, receipt.User.UserId.Id, receipt.ReadTimeMicros),
 				ReadUpTo:  time.UnixMicro(receipt.ReadTimeMicros),
-			},
-			)
+			})
 		}
+	case proto.Event_GROUP_UPDATED:
+		c.handleGroupUpdated(ctx, evt)
+	case proto.Event_MEMBERSHIP_CHANGED:
+		c.handleMembershipChanged(ctx, evt)
 	}
 
 	c.setPortalRevision(ctx, evt)
@@ -110,6 +116,50 @@ func (c *GChatClient) handleReaction(ctx context.Context, evt *proto.Event) {
 		EmojiID:       networkid.EmojiID(reaction.Emoji.GetUnicode()),
 		Emoji:         reaction.Emoji.GetUnicode(),
 		TargetMessage: networkid.MessageID(messageId),
+	})
+}
+
+func (c *GChatClient) handleGroupUpdated(ctx context.Context, evt *proto.Event) {
+	new := evt.Body.GetGroupUpdated().New
+	if new == nil || (new.Name == "" && new.AvatarUrl == "") {
+		return
+	}
+	c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.ChatInfoChange{
+		EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventChatInfoChange, "", evt.GetGroupRevision().Timestamp),
+		ChatInfoChange: &bridgev2.ChatInfoChange{
+			ChatInfo: &bridgev2.ChatInfo{
+				Name:   &new.Name,
+				Avatar: c.makeAvatar(new.AvatarUrl),
+			},
+		},
+	})
+}
+
+func (c *GChatClient) handleMembershipChanged(ctx context.Context, evt *proto.Event) {
+	userId := evt.Body.GetMembershipChanged().NewMembership.Id.MemberId.GetUserId().Id
+	member := bridgev2.ChatMember{
+		EventSender: bridgev2.EventSender{
+			IsFromMe: userId == string(c.userLogin.ID),
+			Sender:   networkid.UserID(userId),
+		},
+	}
+	switch evt.Body.GetMembershipChanged().NewMembership.MembershipState {
+	case proto.MembershipState_MEMBER_JOINED:
+		member.Membership = event.MembershipJoin
+	case proto.MembershipState_MEMBER_NOT_A_MEMBER:
+		member.Membership = event.MembershipLeave
+	case proto.MembershipState_MEMBER_INVITED:
+		member.Membership = event.MembershipInvite
+	}
+	memberMap := map[networkid.UserID]bridgev2.ChatMember{}
+	memberMap[networkid.UserID(userId)] = member
+	c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.ChatInfoChange{
+		EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventChatInfoChange, "", evt.GetGroupRevision().Timestamp),
+		ChatInfoChange: &bridgev2.ChatInfoChange{
+			MemberChanges: &bridgev2.ChatMemberList{
+				MemberMap: memberMap,
+			},
+		},
 	})
 }
 
