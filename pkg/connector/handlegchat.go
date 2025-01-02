@@ -24,7 +24,8 @@ func (c *GChatClient) makeEventMeta(evt *proto.Event, typ bridgev2.RemoteEventTy
 			SenderLogin: networkid.UserLoginID(senderId),
 			Sender:      networkid.UserID(senderId),
 		},
-		Timestamp: time.UnixMicro(ts),
+		CreatePortal: typ == bridgev2.RemoteEventMessage,
+		Timestamp:    time.UnixMicro(ts),
 	}
 }
 
@@ -153,8 +154,12 @@ func (c *GChatClient) handleMembershipChanged(ctx context.Context, evt *proto.Ev
 	}
 	memberMap := map[networkid.UserID]bridgev2.ChatMember{}
 	memberMap[networkid.UserID(userId)] = member
+	ts := time.Now().UnixMicro()
+	if evt.GetGroupRevision() != nil {
+		ts = evt.GetGroupRevision().Timestamp
+	}
 	c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.ChatInfoChange{
-		EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventChatInfoChange, "", evt.GetGroupRevision().Timestamp),
+		EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventChatInfoChange, "", ts),
 		ChatInfoChange: &bridgev2.ChatInfoChange{
 			MemberChanges: &bridgev2.ChatMemberList{
 				MemberMap: memberMap,

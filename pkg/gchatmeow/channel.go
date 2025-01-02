@@ -128,12 +128,12 @@ func (c *Channel) Listen(ctx context.Context, maxAge time.Duration) error {
 	}
 	c.csessionidParam = csessionidParam
 
-	start := time.Now()
+	// start := time.Now()
 
 	for retries <= c.maxRetries {
-		if time.Since(start) > maxAge {
-			return ErrChannelLifetime
-		}
+		// if time.Since(start) > maxAge {
+		// 	return ErrChannelLifetime
+		// }
 
 		if retries > 0 && !skipBackoff {
 			backoffTime := time.Duration(pow(c.retryBackoffBase, retries)) * time.Second

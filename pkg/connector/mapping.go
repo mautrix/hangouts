@@ -6,11 +6,19 @@ import (
 	"net/http"
 
 	"go.mau.fi/util/ptr"
+	"google.golang.org/protobuf/encoding/prototext"
 	"maunium.net/go/mautrix/bridgev2"
+	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
 
 	"go.mau.fi/mautrix-googlechat/pkg/gchatmeow/proto"
 )
+
+func portalToGroupId(portal *bridgev2.Portal) *proto.GroupId {
+	groupId := &proto.GroupId{}
+	prototext.Unmarshal([]byte(portal.ID), groupId)
+	return groupId
+}
 
 func (c *GChatClient) makeAvatar(avatarURL string) *bridgev2.Avatar {
 	return &bridgev2.Avatar{
@@ -68,4 +76,31 @@ func (c *GChatClient) gcMembersToMatrix(isDm bool, gcMembers []*proto.UserId) *b
 		MemberMap:   memberMap,
 		OtherUserID: networkid.UserID(otherUserId),
 	}
+}
+
+func (c *GChatClient) groupToChatInfo(ctx context.Context, groupId *proto.GroupId) (*bridgev2.ChatInfo, error) {
+	group, err := c.client.GetGroup(ctx, &proto.GetGroupRequest{
+		GroupId: groupId,
+		FetchOptions: []proto.GetGroupRequest_FetchOptions{
+			proto.GetGroupRequest_MEMBERS,
+		},
+	})
+	if err != nil {
+		return &bridgev2.ChatInfo{}, err
+	}
+	isDm := group.Group.GroupType == proto.Group_HUMAN_DM || group.Group.GroupType == proto.Group_BOT_DM
+	roomType := database.RoomTypeGroupDM
+	if isDm {
+		roomType = database.RoomTypeDM
+	}
+	gcMembers := make([]*proto.UserId, len(group.Memberships))
+	for i, membership := range group.Memberships {
+		gcMembers[i] = membership.Id.MemberId.GetUserId()
+	}
+	return &bridgev2.ChatInfo{
+		Name:    &group.Group.Name,
+		Members: c.gcMembersToMatrix(isDm, gcMembers),
+		Type:    &roomType,
+		Avatar:  c.makeAvatar(group.Group.AvatarUrl),
+	}, nil
 }

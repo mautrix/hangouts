@@ -67,7 +67,8 @@ func (c *GChatClient) GetCapabilities(ctx context.Context, portal *bridgev2.Port
 }
 
 func (c *GChatClient) GetChatInfo(ctx context.Context, portal *bridgev2.Portal) (*bridgev2.ChatInfo, error) {
-	return nil, nil
+	groupId := portalToGroupId(portal)
+	return c.groupToChatInfo(ctx, groupId)
 }
 
 func (c *GChatClient) GetUserInfo(ctx context.Context, ghost *bridgev2.Ghost) (*bridgev2.UserInfo, error) {
@@ -142,50 +143,27 @@ func (c *GChatClient) onConnect(ctx context.Context) {
 	}
 
 	for _, item := range res.WorldItems {
-		name := item.RoomName
-		var gcMembers []*proto.UserId
-		roomType := database.RoomTypeGroupDM
-		isDm := false
-		var dmUser *proto.User
+		var chatInfo *bridgev2.ChatInfo
 		if item.DmMembers != nil {
-			roomType = database.RoomTypeDM
-			gcMembers = item.DmMembers.Members
-			isDm = true
+			var dmUser *proto.User
 			for _, member := range item.DmMembers.Members {
 				if member.Id != string(c.userLogin.ID) {
 					dmUser = c.users[member.Id]
-					name = dmUser.Name
 					break
 				}
 			}
+			chatInfo = &bridgev2.ChatInfo{
+				Name:    &dmUser.Name,
+				Members: c.gcMembersToMatrix(true, item.DmMembers.Members),
+				Type:    ptr.Ptr(database.RoomTypeDM),
+				Avatar:  c.makeAvatar(dmUser.AvatarUrl),
+			}
 		} else {
-			group, err := c.client.GetGroup(ctx, &proto.GetGroupRequest{
-				GroupId: item.GroupId,
-				FetchOptions: []proto.GetGroupRequest_FetchOptions{
-					proto.GetGroupRequest_MEMBERS,
-				},
-			})
+			chatInfo, err = c.groupToChatInfo(ctx, item.GroupId)
 			if err != nil {
 				fmt.Println(err)
 				continue
 			}
-			gcMembers = make([]*proto.UserId, len(group.Memberships))
-			for i, membership := range group.Memberships {
-				gcMembers[i] = membership.Id.MemberId.GetUserId()
-			}
-
-		}
-
-		chatInfo := &bridgev2.ChatInfo{
-			Name:    &name,
-			Members: c.gcMembersToMatrix(isDm, gcMembers),
-			Type:    &roomType,
-		}
-
-		if dmUser != nil {
-			chatInfo.Avatar = c.makeAvatar(dmUser.AvatarUrl)
-		} else if item.AvatarUrl != "" {
-			chatInfo.Avatar = c.makeAvatar(item.AvatarUrl)
 		}
 
 		c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.ChatResync{

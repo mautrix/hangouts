@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"google.golang.org/protobuf/encoding/prototext"
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
@@ -19,12 +18,6 @@ var (
 	_ bridgev2.RedactionHandlingNetworkAPI   = (*GChatClient)(nil)
 	_ bridgev2.TypingHandlingNetworkAPI      = (*GChatClient)(nil)
 )
-
-func portalToGroupId(portal *bridgev2.Portal) *proto.GroupId {
-	groupId := &proto.GroupId{}
-	prototext.Unmarshal([]byte(portal.ID), groupId)
-	return groupId
-}
 
 func (c *GChatClient) HandleMatrixMessage(ctx context.Context, msg *bridgev2.MatrixMessage) (message *bridgev2.MatrixMessageResponse, err error) {
 	groupId := portalToGroupId(msg.Portal)
