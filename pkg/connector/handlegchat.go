@@ -148,8 +148,8 @@ func (c *GChatClient) handleMembershipChanged(ctx context.Context, evt *proto.Ev
 		member.Membership = event.MembershipJoin
 	case proto.MembershipState_MEMBER_NOT_A_MEMBER:
 		member.Membership = event.MembershipLeave
-	case proto.MembershipState_MEMBER_INVITED:
-		member.Membership = event.MembershipInvite
+		// case proto.MembershipState_MEMBER_INVITED:
+		// 	member.Membership = event.MembershipInvite
 	}
 	memberMap := map[networkid.UserID]bridgev2.ChatMember{}
 	memberMap[networkid.UserID(userId)] = member

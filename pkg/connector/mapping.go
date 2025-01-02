@@ -28,6 +28,16 @@ func (c *GChatClient) makeAvatar(avatarURL string) *bridgev2.Avatar {
 	}
 }
 
+func (c *GChatClient) makeUserInfo(user *proto.User) *bridgev2.UserInfo {
+	if user == nil {
+		return nil
+	}
+	return &bridgev2.UserInfo{
+		Name:   &user.Name,
+		Avatar: c.makeAvatar(user.AvatarUrl),
+	}
+}
+
 func (c *GChatClient) gcMembersToMatrix(isDm bool, gcMembers []*proto.UserId) *bridgev2.ChatMemberList {
 	var otherUserId string
 	memberMap := map[networkid.UserID]bridgev2.ChatMember{}
@@ -48,10 +58,7 @@ func (c *GChatClient) gcMembersToMatrix(isDm bool, gcMembers []*proto.UserId) *b
 		}
 		user := c.users[gcMember.Id]
 		if user != nil {
-			member.UserInfo = &bridgev2.UserInfo{
-				Name:   &user.Name,
-				Avatar: c.makeAvatar(user.AvatarUrl),
-			}
+			member.UserInfo = c.makeUserInfo(user)
 		}
 		memberMap[userId] = member
 	}

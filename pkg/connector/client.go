@@ -71,7 +71,8 @@ func (c *GChatClient) GetChatInfo(ctx context.Context, portal *bridgev2.Portal) 
 }
 
 func (c *GChatClient) GetUserInfo(ctx context.Context, ghost *bridgev2.Ghost) (*bridgev2.UserInfo, error) {
-	return nil, nil
+	user, err := c.getUser(ctx, string(ghost.ID))
+	return c.makeUserInfo(user), err
 }
 
 func (c *GChatClient) IsLoggedIn() bool {
@@ -85,8 +86,24 @@ func (c *GChatClient) IsThisUser(ctx context.Context, userID networkid.UserID) b
 func (c *GChatClient) LogoutRemote(ctx context.Context) {
 }
 
+func (c *GChatClient) getUser(ctx context.Context, userId string) (*proto.User, error) {
+	if c.users[userId] == nil {
+		err := c.getUsers(ctx, []string{userId})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return c.users[userId], nil
+}
+
 func (c *GChatClient) getUsers(ctx context.Context, userIds []string) error {
-	res, err := c.client.GetMembers(ctx, userIds)
+	idsToFetch := make([]string, 0)
+	for _, id := range userIds {
+		if c.users[id] == nil {
+			idsToFetch = append(idsToFetch, id)
+		}
+	}
+	res, err := c.client.GetMembers(ctx, idsToFetch)
 	if err != nil {
 		return err
 	}
