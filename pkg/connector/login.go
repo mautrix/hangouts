@@ -51,12 +51,23 @@ type UserLoginMetadata struct {
 var _ bridgev2.LoginProcessCookies = (*GChatCookieLogin)(nil)
 
 func (gl *GChatCookieLogin) Start(ctx context.Context) (*bridgev2.LoginStep, error) {
+	fields := make([]bridgev2.LoginCookieField, 5)
+	for i, key := range gchatmeow.CookieNames {
+		fields[i] = bridgev2.LoginCookieField{
+			ID:       key,
+			Required: true,
+			Sources: []bridgev2.LoginCookieFieldSource{
+				{Type: bridgev2.LoginCookieTypeCookie, Name: key},
+			},
+		}
+	}
 	step := &bridgev2.LoginStep{
 		Type:         bridgev2.LoginStepTypeCookies,
 		StepID:       LoginStepIDCookies,
 		Instructions: "Enter a JSON object with your cookies, or a cURL command copied from browser devtools.",
 		CookiesParams: &bridgev2.LoginCookiesParams{
-			URL: "https://chat.google.com/",
+			URL:    "https://chat.google.com/",
+			Fields: fields,
 		},
 	}
 	return step, nil

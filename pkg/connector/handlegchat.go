@@ -70,12 +70,15 @@ func (c *GChatClient) onStreamEvent(ctx context.Context, raw any) {
 			EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventTyping, state.UserId.Id, state.StartTimestampUsec),
 		})
 	case proto.Event_READ_RECEIPT_CHANGED:
-		receipts := evt.Body.GetReadReceiptChanged().ReadReceiptSet.ReadReceipts
-		for _, receipt := range receipts {
-			c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Receipt{
-				EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventReadReceipt, receipt.User.UserId.Id, receipt.ReadTimeMicros),
-				ReadUpTo:  time.UnixMicro(receipt.ReadTimeMicros),
-			})
+		changed := evt.Body.GetReadReceiptChanged()
+		if changed != nil {
+			receipts := changed.ReadReceiptSet.ReadReceipts
+			for _, receipt := range receipts {
+				c.userLogin.Bridge.QueueRemoteEvent(c.userLogin, &simplevent.Receipt{
+					EventMeta: c.makeEventMeta(evt, bridgev2.RemoteEventReadReceipt, receipt.User.UserId.Id, receipt.ReadTimeMicros),
+					ReadUpTo:  time.UnixMicro(receipt.ReadTimeMicros),
+				})
+			}
 		}
 	case proto.Event_GROUP_UPDATED:
 		c.handleGroupUpdated(ctx, evt)

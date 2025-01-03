@@ -57,7 +57,7 @@ func (mc *MessageConverter) ToMatrix(ctx context.Context, portal *bridgev2.Porta
 		}
 	}
 
-	// cm.MergeCaption()
+	cm.MergeCaption()
 
 	return cm, nil
 }

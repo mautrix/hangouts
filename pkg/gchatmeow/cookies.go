@@ -13,12 +13,12 @@ type Cookies struct {
 }
 
 var (
-	cookies = []string{"COMPASS", "SSID", "SID", "OSID", "HSID"}
+	CookieNames = []string{"COMPASS", "SSID", "SID", "OSID", "HSID"}
 )
 
 func (c *Cookies) UpdateValues(values map[string]string) {
 	r := reflect.ValueOf(c)
-	for _, key := range cookies {
+	for _, key := range CookieNames {
 		field := reflect.Indirect(r).FieldByName(key)
 		field.SetString(values[key])
 	}

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"maunium.net/go/mautrix/bridge/status"
 	"maunium.net/go/mautrix/bridgev2"
 	"maunium.net/go/mautrix/bridgev2/database"
 	"maunium.net/go/mautrix/bridgev2/networkid"
@@ -41,7 +42,16 @@ func NewClient(userLogin *bridgev2.UserLogin, client *gchatmeow.Client) *GChatCl
 func (c *GChatClient) Connect(ctx context.Context) error {
 	c.client.OnConnect.AddObserver(func(interface{}) { c.onConnect(ctx) })
 	c.client.OnStreamEvent.AddObserver(func(evt interface{}) { c.onStreamEvent(ctx, evt) })
-	return c.client.Connect(ctx, time.Duration(90)*time.Minute)
+
+	err := c.client.Connect(ctx, time.Duration(90)*time.Minute)
+	if err != nil {
+		c.userLogin.BridgeState.Send(status.BridgeState{
+			StateEvent: status.StateBadCredentials,
+			Error:      "googlechat-invalid-credentials",
+			Message:    err.Error(),
+		})
+	}
+	return err
 }
 
 func (c *GChatClient) Disconnect() {
