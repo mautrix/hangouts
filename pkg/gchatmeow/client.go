@@ -113,7 +113,8 @@ func (c *Client) Connect(ctx context.Context, maxAge time.Duration) error {
 	})
 	c.channel.OnReceiveArray.AddObserver(c.onReceiveArray)
 
-	return c.channel.Listen(ctx, maxAge)
+	go c.channel.Listen(ctx, maxAge)
+	return nil
 }
 
 func (c *Client) RefreshTokens(ctx context.Context) error {
